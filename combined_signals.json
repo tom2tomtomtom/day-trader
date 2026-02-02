@@ -1,0 +1,1109 @@
+{
+  "timestamp": "2026-02-02T10:00:59.788819+00:00",
+  "market_context": {
+    "fear_greed": 14,
+    "fear_greed_label": "Extreme Fear",
+    "vix": 19.079999923706055,
+    "vix_regime": "Normal"
+  },
+  "signals": [
+    {
+      "symbol": "SPY",
+      "price": 691.969970703125,
+      "timestamp": "2026-02-02T10:01:00.043496+00:00",
+      "signal_score": 0.216,
+      "action": "BUY",
+      "position_size": 2,
+      "reasons": [
+        "BB squeeze (breakout pending)",
+        "Trend: up",
+        "Volume confirms (1.3x)",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 699.4408358570355,
+          "middle": 690.4944915771484,
+          "lower": 681.5481472972614,
+          "position": 0.5824626841878697,
+          "width": 2.5912862127119487
+        },
+        "rsi": {
+          "value": 47.60597327306809,
+          "oversold_threshold": 40,
+          "overbought_threshold": 80,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.2715187512535513,
+          "volume_trend": 0.9407051628507679,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "up",
+          "strength": 0.6,
+          "sma_10": 690.2499877929688,
+          "sma_20": 690.4944915771484,
+          "sma_50": 682.9274499511719,
+          "above_sma_50": true
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "QQQ",
+      "price": 621.8699951171875,
+      "timestamp": "2026-02-02T10:01:00.265262+00:00",
+      "signal_score": 0.0,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "BB squeeze (breakout pending)",
+        "Volume confirms (1.2x)",
+        "Fear override: reduce short bias"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 634.4615390572332,
+          "middle": 622.5299987792969,
+          "lower": 610.5984585013606,
+          "position": 0.4723420595021646,
+          "width": 3.833241868289891
+        },
+        "rsi": {
+          "value": 46.05607984932569,
+          "oversold_threshold": 40,
+          "overbought_threshold": 80,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.2070982600299929,
+          "volume_trend": 0.9993612734498855,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "sideways",
+          "strength": 0,
+          "sma_10": 623.0190002441407,
+          "sma_20": 622.5299987792969,
+          "sma_50": 617.4362524414063,
+          "above_sma_50": true
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "IWM",
+      "price": 259.6499938964844,
+      "timestamp": "2026-02-02T10:01:00.486446+00:00",
+      "signal_score": 0.0,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "BB squeeze (breakout pending)",
+        "Volume confirms (1.5x)",
+        "Fear override: reduce short bias"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 271.7096474475036,
+          "middle": 261.4440002441406,
+          "lower": 251.17835304077764,
+          "position": 0.4126208843866888,
+          "width": 7.853037127474141
+        },
+        "rsi": {
+          "value": 48.964257454447164,
+          "oversold_threshold": 40,
+          "overbought_threshold": 80,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.5212735360107479,
+          "volume_trend": 1.0257078899805103,
+          "is_surge": true,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "sideways",
+          "strength": 0,
+          "sma_10": 264.5760009765625,
+          "sma_20": 261.4440002441406,
+          "sma_50": 252.80201354980468,
+          "above_sma_50": true
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "AAPL",
+      "price": 259.4800109863281,
+      "timestamp": "2026-02-02T10:01:00.721989+00:00",
+      "signal_score": 0.0,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "BB squeeze (breakout pending)",
+        "Volume confirms (1.8x)",
+        "Fear override: reduce short bias"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 270.15566169451836,
+          "middle": 257.64949798583984,
+          "lower": 245.14333427716133,
+          "position": 0.5731844330175374,
+          "width": 9.707889055825632
+        },
+        "rsi": {
+          "value": 50.16623735466336,
+          "oversold_threshold": 20,
+          "overbought_threshold": 60,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.7761370635328555,
+          "volume_trend": 1.1789721677445473,
+          "is_surge": true,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "sideways",
+          "strength": 0,
+          "sma_10": 253.41499938964844,
+          "sma_20": 257.64949798583984,
+          "sma_50": 268.2951983642578,
+          "above_sma_50": false
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "MSFT",
+      "price": 430.2900085449219,
+      "timestamp": "2026-02-02T10:01:00.937186+00:00",
+      "signal_score": 0.18,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "BB oversold",
+        "Trend: strong_down",
+        "Volume confirms (1.7x)",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 496.8857829281087,
+          "middle": 465.04550018310545,
+          "lower": 433.2052174381022,
+          "position": -0.045778627604018275,
+          "width": 13.693405368922646
+        },
+        "rsi": {
+          "value": 31.219814082121147,
+          "oversold_threshold": 20,
+          "overbought_threshold": 60,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.7097453061277004,
+          "volume_trend": 1.6533343314333369,
+          "is_surge": true,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "strong_down",
+          "strength": -1.0,
+          "sma_10": 457.1859985351563,
+          "sma_20": 465.04550018310545,
+          "sma_50": 476.08075134277345,
+          "above_sma_50": false
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "GOOGL",
+      "price": 338.0,
+      "timestamp": "2026-02-02T10:01:01.123065+00:00",
+      "signal_score": 0.075,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "BB squeeze (breakout pending)",
+        "Bearish RSI divergence",
+        "Trend: strong_up",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 343.80921100125033,
+          "middle": 328.8695007324219,
+          "lower": 313.92979046359346,
+          "position": 0.805578190717286,
+          "width": 9.085494541486126
+        },
+        "rsi": {
+          "value": 60.94219865238311,
+          "oversold_threshold": 40,
+          "overbought_threshold": 80,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "bearish"
+        },
+        "volume": {
+          "relative_volume": 0.9968901583462703,
+          "volume_trend": 0.938817256218356,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": false
+        },
+        "trend": {
+          "trend": "strong_up",
+          "strength": 1.0,
+          "sma_10": 331.8920013427734,
+          "sma_20": 328.8695007324219,
+          "sma_50": 317.9664147949219,
+          "above_sma_50": true
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "AMZN",
+      "price": 239.3000030517578,
+      "timestamp": "2026-02-02T10:01:01.305470+00:00",
+      "signal_score": -0.015,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "BB squeeze (breakout pending)",
+        "Bearish RSI divergence",
+        "Trend: up",
+        "Fear override: reduce short bias"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 250.33389175782796,
+          "middle": 239.08449783325196,
+          "lower": 227.83510390867596,
+          "position": 0.5095785257388422,
+          "width": 9.410391745617751
+        },
+        "rsi": {
+          "value": 40.348779606734425,
+          "oversold_threshold": 40,
+          "overbought_threshold": 80,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "bearish"
+        },
+        "volume": {
+          "relative_volume": 1.105339741485501,
+          "volume_trend": 0.9762459103849974,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": false
+        },
+        "trend": {
+          "trend": "up",
+          "strength": 0.6,
+          "sma_10": 238.20699768066407,
+          "sma_20": 239.08449783325196,
+          "sma_50": 232.53679962158202,
+          "above_sma_50": true
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "NVDA",
+      "price": 191.1300048828125,
+      "timestamp": "2026-02-02T10:01:01.509535+00:00",
+      "signal_score": 0.3,
+      "action": "BUY",
+      "position_size": 3,
+      "reasons": [
+        "BB squeeze (breakout pending)",
+        "Trend: strong_up",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 193.30838614902902,
+          "middle": 186.72200088500978,
+          "lower": 180.13561562099054,
+          "position": 0.8346299845139036,
+          "width": 7.054750091367517
+        },
+        "rsi": {
+          "value": 59.0267931950917,
+          "oversold_threshold": 40,
+          "overbought_threshold": 80,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.0872084615861342,
+          "volume_trend": 0.93297785079698,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": false
+        },
+        "trend": {
+          "trend": "strong_up",
+          "strength": 1.0,
+          "sma_10": 187.0280014038086,
+          "sma_20": 186.72200088500978,
+          "sma_50": 183.81498931884767,
+          "above_sma_50": true
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "TSLA",
+      "price": 430.4100036621094,
+      "timestamp": "2026-02-02T10:01:01.694077+00:00",
+      "signal_score": -0.03,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "BB squeeze (breakout pending)",
+        "Bullish RSI divergence",
+        "Trend: strong_down",
+        "Volume confirms (1.3x)",
+        "Fear override: reduce short bias"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 456.25246071949385,
+          "middle": 436.99950103759767,
+          "lower": 417.7465413557015,
+          "position": 0.32887053511869957,
+          "width": 8.811433256185682
+        },
+        "rsi": {
+          "value": 43.45525687008354,
+          "oversold_threshold": 20,
+          "overbought_threshold": 60,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "bullish"
+        },
+        "volume": {
+          "relative_volume": 1.29398037843,
+          "volume_trend": 0.9605886078803959,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "strong_down",
+          "strength": -1.0,
+          "sma_10": 433.11399841308594,
+          "sma_20": 436.99950103759767,
+          "sma_50": 443.57740112304685,
+          "above_sma_50": false
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "META",
+      "price": 716.5,
+      "timestamp": "2026-02-02T10:01:01.884809+00:00",
+      "signal_score": -0.06,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "BB overbought",
+        "Trend: strong_up",
+        "Volume confirms (1.3x)",
+        "Fear override: reduce short bias"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 717.9076247086148,
+          "middle": 651.9799957275391,
+          "lower": 586.0523667464633,
+          "position": 0.9893244704051254,
+          "width": 20.223819569036813
+        },
+        "rsi": {
+          "value": 64.16198438722431,
+          "oversold_threshold": 40,
+          "overbought_threshold": 80,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.3001682353825283,
+          "volume_trend": 1.5237166909575812,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "strong_up",
+          "strength": 1.0,
+          "sma_10": 661.2589965820313,
+          "sma_20": 651.9799957275391,
+          "sma_50": 647.7052185058594,
+          "above_sma_50": true
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "AMD",
+      "price": 236.72999572753906,
+      "timestamp": "2026-02-02T10:01:02.071782+00:00",
+      "signal_score": 0.405,
+      "action": "STRONG_BUY",
+      "position_size": 4,
+      "reasons": [
+        "Bullish RSI divergence",
+        "Trend: up",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 268.57057314066805,
+          "middle": 231.44499969482422,
+          "lower": 194.31942624898036,
+          "position": 0.5711772983173476,
+          "width": 32.08155155202869
+        },
+        "rsi": {
+          "value": 70.3838645363679,
+          "oversold_threshold": 40,
+          "overbought_threshold": 80,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "bullish"
+        },
+        "volume": {
+          "relative_volume": 1.0517846923155612,
+          "volume_trend": 0.8165507951092359,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": false
+        },
+        "trend": {
+          "trend": "up",
+          "strength": 0.6,
+          "sma_10": 247.19499816894532,
+          "sma_20": 231.44499969482422,
+          "sma_50": 221.2547994995117,
+          "above_sma_50": true
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "BTC-USD",
+      "price": 77648.125,
+      "timestamp": "2026-02-02T10:01:02.254656+00:00",
+      "signal_score": 0.63,
+      "action": "STRONG_BUY",
+      "position_size": 5,
+      "reasons": [
+        "BB oversold",
+        "RSI oversold (19)",
+        "Trend: strong_down",
+        "Volume confirms (1.6x)",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 100176.92037182885,
+          "middle": 88505.946875,
+          "lower": 76834.97337817114,
+          "position": 0.034836495089711365,
+          "width": 26.37330915924141
+        },
+        "rsi": {
+          "value": 18.76927468895316,
+          "oversold_threshold": 20,
+          "overbought_threshold": 60,
+          "is_oversold": true,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.5901474179597341,
+          "volume_trend": 1.457475126864716,
+          "is_surge": true,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "strong_down",
+          "strength": -1.0,
+          "sma_10": 84417.11640625,
+          "sma_20": 88505.946875,
+          "sma_50": 88934.1490625,
+          "above_sma_50": false
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "ETH-USD",
+      "price": 2288.544677734375,
+      "timestamp": "2026-02-02T10:01:02.437519+00:00",
+      "signal_score": 0.63,
+      "action": "STRONG_BUY",
+      "position_size": 5,
+      "reasons": [
+        "BB oversold",
+        "RSI oversold (19)",
+        "Trend: strong_down",
+        "Volume confirms (1.9x)",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 3584.9498025993066,
+          "middle": 2940.1736694335937,
+          "lower": 2295.3975362678807,
+          "position": -0.0053141378697282304,
+          "width": 43.859731135536975
+        },
+        "rsi": {
+          "value": 18.939527120193418,
+          "oversold_threshold": 20,
+          "overbought_threshold": 60,
+          "is_oversold": true,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.8586758572739104,
+          "volume_trend": 1.5224694786166808,
+          "is_surge": true,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "strong_down",
+          "strength": -1.0,
+          "sma_10": 2724.2127685546875,
+          "sma_20": 2940.1736694335937,
+          "sma_50": 2994.8979443359376,
+          "above_sma_50": false
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "SOL-USD",
+      "price": 102.73062896728516,
+      "timestamp": "2026-02-02T10:01:02.619594+00:00",
+      "signal_score": 0.18,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "BB oversold",
+        "Trend: strong_down",
+        "Volume confirms (1.6x)",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 152.97816995022,
+          "middle": 126.2935749053955,
+          "lower": 99.60897986057101,
+          "position": 0.05849159602142045,
+          "width": 42.258040545314365
+        },
+        "rsi": {
+          "value": 23.739982785085203,
+          "oversold_threshold": 20,
+          "overbought_threshold": 60,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.6444606281771126,
+          "volume_trend": 1.4786294930096997,
+          "is_surge": true,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "strong_down",
+          "strength": -1.0,
+          "sma_10": 116.61312484741211,
+          "sma_20": 126.2935749053955,
+          "sma_50": 128.30939819335939,
+          "above_sma_50": false
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "DOGE-USD",
+      "price": 0.10455544292926788,
+      "timestamp": "2026-02-02T10:01:02.802453+00:00",
+      "signal_score": 0.18,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "BB oversold",
+        "Trend: strong_down",
+        "Volume confirms (1.6x)",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 0.14754609621498652,
+          "middle": 0.1242366723716259,
+          "lower": 0.10092724852826529,
+          "position": 0.07782677138191121,
+          "width": 37.52422436691759
+        },
+        "rsi": {
+          "value": 23.44385270885317,
+          "oversold_threshold": 20,
+          "overbought_threshold": 60,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.621356762536064,
+          "volume_trend": 1.4218019302758271,
+          "is_surge": true,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "strong_down",
+          "strength": -1.0,
+          "sma_10": 0.11623384431004524,
+          "sma_20": 0.1242366723716259,
+          "sma_50": 0.12980900913476945,
+          "above_sma_50": false
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "MSTR",
+      "price": 149.7100067138672,
+      "timestamp": "2026-02-02T10:01:02.984742+00:00",
+      "signal_score": -0.1,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "Trend: strong_down",
+        "Fear override: reduce short bias"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 178.60900520196827,
+          "middle": 162.33950119018556,
+          "lower": 146.06999717840284,
+          "position": 0.11186602654967764,
+          "width": 20.043801899726805
+        },
+        "rsi": {
+          "value": 45.4469449060859,
+          "oversold_threshold": 20,
+          "overbought_threshold": 60,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.0271772569306652,
+          "volume_trend": 0.9035143952020742,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": false
+        },
+        "trend": {
+          "trend": "strong_down",
+          "strength": -1.0,
+          "sma_10": 159.53500061035157,
+          "sma_20": 162.33950119018556,
+          "sma_50": 168.61340118408202,
+          "above_sma_50": false
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "COIN",
+      "price": 194.74000549316406,
+      "timestamp": "2026-02-02T10:01:03.166813+00:00",
+      "signal_score": 0.15,
+      "action": "HOLD",
+      "position_size": 1,
+      "reasons": [
+        "BB oversold",
+        "Trend: strong_down",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 269.01718595030746,
+          "middle": 231.4339973449707,
+          "lower": 193.85080873963392,
+          "position": 0.01182971411589966,
+          "width": 32.47853732510704
+        },
+        "rsi": {
+          "value": 21.203402134054812,
+          "oversold_threshold": 20,
+          "overbought_threshold": 60,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.0373167325224764,
+          "volume_trend": 1.0322613385996386,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": false
+        },
+        "trend": {
+          "trend": "strong_down",
+          "strength": -1.0,
+          "sma_10": 216.35599670410156,
+          "sma_20": 231.4339973449707,
+          "sma_50": 245.42039916992186,
+          "above_sma_50": false
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    }
+  ],
+  "buys": [
+    {
+      "symbol": "BTC-USD",
+      "price": 77648.125,
+      "timestamp": "2026-02-02T10:01:02.254656+00:00",
+      "signal_score": 0.63,
+      "action": "STRONG_BUY",
+      "position_size": 5,
+      "reasons": [
+        "BB oversold",
+        "RSI oversold (19)",
+        "Trend: strong_down",
+        "Volume confirms (1.6x)",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 100176.92037182885,
+          "middle": 88505.946875,
+          "lower": 76834.97337817114,
+          "position": 0.034836495089711365,
+          "width": 26.37330915924141
+        },
+        "rsi": {
+          "value": 18.76927468895316,
+          "oversold_threshold": 20,
+          "overbought_threshold": 60,
+          "is_oversold": true,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.5901474179597341,
+          "volume_trend": 1.457475126864716,
+          "is_surge": true,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "strong_down",
+          "strength": -1.0,
+          "sma_10": 84417.11640625,
+          "sma_20": 88505.946875,
+          "sma_50": 88934.1490625,
+          "above_sma_50": false
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "ETH-USD",
+      "price": 2288.544677734375,
+      "timestamp": "2026-02-02T10:01:02.437519+00:00",
+      "signal_score": 0.63,
+      "action": "STRONG_BUY",
+      "position_size": 5,
+      "reasons": [
+        "BB oversold",
+        "RSI oversold (19)",
+        "Trend: strong_down",
+        "Volume confirms (1.9x)",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 3584.9498025993066,
+          "middle": 2940.1736694335937,
+          "lower": 2295.3975362678807,
+          "position": -0.0053141378697282304,
+          "width": 43.859731135536975
+        },
+        "rsi": {
+          "value": 18.939527120193418,
+          "oversold_threshold": 20,
+          "overbought_threshold": 60,
+          "is_oversold": true,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.8586758572739104,
+          "volume_trend": 1.5224694786166808,
+          "is_surge": true,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "strong_down",
+          "strength": -1.0,
+          "sma_10": 2724.2127685546875,
+          "sma_20": 2940.1736694335937,
+          "sma_50": 2994.8979443359376,
+          "above_sma_50": false
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "AMD",
+      "price": 236.72999572753906,
+      "timestamp": "2026-02-02T10:01:02.071782+00:00",
+      "signal_score": 0.405,
+      "action": "STRONG_BUY",
+      "position_size": 4,
+      "reasons": [
+        "Bullish RSI divergence",
+        "Trend: up",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 268.57057314066805,
+          "middle": 231.44499969482422,
+          "lower": 194.31942624898036,
+          "position": 0.5711772983173476,
+          "width": 32.08155155202869
+        },
+        "rsi": {
+          "value": 70.3838645363679,
+          "oversold_threshold": 40,
+          "overbought_threshold": 80,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "bullish"
+        },
+        "volume": {
+          "relative_volume": 1.0517846923155612,
+          "volume_trend": 0.8165507951092359,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": false
+        },
+        "trend": {
+          "trend": "up",
+          "strength": 0.6,
+          "sma_10": 247.19499816894532,
+          "sma_20": 231.44499969482422,
+          "sma_50": 221.2547994995117,
+          "above_sma_50": true
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "NVDA",
+      "price": 191.1300048828125,
+      "timestamp": "2026-02-02T10:01:01.509535+00:00",
+      "signal_score": 0.3,
+      "action": "BUY",
+      "position_size": 3,
+      "reasons": [
+        "BB squeeze (breakout pending)",
+        "Trend: strong_up",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 193.30838614902902,
+          "middle": 186.72200088500978,
+          "lower": 180.13561562099054,
+          "position": 0.8346299845139036,
+          "width": 7.054750091367517
+        },
+        "rsi": {
+          "value": 59.0267931950917,
+          "oversold_threshold": 40,
+          "overbought_threshold": 80,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.0872084615861342,
+          "volume_trend": 0.93297785079698,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": false
+        },
+        "trend": {
+          "trend": "strong_up",
+          "strength": 1.0,
+          "sma_10": 187.0280014038086,
+          "sma_20": 186.72200088500978,
+          "sma_50": 183.81498931884767,
+          "above_sma_50": true
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    },
+    {
+      "symbol": "SPY",
+      "price": 691.969970703125,
+      "timestamp": "2026-02-02T10:01:00.043496+00:00",
+      "signal_score": 0.216,
+      "action": "BUY",
+      "position_size": 2,
+      "reasons": [
+        "BB squeeze (breakout pending)",
+        "Trend: up",
+        "Volume confirms (1.3x)",
+        "\ud83d\udfe2 Extreme Fear amplifies BUY"
+      ],
+      "indicators": {
+        "bollinger": {
+          "upper": 699.4408358570355,
+          "middle": 690.4944915771484,
+          "lower": 681.5481472972614,
+          "position": 0.5824626841878697,
+          "width": 2.5912862127119487
+        },
+        "rsi": {
+          "value": 47.60597327306809,
+          "oversold_threshold": 40,
+          "overbought_threshold": 80,
+          "is_oversold": false,
+          "is_overbought": false,
+          "divergence": "none"
+        },
+        "volume": {
+          "relative_volume": 1.2715187512535513,
+          "volume_trend": 0.9407051628507679,
+          "is_surge": false,
+          "is_declining": false,
+          "is_confirming": true
+        },
+        "trend": {
+          "trend": "up",
+          "strength": 0.6,
+          "sma_10": 690.2499877929688,
+          "sma_20": 690.4944915771484,
+          "sma_50": 682.9274499511719,
+          "above_sma_50": true
+        }
+      },
+      "sentiment": {
+        "fear_greed": 14,
+        "vix": 19.079999923706055
+      }
+    }
+  ],
+  "sells": []
+}

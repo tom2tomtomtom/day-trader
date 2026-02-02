@@ -1,136 +1,119 @@
 {
-  "timestamp": "2026-02-02T06:45:14.875725+00:00",
+  "timestamp": "2026-02-02T10:02:01.068477+00:00",
   "scanned": 62,
   "markets": {
     "crypto": true,
     "forex": true,
     "us_stocks": false,
-    "us_premarket": false,
-    "asia": true,
-    "europe": false
+    "us_premarket": true,
+    "asia": false,
+    "europe": true
   },
   "setups": {
     "crypto": [
       {
-        "symbol": "DOGE-USD",
-        "price": 0.1,
-        "prev_close": 0.1,
-        "change_pct": -3.13,
-        "volume": 1966132096,
-        "avg_volume": 1856045480,
-        "rel_volume": 1.06,
-        "high_5d": 0.12,
-        "low_5d": 0.1,
-        "range_position": 0.06,
+        "symbol": "ADA-USD",
+        "price": 0.29,
+        "prev_close": 0.29,
+        "change_pct": 2.04,
+        "volume": 1004882368,
+        "avg_volume": 912631919,
+        "rel_volume": 1.1,
+        "high_5d": 0.36,
+        "low_5d": 0.28,
+        "range_position": 0.19,
         "atr_pct": 8.51,
-        "name": "Dogecoin",
-        "setup": "CRYPTO_DIP",
-        "signal_strength": 0.626,
-        "trade_idea": "Buy the dip - 24/7 market"
+        "name": "Cardano",
+        "setup": "CRYPTO_PUMP",
+        "signal_strength": 0.40800000000000003,
+        "trade_idea": "Momentum long - 24/7 market"
       },
       {
-        "symbol": "AVAX-USD",
-        "price": 9.68,
-        "prev_close": 9.92,
-        "change_pct": -2.38,
-        "volume": 447436544,
-        "avg_volume": 506783253,
-        "rel_volume": 0.88,
-        "high_5d": 12.06,
-        "low_5d": 9.53,
-        "range_position": 0.06,
-        "atr_pct": 8.38,
-        "name": "Avalanche",
-        "setup": "CRYPTO_DIP",
-        "signal_strength": 0.476,
+        "symbol": "SOL-USD",
+        "price": 102.73,
+        "prev_close": 100.85,
+        "change_pct": 1.86,
+        "volume": 7965269504,
+        "avg_volume": 6961224727,
+        "rel_volume": 1.14,
+        "high_5d": 125.19,
+        "low_5d": 96.44,
+        "range_position": 0.22,
+        "atr_pct": 9.41,
+        "name": "Solana",
+        "setup": "CRYPTO_RANGE",
+        "signal_strength": 0.372,
         "trade_idea": "Range trade - 24/7 market"
       },
       {
-        "symbol": "ETH-USD",
-        "price": 2215.38,
-        "prev_close": 2267.96,
-        "change_pct": -2.32,
-        "volume": 50596241408,
-        "avg_volume": 41823262693,
-        "rel_volume": 1.21,
-        "high_5d": 3008.04,
-        "low_5d": 2170.14,
-        "range_position": 0.05,
-        "atr_pct": 11.72,
-        "name": "Ethereum",
-        "setup": "CRYPTO_DIP",
-        "signal_strength": 0.46399999999999997,
+        "symbol": "LINK-USD",
+        "price": 9.58,
+        "prev_close": 9.41,
+        "change_pct": 1.78,
+        "volume": 1318619904,
+        "avg_volume": 834229715,
+        "rel_volume": 1.58,
+        "high_5d": 11.83,
+        "low_5d": 9.04,
+        "range_position": 0.19,
+        "atr_pct": 9.3,
+        "name": "Chainlink",
+        "setup": "CRYPTO_RANGE",
+        "signal_strength": 0.356,
         "trade_idea": "Range trade - 24/7 market"
       },
       {
         "symbol": "XRP-USD",
-        "price": 1.55,
+        "price": 1.61,
         "prev_close": 1.59,
-        "change_pct": -2.29,
-        "volume": 4966182400,
+        "change_pct": 1.1,
+        "volume": 5486189056,
         "avg_volume": 4991359042,
-        "rel_volume": 0.99,
+        "rel_volume": 1.1,
         "high_5d": 1.91,
         "low_5d": 1.53,
-        "range_position": 0.06,
-        "atr_pct": 8.04,
+        "range_position": 0.2,
+        "atr_pct": 7.77,
         "name": "Ripple",
-        "setup": "CRYPTO_DIP",
-        "signal_strength": 0.458,
+        "setup": "CRYPTO_RANGE",
+        "signal_strength": 0.22000000000000003,
         "trade_idea": "Range trade - 24/7 market"
       },
       {
-        "symbol": "ADA-USD",
-        "price": 0.28,
-        "prev_close": 0.29,
-        "change_pct": -2.25,
-        "volume": 926719168,
-        "avg_volume": 912631919,
-        "rel_volume": 1.02,
-        "high_5d": 0.36,
-        "low_5d": 0.28,
-        "range_position": 0.03,
-        "atr_pct": 8.84,
-        "name": "Cardano",
-        "setup": "CRYPTO_DIP",
-        "signal_strength": 0.45,
+        "symbol": "ETH-USD",
+        "price": 2288.54,
+        "prev_close": 2267.96,
+        "change_pct": 0.91,
+        "volume": 54042632192,
+        "avg_volume": 41823262693,
+        "rel_volume": 1.29,
+        "high_5d": 3008.04,
+        "low_5d": 2165.03,
+        "range_position": 0.15,
+        "atr_pct": 11.39,
+        "name": "Ethereum",
+        "setup": "CRYPTO_RANGE",
+        "signal_strength": 0.182,
         "trade_idea": "Range trade - 24/7 market"
       }
     ],
     "forex": [
       {
-        "symbol": "AUDUSD=X",
-        "price": 0.69,
-        "prev_close": 0.7,
-        "change_pct": -1.74,
+        "symbol": "USDCHF=X",
+        "price": 0.77,
+        "prev_close": 0.77,
+        "change_pct": 1.12,
         "volume": 0,
         "avg_volume": 0,
         "rel_volume": 1,
-        "high_5d": 0.71,
-        "low_5d": 0.69,
-        "range_position": 0.08,
-        "atr_pct": 1.12,
-        "name": "AUD/USD",
+        "high_5d": 0.78,
+        "low_5d": 0.76,
+        "range_position": 0.73,
+        "atr_pct": 1.01,
+        "name": "USD/CHF",
         "setup": "FX_MOVE",
-        "signal_strength": 0.87,
-        "trade_idea": "Buy - watch for continuation"
-      },
-      {
-        "symbol": "GBPUSD=X",
-        "price": 1.37,
-        "prev_close": 1.38,
-        "change_pct": -1.13,
-        "volume": 0,
-        "avg_volume": 0,
-        "rel_volume": 1,
-        "high_5d": 1.38,
-        "low_5d": 1.37,
-        "range_position": 0.04,
-        "atr_pct": 0.63,
-        "name": "GBP/USD",
-        "setup": "FX_MOVE",
-        "signal_strength": 0.565,
-        "trade_idea": "Buy - watch for continuation"
+        "signal_strength": 0.56,
+        "trade_idea": "Sell - watch for continuation"
       },
       {
         "symbol": "USDJPY=X",
@@ -148,6 +131,23 @@
         "setup": "FX_MOVE",
         "signal_strength": 0.55,
         "trade_idea": "Sell - watch for continuation"
+      },
+      {
+        "symbol": "AUDUSD=X",
+        "price": 0.7,
+        "prev_close": 0.7,
+        "change_pct": -1.06,
+        "volume": 0,
+        "avg_volume": 0,
+        "rel_volume": 1,
+        "high_5d": 0.71,
+        "low_5d": 0.69,
+        "range_position": 0.33,
+        "atr_pct": 1.11,
+        "name": "AUD/USD",
+        "setup": "FX_MOVE",
+        "signal_strength": 0.53,
+        "trade_idea": "Buy - watch for continuation"
       }
     ],
     "gaps": [
@@ -448,72 +448,238 @@
         "signal_strength": 1.0,
         "trade_idea": "Volatile (5.8% daily range) - good for scalping"
       }
+    ],
+    "momentum": [
+      {
+        "symbol": "AMD",
+        "price": 236.73,
+        "prev_close": 252.18,
+        "change_pct": -6.13,
+        "volume": 39944800,
+        "avg_volume": 28777625,
+        "rel_volume": 1.39,
+        "high_5d": 260.53,
+        "low_5d": 234.55,
+        "range_position": 0.08,
+        "atr_pct": 4.48,
+        "name": "AMD",
+        "setup": "MOMENTUM_SHORT",
+        "signal_strength": 0.695,
+        "trade_idea": "Short momentum - -6.1% on 1.4x volume"
+      },
+      {
+        "symbol": "SOXS",
+        "price": 1.97,
+        "prev_close": 1.76,
+        "change_pct": 11.93,
+        "volume": 624767500,
+        "avg_volume": 454104200,
+        "rel_volume": 1.38,
+        "high_5d": 2.1,
+        "low_5d": 1.72,
+        "range_position": 0.66,
+        "atr_pct": 7.72,
+        "name": "-3x Semis",
+        "setup": "MOMENTUM_LONG",
+        "signal_strength": 0.69,
+        "trade_idea": "Long momentum - +11.9% on 1.4x volume"
+      },
+      {
+        "symbol": "LABD",
+        "price": 19.2,
+        "prev_close": 18.33,
+        "change_pct": 4.75,
+        "volume": 3057000,
+        "avg_volume": 2165325,
+        "rel_volume": 1.41,
+        "high_5d": 19.63,
+        "low_5d": 17.02,
+        "range_position": 0.83,
+        "atr_pct": 5.83,
+        "name": "-3x Biotech",
+        "setup": "MOMENTUM_LONG",
+        "signal_strength": 0.66975,
+        "trade_idea": "Long momentum - +4.8% on 1.4x volume"
+      },
+      {
+        "symbol": "LABU",
+        "price": 165.86,
+        "prev_close": 174.42,
+        "change_pct": -4.91,
+        "volume": 648500,
+        "avg_volume": 480100,
+        "rel_volume": 1.35,
+        "high_5d": 187.71,
+        "low_5d": 162.07,
+        "range_position": 0.15,
+        "atr_pct": 6.56,
+        "name": "3x Biotech",
+        "setup": "MOMENTUM_SHORT",
+        "signal_strength": 0.66285,
+        "trade_idea": "Short momentum - -4.9% on 1.4x volume"
+      },
+      {
+        "symbol": "SOXL",
+        "price": 61.79,
+        "prev_close": 70.47,
+        "change_pct": -12.32,
+        "volume": 83110900,
+        "avg_volume": 64002875,
+        "rel_volume": 1.3,
+        "high_5d": 71.98,
+        "low_5d": 59.6,
+        "range_position": 0.18,
+        "atr_pct": 8.95,
+        "name": "3x Semis",
+        "setup": "MOMENTUM_SHORT",
+        "signal_strength": 0.65,
+        "trade_idea": "Short momentum - -12.3% on 1.3x volume"
+      }
+    ],
+    "relative_strength": [
+      {
+        "symbol": "SOXS",
+        "price": 1.97,
+        "prev_close": 1.76,
+        "change_pct": 11.93,
+        "volume": 624767500,
+        "avg_volume": 454104200,
+        "rel_volume": 1.38,
+        "high_5d": 2.1,
+        "low_5d": 1.72,
+        "range_position": 0.66,
+        "atr_pct": 7.72,
+        "name": "-3x Semis",
+        "setup": "RELATIVE_STRENGTH",
+        "relative_pct": 12.23,
+        "signal_strength": 1.0,
+        "trade_idea": "Outperforming SPY by +12.2%"
+      },
+      {
+        "symbol": "SOXL",
+        "price": 61.79,
+        "prev_close": 70.47,
+        "change_pct": -12.32,
+        "volume": 83110900,
+        "avg_volume": 64002875,
+        "rel_volume": 1.3,
+        "high_5d": 71.98,
+        "low_5d": 59.6,
+        "range_position": 0.18,
+        "atr_pct": 8.95,
+        "name": "3x Semis",
+        "setup": "RELATIVE_WEAKNESS",
+        "relative_pct": -12.02,
+        "signal_strength": 1.0,
+        "trade_idea": "Underperforming SPY by -12.0%"
+      },
+      {
+        "symbol": "AMD",
+        "price": 236.73,
+        "prev_close": 252.18,
+        "change_pct": -6.13,
+        "volume": 39944800,
+        "avg_volume": 28777625,
+        "rel_volume": 1.39,
+        "high_5d": 260.53,
+        "low_5d": 234.55,
+        "range_position": 0.08,
+        "atr_pct": 4.48,
+        "name": "AMD",
+        "setup": "RELATIVE_WEAKNESS",
+        "relative_pct": -5.83,
+        "signal_strength": 1.0,
+        "trade_idea": "Underperforming SPY by -5.8%"
+      },
+      {
+        "symbol": "LABD",
+        "price": 19.2,
+        "prev_close": 18.33,
+        "change_pct": 4.75,
+        "volume": 3057000,
+        "avg_volume": 2165325,
+        "rel_volume": 1.41,
+        "high_5d": 19.63,
+        "low_5d": 17.02,
+        "range_position": 0.83,
+        "atr_pct": 5.83,
+        "name": "-3x Biotech",
+        "setup": "RELATIVE_STRENGTH",
+        "relative_pct": 5.05,
+        "signal_strength": 1.0,
+        "trade_idea": "Outperforming SPY by +5.0%"
+      },
+      {
+        "symbol": "MSTR",
+        "price": 149.71,
+        "prev_close": 143.19,
+        "change_pct": 4.55,
+        "volume": 22713000,
+        "avg_volume": 19294950,
+        "rel_volume": 1.18,
+        "high_5d": 165.72,
+        "low_5d": 139.36,
+        "range_position": 0.39,
+        "atr_pct": 6.23,
+        "name": "MicroStrategy",
+        "setup": "RELATIVE_STRENGTH",
+        "relative_pct": 4.85,
+        "signal_strength": 0.97,
+        "trade_idea": "Outperforming SPY by +4.8%"
+      }
     ]
   },
   "watchlist": [
     {
-      "symbol": "DOGE-USD",
-      "name": "Dogecoin",
-      "price": 0.1,
-      "change_pct": -3.13,
+      "symbol": "ADA-USD",
+      "name": "Cardano",
+      "price": 0.29,
+      "change_pct": 2.04,
       "asset_class": "crypto",
       "setups": [
-        "CRYPTO_DIP"
+        "CRYPTO_PUMP"
       ],
       "trade_ideas": [
-        "Buy the dip - 24/7 market"
+        "Momentum long - 24/7 market"
       ]
     },
     {
-      "symbol": "AVAX-USD",
-      "name": "Avalanche",
-      "price": 9.68,
-      "change_pct": -2.38,
+      "symbol": "SOL-USD",
+      "name": "Solana",
+      "price": 102.73,
+      "change_pct": 1.86,
       "asset_class": "crypto",
       "setups": [
-        "CRYPTO_DIP"
+        "CRYPTO_RANGE"
       ],
       "trade_ideas": [
         "Range trade - 24/7 market"
       ]
     },
     {
-      "symbol": "ETH-USD",
-      "name": "Ethereum",
-      "price": 2215.38,
-      "change_pct": -2.32,
+      "symbol": "LINK-USD",
+      "name": "Chainlink",
+      "price": 9.58,
+      "change_pct": 1.78,
       "asset_class": "crypto",
       "setups": [
-        "CRYPTO_DIP"
+        "CRYPTO_RANGE"
       ],
       "trade_ideas": [
         "Range trade - 24/7 market"
       ]
     },
     {
-      "symbol": "AUDUSD=X",
-      "name": "AUD/USD",
-      "price": 0.69,
-      "change_pct": -1.74,
+      "symbol": "USDCHF=X",
+      "name": "USD/CHF",
+      "price": 0.77,
+      "change_pct": 1.12,
       "asset_class": "forex",
       "setups": [
         "FX_MOVE"
       ],
       "trade_ideas": [
-        "Buy - watch for continuation"
-      ]
-    },
-    {
-      "symbol": "GBPUSD=X",
-      "name": "GBP/USD",
-      "price": 1.37,
-      "change_pct": -1.13,
-      "asset_class": "forex",
-      "setups": [
-        "FX_MOVE"
-      ],
-      "trade_ideas": [
-        "Buy - watch for continuation"
+        "Sell - watch for continuation"
       ]
     },
     {
@@ -530,18 +696,16 @@
       ]
     },
     {
-      "symbol": "SOXL",
-      "name": "3x Semis",
-      "price": 61.79,
-      "change_pct": -12.32,
-      "asset_class": "stock",
+      "symbol": "AUDUSD=X",
+      "name": "AUD/USD",
+      "price": 0.7,
+      "change_pct": -1.06,
+      "asset_class": "forex",
       "setups": [
-        "GAP_DOWN",
-        "HIGH_VOLATILITY"
+        "FX_MOVE"
       ],
       "trade_ideas": [
-        "Fade the gap",
-        "Volatile (8.9% daily range) - good for scalping"
+        "Buy - watch for continuation"
       ]
     },
     {
@@ -552,11 +716,15 @@
       "asset_class": "stock",
       "setups": [
         "GAP_UP",
-        "HIGH_VOLATILITY"
+        "HIGH_VOLATILITY",
+        "MOMENTUM_LONG",
+        "RELATIVE_STRENGTH"
       ],
       "trade_ideas": [
         "Fade the gap",
-        "Volatile (7.7% daily range) - good for scalping"
+        "Volatile (7.7% daily range) - good for scalping",
+        "Long momentum - +11.9% on 1.4x volume",
+        "Outperforming SPY by +12.2%"
       ]
     },
     {
@@ -567,11 +735,32 @@
       "asset_class": "stock",
       "setups": [
         "GAP_DOWN",
-        "OVERSOLD"
+        "OVERSOLD",
+        "MOMENTUM_SHORT",
+        "RELATIVE_WEAKNESS"
       ],
       "trade_ideas": [
         "Fade the gap",
-        "Oversold bounce candidate"
+        "Oversold bounce candidate",
+        "Short momentum - -6.1% on 1.4x volume",
+        "Underperforming SPY by -5.8%"
+      ]
+    },
+    {
+      "symbol": "SOXL",
+      "name": "3x Semis",
+      "price": 61.79,
+      "change_pct": -12.32,
+      "asset_class": "stock",
+      "setups": [
+        "GAP_DOWN",
+        "HIGH_VOLATILITY",
+        "RELATIVE_WEAKNESS"
+      ],
+      "trade_ideas": [
+        "Fade the gap",
+        "Volatile (8.9% daily range) - good for scalping",
+        "Underperforming SPY by -12.0%"
       ]
     },
     {
@@ -588,6 +777,19 @@
       ]
     },
     {
+      "symbol": "LABD",
+      "name": "-3x Biotech",
+      "price": 19.2,
+      "change_pct": 4.75,
+      "asset_class": "stock",
+      "setups": [
+        "MOMENTUM_LONG"
+      ],
+      "trade_ideas": [
+        "Long momentum - +4.8% on 1.4x volume"
+      ]
+    },
+    {
       "symbol": "XLP",
       "name": "Consumer Staples",
       "price": 83.51,
@@ -598,19 +800,6 @@
       ],
       "trade_ideas": [
         "Breakout play - buy break of high, stop below"
-      ]
-    },
-    {
-      "symbol": "XLB",
-      "name": "Materials",
-      "price": 49.27,
-      "change_pct": -1.46,
-      "asset_class": "stock",
-      "setups": [
-        "VOLUME_SURGE"
-      ],
-      "trade_ideas": [
-        "Follow the volume - big players moving"
       ]
     }
   ]

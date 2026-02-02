@@ -1,0 +1,307 @@
+{
+  "timestamp": "2026-02-02T09:48:32.553242+00:00",
+  "strategy": "mean_reversion",
+  "period": "6mo",
+  "parameters": {
+    "stop_loss": 0.05,
+    "take_profit": 0.1,
+    "max_hold_days": 5
+  },
+  "symbols_tested": 5,
+  "overall_metrics": {
+    "total_trades": 102,
+    "winners": 46,
+    "losers": 56,
+    "win_rate": 45.1,
+    "avg_win_pct": 6.44,
+    "avg_loss_pct": -4.79,
+    "profit_factor": 1.1,
+    "total_pnl_pct": 27.69,
+    "max_drawdown_pct": 41.19,
+    "expectancy": 0.27
+  },
+  "by_symbol": {
+    "BTC-USD": {
+      "total_trades": 13,
+      "winners": 5,
+      "losers": 8,
+      "win_rate": 38.5,
+      "avg_win_pct": 3.24,
+      "avg_loss_pct": -4.53,
+      "profit_factor": 0.45,
+      "total_pnl_pct": -19.98,
+      "max_drawdown_pct": 26.43,
+      "expectancy": -1.54
+    },
+    "ETH-USD": {
+      "total_trades": 22,
+      "winners": 10,
+      "losers": 12,
+      "win_rate": 45.5,
+      "avg_win_pct": 7.49,
+      "avg_loss_pct": -5.0,
+      "profit_factor": 1.25,
+      "total_pnl_pct": 14.89,
+      "max_drawdown_pct": 25.0,
+      "expectancy": 0.68
+    },
+    "SOL-USD": {
+      "total_trades": 27,
+      "winners": 14,
+      "losers": 13,
+      "win_rate": 51.9,
+      "avg_win_pct": 6.14,
+      "avg_loss_pct": -4.4,
+      "profit_factor": 1.5,
+      "total_pnl_pct": 28.66,
+      "max_drawdown_pct": 16.19,
+      "expectancy": 1.06
+    },
+    "DOGE-USD": {
+      "total_trades": 22,
+      "winners": 8,
+      "losers": 14,
+      "win_rate": 36.4,
+      "avg_win_pct": 8.86,
+      "avg_loss_pct": -5.0,
+      "profit_factor": 1.01,
+      "total_pnl_pct": 0.87,
+      "max_drawdown_pct": 25.0,
+      "expectancy": 0.04
+    },
+    "XRP-USD": {
+      "total_trades": 18,
+      "winners": 9,
+      "losers": 9,
+      "win_rate": 50.0,
+      "avg_win_pct": 5.36,
+      "avg_loss_pct": -5.0,
+      "profit_factor": 1.07,
+      "total_pnl_pct": 3.25,
+      "max_drawdown_pct": 20.0,
+      "expectancy": 0.18
+    }
+  },
+  "sample_trades": [
+    {
+      "entry_date": "2025-08-25T00:00:00+00:00",
+      "exit_date": "2025-08-30T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 110124.35,
+      "exit_price": 108808.07,
+      "exit_reason": "time_exit",
+      "pnl_pct": -1.2,
+      "win": false
+    },
+    {
+      "entry_date": "2025-08-29T00:00:00+00:00",
+      "exit_date": "2025-09-03T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 108410.84,
+      "exit_price": 111723.21,
+      "exit_reason": "time_exit",
+      "pnl_pct": 3.06,
+      "win": true
+    },
+    {
+      "entry_date": "2025-09-25T00:00:00+00:00",
+      "exit_date": "2025-09-30T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 109049.29,
+      "exit_price": 114056.09,
+      "exit_reason": "time_exit",
+      "pnl_pct": 4.59,
+      "win": true
+    },
+    {
+      "entry_date": "2025-10-01T00:00:00+00:00",
+      "exit_date": "2025-10-05T00:00:00+00:00",
+      "direction": "SELL",
+      "reason": "overbought",
+      "entry_price": 118648.93,
+      "exit_price": 124581.38,
+      "exit_reason": "stop_loss",
+      "pnl_pct": -5.0,
+      "win": false
+    },
+    {
+      "entry_date": "2025-11-04T00:00:00+00:00",
+      "exit_date": "2025-11-09T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 101590.52,
+      "exit_price": 104719.64,
+      "exit_reason": "time_exit",
+      "pnl_pct": 3.08,
+      "win": true
+    },
+    {
+      "entry_date": "2025-11-14T00:00:00+00:00",
+      "exit_date": "2025-11-18T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 94397.79,
+      "exit_price": 89677.9,
+      "exit_reason": "stop_loss",
+      "pnl_pct": -5.0,
+      "win": false
+    },
+    {
+      "entry_date": "2025-11-17T00:00:00+00:00",
+      "exit_date": "2025-11-20T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 92093.88,
+      "exit_price": 87489.18,
+      "exit_reason": "stop_loss",
+      "pnl_pct": -5.0,
+      "win": false
+    },
+    {
+      "entry_date": "2025-11-20T00:00:00+00:00",
+      "exit_date": "2025-11-21T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 86631.9,
+      "exit_price": 82300.3,
+      "exit_reason": "stop_loss",
+      "pnl_pct": -5.0,
+      "win": false
+    },
+    {
+      "entry_date": "2026-01-05T00:00:00+00:00",
+      "exit_date": "2026-01-10T00:00:00+00:00",
+      "direction": "SELL",
+      "reason": "overbought",
+      "entry_price": 93882.55,
+      "exit_price": 90386.65,
+      "exit_reason": "time_exit",
+      "pnl_pct": 3.72,
+      "win": true
+    },
+    {
+      "entry_date": "2026-01-13T00:00:00+00:00",
+      "exit_date": "2026-01-18T00:00:00+00:00",
+      "direction": "SELL",
+      "reason": "overbought",
+      "entry_price": 95321.78,
+      "exit_price": 93634.43,
+      "exit_reason": "time_exit",
+      "pnl_pct": 1.77,
+      "win": true
+    },
+    {
+      "entry_date": "2026-01-25T00:00:00+00:00",
+      "exit_date": "2026-01-30T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 86572.22,
+      "exit_price": 82243.61,
+      "exit_reason": "stop_loss",
+      "pnl_pct": -5.0,
+      "win": false
+    },
+    {
+      "entry_date": "2026-01-29T00:00:00+00:00",
+      "exit_date": "2026-01-31T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 84561.59,
+      "exit_price": 80333.51,
+      "exit_reason": "stop_loss",
+      "pnl_pct": -5.0,
+      "win": false
+    },
+    {
+      "entry_date": "2026-01-31T00:00:00+00:00",
+      "exit_date": "2026-02-02T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 78621.12,
+      "exit_price": 74690.06,
+      "exit_reason": "stop_loss",
+      "pnl_pct": -5.0,
+      "win": false
+    },
+    {
+      "entry_date": "2025-08-22T00:00:00+00:00",
+      "exit_date": "2025-08-25T00:00:00+00:00",
+      "direction": "SELL",
+      "reason": "overbought",
+      "entry_price": 4831.35,
+      "exit_price": 4348.21,
+      "exit_reason": "take_profit",
+      "pnl_pct": 10.0,
+      "win": true
+    },
+    {
+      "entry_date": "2025-09-22T00:00:00+00:00",
+      "exit_date": "2025-09-25T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 4202.88,
+      "exit_price": 3992.73,
+      "exit_reason": "stop_loss",
+      "pnl_pct": -5.0,
+      "win": false
+    },
+    {
+      "entry_date": "2025-09-25T00:00:00+00:00",
+      "exit_date": "2025-09-30T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 3868.33,
+      "exit_price": 4145.96,
+      "exit_reason": "time_exit",
+      "pnl_pct": 7.18,
+      "win": true
+    },
+    {
+      "entry_date": "2025-10-06T00:00:00+00:00",
+      "exit_date": "2025-10-10T00:00:00+00:00",
+      "direction": "SELL",
+      "reason": "overbought",
+      "entry_price": 4687.77,
+      "exit_price": 4218.99,
+      "exit_reason": "take_profit",
+      "pnl_pct": 10.0,
+      "win": true
+    },
+    {
+      "entry_date": "2025-10-10T00:00:00+00:00",
+      "exit_date": "2025-10-13T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 3843.01,
+      "exit_price": 4227.31,
+      "exit_reason": "take_profit",
+      "pnl_pct": 10.0,
+      "win": true
+    },
+    {
+      "entry_date": "2025-11-03T00:00:00+00:00",
+      "exit_date": "2025-11-04T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 3602.31,
+      "exit_price": 3422.19,
+      "exit_reason": "stop_loss",
+      "pnl_pct": -5.0,
+      "win": false
+    },
+    {
+      "entry_date": "2025-11-04T00:00:00+00:00",
+      "exit_date": "2025-11-09T00:00:00+00:00",
+      "direction": "BUY",
+      "reason": "oversold",
+      "entry_price": 3292.57,
+      "exit_price": 3582.62,
+      "exit_reason": "time_exit",
+      "pnl_pct": 8.81,
+      "win": true
+    }
+  ]
+}

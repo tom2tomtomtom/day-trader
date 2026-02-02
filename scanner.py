@@ -280,6 +280,60 @@ def scan_for_volatility_plays(data_list, min_atr=2.5):
             })
     return sorted(vol_plays, key=lambda x: x["atr_pct"], reverse=True)
 
+def scan_for_momentum(data_list, min_move=2.0, min_vol=1.3):
+    """Find momentum plays - strong move + volume confirmation"""
+    momentum = []
+    for d in data_list:
+        if d and abs(d["change_pct"]) >= min_move and d["rel_volume"] >= min_vol:
+            direction = "MOMENTUM_LONG" if d["change_pct"] > 0 else "MOMENTUM_SHORT"
+            momentum.append({
+                **d,
+                "setup": direction,
+                "signal_strength": min(abs(d["change_pct"]) / 5, 1.0) * min(d["rel_volume"] / 2, 1.0),
+                "trade_idea": f"{'Long' if d['change_pct'] > 0 else 'Short'} momentum - {d['change_pct']:+.1f}% on {d['rel_volume']:.1f}x volume"
+            })
+    return sorted(momentum, key=lambda x: x["signal_strength"], reverse=True)
+
+def scan_for_relative_strength(data_list, spy_change=0):
+    """Find stocks significantly outperforming or underperforming SPY"""
+    rs_plays = []
+    for d in data_list:
+        if d:
+            relative = d["change_pct"] - spy_change
+            if abs(relative) >= 3:  # At least 3% relative move
+                setup = "RELATIVE_STRENGTH" if relative > 0 else "RELATIVE_WEAKNESS"
+                rs_plays.append({
+                    **d,
+                    "setup": setup,
+                    "relative_pct": round(relative, 2),
+                    "signal_strength": min(abs(relative) / 5, 1.0),
+                    "trade_idea": f"{'Outperforming' if relative > 0 else 'Underperforming'} SPY by {relative:+.1f}%"
+                })
+    return sorted(rs_plays, key=lambda x: abs(x.get("relative_pct", 0)), reverse=True)
+
+def scan_for_reversal_candidates(data_list):
+    """Find potential reversal setups - extended + volume exhaustion"""
+    reversals = []
+    for d in data_list:
+        if d:
+            # Extended up with declining volume = potential top
+            if d["range_position"] > 0.9 and d["rel_volume"] < 0.8 and d["change_pct"] > 1:
+                reversals.append({
+                    **d,
+                    "setup": "REVERSAL_SHORT",
+                    "signal_strength": d["range_position"] * (1 - d["rel_volume"]),
+                    "trade_idea": "Near highs on weak volume - potential reversal short"
+                })
+            # Extended down with declining volume = potential bottom
+            elif d["range_position"] < 0.1 and d["rel_volume"] < 0.8 and d["change_pct"] < -1:
+                reversals.append({
+                    **d,
+                    "setup": "REVERSAL_LONG",
+                    "signal_strength": (1 - d["range_position"]) * (1 - d["rel_volume"]),
+                    "trade_idea": "Near lows on weak volume - potential reversal long"
+                })
+    return sorted(reversals, key=lambda x: x["signal_strength"], reverse=True)
+
 def run_full_scan(universe=None, global_mode=False, tradeable_only=True):
     """Run all scans and compile watchlist
     
@@ -380,6 +434,23 @@ def run_full_scan(universe=None, global_mode=False, tradeable_only=True):
     vol_plays = scan_for_volatility_plays(stocks_data)
     if vol_plays:
         results["setups"]["high_volatility"] = vol_plays[:5]
+    
+    # Momentum plays (strong move + volume)
+    momentum = scan_for_momentum(stocks_data)
+    if momentum:
+        results["setups"]["momentum"] = momentum[:5]
+    
+    # Relative strength vs SPY
+    spy_data = next((d for d in stocks_data if d and d["symbol"] == "SPY"), None)
+    spy_change = spy_data["change_pct"] if spy_data else 0
+    rs_plays = scan_for_relative_strength(stocks_data, spy_change)
+    if rs_plays:
+        results["setups"]["relative_strength"] = rs_plays[:5]
+    
+    # Reversal candidates
+    reversals = scan_for_reversal_candidates(all_data)
+    if reversals:
+        results["setups"]["reversals"] = reversals[:5]
     
     # Build unified watchlist (deduplicated, top opportunities)
     watchlist = {}
