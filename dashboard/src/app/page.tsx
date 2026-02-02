@@ -1,9 +1,31 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TrendingUp, TrendingDown, DollarSign, Activity, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, Activity, BarChart3, Zap } from "lucide-react";
+import Link from "next/link";
 import { PriceChart } from "@/components/PriceChart";
 import { AutomationControl } from "@/components/AutomationControl";
+import { FearGreedGauge } from "@/components/FearGreedGauge";
+
+interface Signal {
+  symbol: string;
+  price: number;
+  signal_score: number;
+  action: string;
+  position_size: number;
+  reasons: string[];
+}
+
+interface SignalsData {
+  timestamp: string;
+  market_context: {
+    fear_greed: number;
+    fear_greed_label: string;
+    vix: number;
+    vix_regime: string;
+  };
+  signals: Signal[];
+}
 
 interface DayStatus {
   portfolio_value: number;
@@ -35,13 +57,15 @@ interface MarketStatus {
 export default function Dashboard() {
   const [status, setStatus] = useState<DayStatus | null>(null);
   const [marketStatus, setMarketStatus] = useState<MarketStatus | null>(null);
+  const [signals, setSignals] = useState<SignalsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchData = async () => {
     try {
-      const [statusRes, marketRes] = await Promise.all([
+      const [statusRes, marketRes, signalsRes] = await Promise.all([
         fetch("/api/status"),
         fetch("/api/markets"),
+        fetch("/api/signals"),
       ]);
       
       if (statusRes.ok) {
@@ -51,6 +75,10 @@ export default function Dashboard() {
       if (marketRes.ok) {
         const data = await marketRes.json();
         setMarketStatus(data);
+      }
+      if (signalsRes.ok) {
+        const data = await signalsRes.json();
+        setSignals(data);
       }
     } catch (error) {
       console.error("Failed to fetch data:", error);
@@ -77,10 +105,80 @@ export default function Dashboard() {
     ? ((status.winners / status.total_trades) * 100).toFixed(1)
     : "0";
 
+  // Get top picks from signals
+  const topPicks = signals?.signals
+    .filter(s => s.action === "STRONG_BUY" || (s.action === "BUY" && s.signal_score > 0.3))
+    .sort((a, b) => b.signal_score - a.signal_score)
+    .slice(0, 3) || [];
+
   return (
     <div className="space-y-6">
       {/* Automation Control */}
       <AutomationControl />
+
+      {/* Fear & Greed + Top Picks Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Fear & Greed */}
+        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+          <h2 className="text-lg font-semibold mb-2 text-center">Market Sentiment</h2>
+          {signals?.market_context ? (
+            <FearGreedGauge 
+              value={signals.market_context.fear_greed} 
+              label={signals.market_context.fear_greed_label}
+            />
+          ) : (
+            <div className="flex items-center justify-center h-40 text-zinc-500">
+              Loading...
+            </div>
+          )}
+        </div>
+
+        {/* Top Picks */}
+        <div className="lg:col-span-2 bg-gradient-to-r from-emerald-900/20 to-zinc-900 rounded-xl p-6 border border-emerald-800/30">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Zap className="w-5 h-5 text-yellow-500" />
+              🎯 Top Picks
+            </h2>
+            <Link href="/signals" className="text-sm text-emerald-500 hover:text-emerald-400">
+              View all →
+            </Link>
+          </div>
+          
+          {topPicks.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {topPicks.map((signal, idx) => (
+                <div key={signal.symbol} className="bg-zinc-800/80 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-bold text-zinc-500">#{idx + 1}</span>
+                      <span className="font-bold">{signal.symbol}</span>
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      signal.action === "STRONG_BUY" 
+                        ? "bg-emerald-600 text-white" 
+                        : "bg-emerald-600/50 text-emerald-300"
+                    }`}>
+                      {signal.action.replace("_", " ")}
+                    </span>
+                  </div>
+                  <div className="text-xl font-semibold">${signal.price.toFixed(2)}</div>
+                  <div className="text-sm text-zinc-400 mt-1">
+                    {(signal.signal_score * 100).toFixed(0)}% confidence • {signal.position_size} shares
+                  </div>
+                  <div className="text-xs text-zinc-500 mt-2 line-clamp-1">
+                    {signal.reasons[0]}
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-zinc-500 text-center py-8">
+              No strong signals right now
+            </div>
+          )}
+        </div>
+      </div>
 
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
