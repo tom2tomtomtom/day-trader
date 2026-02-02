@@ -1,0 +1,100 @@
+{
+  "regime_forward_returns": {
+    "CRISIS|STRONG_DOWNTREND|RISK_ON": {
+      "count": 2,
+      "avg_1d": -1.251,
+      "avg_5d": -1.305,
+      "avg_20d": 9.074
+    },
+    "CRISIS|STRONG_DOWNTREND|RISK_OFF": {
+      "count": 3,
+      "avg_1d": 1.431,
+      "avg_5d": 5.443,
+      "avg_20d": 13.509
+    },
+    "HIGH|STRONG_DOWNTREND|NEUTRAL": {
+      "count": 2,
+      "avg_1d": -0.138,
+      "avg_5d": 4.087,
+      "avg_20d": 10.869
+    },
+    "HIGH|WEAK_DOWNTREND|RISK_ON": {
+      "count": 5,
+      "avg_1d": 0.428,
+      "avg_5d": 1.876,
+      "avg_20d": 6.315
+    },
+    "HIGH|WEAK_UPTREND|RISK_ON": {
+      "count": 3,
+      "avg_1d": 0.025,
+      "avg_5d": 1.403,
+      "avg_20d": 5.299
+    },
+    "HIGH|WEAK_UPTREND|NEUTRAL": {
+      "count": 7,
+      "avg_1d": 0.907,
+      "avg_5d": 3.5,
+      "avg_20d": 4.374
+    },
+    "NORMAL|WEAK_UPTREND|RISK_ON": {
+      "count": 2,
+      "avg_1d": 0.394,
+      "avg_5d": 1.529,
+      "avg_20d": 2.96
+    },
+    "NORMAL|STRONG_UPTREND|RISK_ON": {
+      "count": 23,
+      "avg_1d": 0.069,
+      "avg_5d": -0.135,
+      "avg_20d": 1.394
+    },
+    "NORMAL|STRONG_UPTREND|NEUTRAL": {
+      "count": 107,
+      "avg_1d": 0.005,
+      "avg_5d": 0.344,
+      "avg_20d": 1.932
+    },
+    "HIGH|STRONG_UPTREND|NEUTRAL": {
+      "count": 7,
+      "avg_1d": 0.052,
+      "avg_5d": 1.661,
+      "avg_20d": 4.189
+    },
+    "HIGH|STRONG_UPTREND|RISK_OFF": {
+      "count": 1,
+      "avg_1d": 2.079,
+      "avg_5d": 2.348,
+      "avg_20d": 5.088
+    },
+    "HIGH|WEAK_UPTREND|RISK_OFF": {
+      "count": 2,
+      "avg_1d": 1.527,
+      "avg_5d": 2.114,
+      "avg_20d": 3.251
+    },
+    "NORMAL|WEAK_UPTREND|NEUTRAL": {
+      "count": 10,
+      "avg_1d": 0.452,
+      "avg_5d": 0.63,
+      "avg_20d": 2.321
+    },
+    "HIGH|WEAK_DOWNTREND|RISK_OFF": {
+      "count": 4,
+      "avg_1d": -0.245,
+      "avg_5d": 2.506,
+      "avg_20d": 2.599
+    },
+    "HIGH|WEAK_DOWNTREND|NEUTRAL": {
+      "count": 2,
+      "avg_1d": 1.206,
+      "avg_5d": 2.569,
+      "avg_20d": 3.701
+    },
+    "NORMAL|WEAK_DOWNTREND|RISK_OFF": {
+      "count": 1,
+      "avg_1d": 0.755,
+      "avg_5d": 3.131,
+      "avg_20d": 3.322
+    }
+  }
+}

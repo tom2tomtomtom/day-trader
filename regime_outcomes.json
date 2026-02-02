@@ -1,0 +1,53 @@
+{
+  "pending": [
+    {
+      "timestamp": "2026-02-01T14:06:32.891341",
+      "regimes": {
+        "volatility": "NORMAL",
+        "trend": "STRONG_UPTREND",
+        "risk": "NEUTRAL",
+        "regime_key": "NORMAL|STRONG_UPTREND|NEUTRAL",
+        "data": {
+          "spy": 691.969970703125,
+          "vix": 17.440000534057617,
+          "sma_20": 690.4944915771484,
+          "sma_50": 682.9274499511719,
+          "ret_1d": -0.2982547677011782,
+          "ret_5d": -0.1097122669803774
+        }
+      },
+      "spy_price_at_signal": 691.969970703125,
+      "lookback_periods": {
+        "1d": null,
+        "5d": null,
+        "20d": null
+      },
+      "status": "pending"
+    },
+    {
+      "timestamp": "2026-02-02T05:55:22.758061",
+      "regimes": {
+        "volatility": "NORMAL",
+        "trend": "STRONG_UPTREND",
+        "risk": "NEUTRAL",
+        "regime_key": "NORMAL|STRONG_UPTREND|NEUTRAL",
+        "data": {
+          "spy": 691.969970703125,
+          "vix": 17.440000534057617,
+          "sma_20": 690.4944915771484,
+          "sma_50": 682.9274499511719,
+          "ret_1d": -0.2982547677011782,
+          "ret_5d": -0.1097122669803774
+        }
+      },
+      "spy_price_at_signal": 691.969970703125,
+      "lookback_periods": {
+        "1d": null,
+        "5d": null,
+        "20d": null
+      },
+      "status": "pending"
+    }
+  ],
+  "completed": []
+}

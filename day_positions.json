@@ -1,0 +1,107 @@
+{
+  "date": "2026-02-02",
+  "capital": 100000,
+  "cash": 59275.655015945435,
+  "positions": {
+    "SOXL": {
+      "symbol": "SOXL",
+      "direction": "SHORT",
+      "shares": 161,
+      "entry_price": 61.78499984741211,
+      "entry_time": "2026-02-02T05:58:50.992647+00:00",
+      "entry_signal": {
+        "type": "VWAP_REJECTION",
+        "direction": "SHORT",
+        "strength": 0.8,
+        "reason": "Price $61.78 below VWAP $65.17"
+      },
+      "stop_price": 63.02,
+      "target_price": 59.93,
+      "highest_price": null,
+      "lowest_price": 61.78499984741211,
+      "trailing_stop": null,
+      "cost_basis": 9947.38497543335
+    },
+    "SOXS": {
+      "symbol": "SOXS",
+      "direction": "LONG",
+      "shares": 4548,
+      "entry_price": 1.9800000190734863,
+      "entry_time": "2026-02-02T05:58:51.194725+00:00",
+      "entry_signal": {
+        "type": "VWAP_RECLAIM",
+        "direction": "LONG",
+        "strength": 0.8,
+        "reason": "Price $1.98 above VWAP $1.88"
+      },
+      "stop_price": 1.94,
+      "target_price": 2.04,
+      "highest_price": 1.9800000190734863,
+      "lowest_price": null,
+      "trailing_stop": null,
+      "cost_basis": 9005.040086746216
+    },
+    "AMD": {
+      "symbol": "AMD",
+      "direction": "SHORT",
+      "shares": 34,
+      "entry_price": 236.77999877929688,
+      "entry_time": "2026-02-02T05:58:51.392664+00:00",
+      "entry_signal": {
+        "type": "VWAP_REJECTION",
+        "direction": "SHORT",
+        "strength": 0.8,
+        "reason": "Price $236.78 below VWAP $240.34"
+      },
+      "stop_price": 241.52,
+      "target_price": 229.68,
+      "highest_price": null,
+      "lowest_price": 236.77999877929688,
+      "trailing_stop": null,
+      "cost_basis": 8050.519958496094
+    },
+    "XLC": {
+      "symbol": "XLC",
+      "direction": "LONG",
+      "shares": 60,
+      "entry_price": 120.13999938964844,
+      "entry_time": "2026-02-02T05:58:51.972911+00:00",
+      "entry_signal": {
+        "type": "BREAKOUT",
+        "direction": "LONG",
+        "strength": 0.8,
+        "reason": "Testing HOD $120.26"
+      },
+      "stop_price": 117.74,
+      "target_price": 123.74,
+      "highest_price": 120.13999938964844,
+      "lowest_price": null,
+      "trailing_stop": null,
+      "cost_basis": 7208.399963378906
+    },
+    "XLP": {
+      "symbol": "XLP",
+      "direction": "LONG",
+      "shares": 78,
+      "entry_price": 83.5,
+      "entry_time": "2026-02-02T05:58:52.168840+00:00",
+      "entry_signal": {
+        "type": "BREAKOUT",
+        "direction": "LONG",
+        "strength": 1.0,
+        "reason": "Testing HOD $83.50"
+      },
+      "stop_price": 81.83,
+      "target_price": 86.0,
+      "highest_price": 83.5,
+      "lowest_price": null,
+      "trailing_stop": null,
+      "cost_basis": 6513.0
+    }
+  },
+  "closed_trades": [],
+  "total_trades": 5,
+  "winners": 0,
+  "losers": 0,
+  "gross_pnl": 0
+}

@@ -1,0 +1,184 @@
+{
+  "timestamp": "2026-02-02T05:55:22.323808+00:00",
+  "market_status": {
+    "US": {
+      "open": false,
+      "hours": "14:00-21:00 UTC"
+    },
+    "Europe": {
+      "open": false,
+      "hours": "08:00-16:00 UTC"
+    },
+    "Japan": {
+      "open": true,
+      "hours": "00:00-06:00 UTC"
+    },
+    "HongKong": {
+      "open": true,
+      "hours": "01:00-08:00 UTC"
+    },
+    "Australia": {
+      "open": false,
+      "hours": "23:00-05:00 UTC"
+    },
+    "Korea": {
+      "open": true,
+      "hours": "00:00-06:00 UTC"
+    }
+  },
+  "regimes": {
+    "volatility": {
+      "regime": "NORMAL",
+      "confidence": 0.7,
+      "vix": 17.44,
+      "realized_vol": 10.54,
+      "vol_spread": 6.9,
+      "note": "VIX > realized = fear premium"
+    },
+    "trend": {
+      "regime": "WEAK_UPTREND",
+      "score": 4.0,
+      "alignment": 0.75,
+      "indices": {
+        "SPY": -0.1097122669803774,
+        "QQQ": -0.5739818260719676,
+        "IWM": -1.6402821841188575,
+        "DIA": -1.018094726177532
+      }
+    },
+    "risk": {
+      "regime": "NEUTRAL",
+      "signals": {
+        "credit": "neutral",
+        "rotation": "risk_off",
+        "gold": "risk_on",
+        "small_cap": "risk_off"
+      },
+      "risk_on_signals": 1,
+      "risk_off_signals": 2
+    },
+    "sentiment": {
+      "regime": "NEUTRAL",
+      "score": 0,
+      "components": {
+        "vix_signal": "normal",
+        "put_call": 1.142,
+        "volume_signal": "normal"
+      }
+    },
+    "flow": {
+      "regime": "NEUTRAL",
+      "up_volume_pct": 47.4,
+      "ad_ratio": 0.9
+    },
+    "regional": {
+      "regions": {
+        "US": {
+          "regime": "SLIGHTLY_BULLISH",
+          "score": 2.4,
+          "change_1d": -0.97,
+          "change_5d": -0.77,
+          "market_open": false,
+          "tickers": [
+            "SPY",
+            "QQQ",
+            "IWM"
+          ]
+        },
+        "Europe": {
+          "regime": "SLIGHTLY_BULLISH",
+          "score": 3.2,
+          "change_1d": -0.14,
+          "change_5d": -0.37,
+          "market_open": false,
+          "tickers": [
+            "^STOXX50E",
+            "EWG",
+            "EWU"
+          ]
+        },
+        "Japan": {
+          "regime": "SLIGHTLY_BULLISH",
+          "score": 4.0,
+          "change_1d": -0.75,
+          "change_5d": 0.1,
+          "market_open": true,
+          "tickers": [
+            "^N225",
+            "EWJ"
+          ]
+        },
+        "China": {
+          "regime": "NEUTRAL",
+          "score": 0.67,
+          "change_1d": -2.73,
+          "change_5d": -0.9,
+          "market_open": true,
+          "tickers": [
+            "^HSI",
+            "FXI",
+            "KWEB"
+          ]
+        },
+        "Asia_Pacific": {
+          "regime": "SLIGHTLY_BULLISH",
+          "score": 3.2,
+          "change_1d": -2.4,
+          "change_5d": 0.26,
+          "market_open": false,
+          "tickers": [
+            "^AXJO",
+            "EWA",
+            "^KS11",
+            "EWY"
+          ]
+        },
+        "Emerging": {
+          "regime": "SLIGHTLY_BULLISH",
+          "score": 2.6,
+          "change_1d": -1.5,
+          "change_5d": -0.74,
+          "market_open": false,
+          "tickers": [
+            "EEM",
+            "INDA",
+            "EWT"
+          ]
+        }
+      },
+      "global_regime": "GLOBAL_RISK_ON",
+      "bullish_count": 5,
+      "bearish_count": 0
+    }
+  },
+  "summary": {
+    "volatility": "NORMAL",
+    "trend": "WEAK_UPTREND",
+    "risk": "NEUTRAL",
+    "sentiment": "NEUTRAL",
+    "flow": "NEUTRAL",
+    "global": "GLOBAL_RISK_ON"
+  },
+  "key_data": {
+    "vix": 17.440000534057617,
+    "spy_1d": -0.2982547677011782,
+    "spy_5d": -0.1097122669803774,
+    "nikkei_1d": -1.0663741287044948,
+    "hsi_1d": -2.8191724551068997,
+    "asx_1d": -1.0203967030017136,
+    "stoxx_1d": 0.9480708666833371,
+    "put_call": 1.142,
+    "btc_1d": -3.9796182303518
+  },
+  "global_summary": [
+    "\u25cb \ud83c\uddfa\ud83c\uddf8 US: -0.30%",
+    "\u25cb \ud83c\uddea\ud83c\uddfa Europe: +0.95%",
+    "\u25cf \ud83c\uddef\ud83c\uddf5 Japan: -1.07%",
+    "\u25cf \ud83c\udded\ud83c\uddf0 HK/China: -2.82%",
+    "\u25cb \ud83c\udde6\ud83c\uddfa Australia: -1.02%",
+    "\u25cb \ud83c\uddf0\ud83c\uddf7 Korea: -4.55%",
+    "\u25cf \ud83c\udf0d Emerging: -2.22%",
+    "\u25cf \u20bf Bitcoin: -3.98%"
+  ],
+  "interpretation": "\ud83c\udf0d GLOBAL RISK-ON: Most regions bullish, favorable for equities\n  \ud83d\udcc8 Leading: US, Europe, Japan, Asia_Pacific, Emerging\n\n\n\ud83d\udcca OVERALL: Bullish environment"
+}

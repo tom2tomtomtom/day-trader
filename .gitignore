@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+ENV/
+
+# Logs and state (can be regenerated)
+*.jsonl
+*_log.jsonl
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
