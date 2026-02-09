@@ -567,7 +567,7 @@ def main():
         if args.global_mode:
             import subprocess
             subprocess.run([
-                str(Path(__file__).parent / "../day-trader/venv/bin/python"),
+                str(Path(__file__).parent / ".venv/bin/python"),
                 str(Path(__file__).parent / "scanner.py"),
                 "scan", "--global", "--json"
             ], capture_output=True)

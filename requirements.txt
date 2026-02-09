@@ -1,0 +1,32 @@
+# Core Data and ML
+numpy
+pandas
+scikit-learn
+scipy
+yfinance
+
+# Trading Platforms
+ccxt
+alpaca-trade-api
+python-binance
+
+# Data Processing
+requests
+matplotlib
+seaborn
+
+# Optional: Dashboard
+streamlit
+plotly
+
+# Logging and Utilities
+python-dotenv
+logging
+
+# Risk Management
+TA-Lib  # Technical Analysis Library
+
+# Development and Testing
+pytest
+mypy
+black  # Code formatter

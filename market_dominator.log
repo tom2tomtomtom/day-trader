@@ -1,0 +1,590 @@
+2026-02-04 13:19:28,286 - INFO: 🐺 MARKET DOMINATOR ACTIVATED 🐺
+2026-02-04 13:20:52,285 - INFO: 🐺 MARKET DOMINATOR ACTIVATED 🐺
+2026-02-04 13:20:54,844 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:20:55,173 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:20:55,575 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:20:55,916 - ERROR: HTTP Error 500: <!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Yahoo</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <style>
+      html {
+          height: 100%;
+      }
+      body {
+          background: #fafafc url(https://s.yimg.com/nn/img/sad-panda-201402200631.png) 50% 50%;
+          background-size: cover;
+          height: 100%;
+          text-align: center;
+          font: 300 18px "helvetica neue", helvetica, verdana, tahoma, arial, sans-serif;
+          margin: 0;
+      }
+      table {
+          height: 100%;
+          width: 100%;
+          table-layout: fixed;
+          border-collapse: collapse;
+          border-spacing: 0;
+          border: none;
+      }
+      h1 {
+          font-size: 42px;
+          font-weight: 400;
+          color: #400090;
+      }
+      p {
+          color: #1A1A1A;
+      }
+      #message-1 {
+          font-weight: bold;
+          margin: 0;
+      }
+      #message-2 {
+          display: inline-block;
+          *display: inline;
+          zoom: 1;
+          max-width: 17em;
+          _width: 17em;
+      }
+      </style>
+      <script>
+      
+      </script>
+  </head>
+  <body>
+  <!-- status code : 500 -->
+  <!-- Unknown Host -->
+  <!-- host machine: ats-ncache-api--production-sg3-59887dd5cc-tjjd4 -->
+  <!-- timestamp: 1770211255.861 -->
+  <!-- url: https://default.finance-yql-production.finance-k8s.omega.yahoo.com/v10/finance/quoteSummary/EUR/USD?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=EUR%2FUSD&crumb=x2aBTWM5Oif-->
+  <script type="text/javascript">
+    function buildUrl(url, parameters){
+      var qs = [];
+      for(var key in parameters) {
+        var value = parameters[key];
+        qs.push(encodeURIComponent(key) + "=" + encodeURIComponent(value));
+      }
+      url = url + "?" + qs.join('&');
+      return url;
+    }
+
+    function generateBRBMarkup(site) {
+      params.source = 'brb';
+      generateBeaconMarkup(params);
+      var englishHeader = 'Will be right back...';
+      var englishMessage1 = 'Thank you for your patience.';
+      var englishMessage2 = 'Our engineers are working quickly to resolve the issue.';
+      var defaultLogoStyle = '';
+      var siteDataMap = {
+        'default': {
+          logo: 'https://s.yimg.com/rz/p/yahoo_frontpage_en-US_s_f_p_205x58_frontpage.png',
+          logoAlt: 'Yahoo Logo',
+          logoStyle: defaultLogoStyle,
+          header: englishHeader,
+          message1: englishMessage1,
+          message2: englishMessage2
+        }
+      };
+
+      var siteDetails = siteDataMap['default'];
+
+      document.write('<table><tbody><tr><td>');
+      document.write('<div id="content">');
+      document.write('<img src="' + siteDetails['logo'] + '" alt="' + siteDetails['logoAlt'] + '" style="' + siteDetails['logoStyle'] + '">');
+      document.write('<h1 style="margin-top:20px;">' + siteDetails['header'] + '</h1>');
+      document.write('<p id="message-1">' + siteDetails['message1'] + '</p>');
+      document.write('<p id="message-2">' + siteDetails['message2'] + '</p>');
+      document.write('</div>');
+      document.write('</td></tr></tbody></table>');
+    }
+
+    function generateBeaconMarkup(params) {
+        document.write('<img src="' + buildUrl('//geo.yahoo.com/b', params) + '" style="display:none;" width="0px" height="0px"/>');
+        var beacon = new Image();
+        beacon.src = buildUrl('//bcn.fp.yahoo.com/p', params);
+    }
+
+    var hostname = window.location.hostname;
+    var device = 'desktop';
+    var ynet = ('-' === '1');
+    var time = new Date().getTime();
+    var params = {
+        s: '1197757129',
+        t: time,
+        err_url: document.URL,
+        err: '500',
+        test: '-',
+        ats_host: 'ats-ncache-api--production-sg3-59887dd5cc-tjjd4',
+        rid: '-',
+        message: 'Unknown Host'
+    };
+
+    if(ynet) {
+        document.write('<div style="height: 5px; background-color: red;"></div>');
+    }
+    generateBRBMarkup(hostname, params);
+
+  </script>
+  <noscript>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <div id="englishContent">
+            <h1 style="margin-top:20px;">Will be right back...</h1>
+            <p id="message-1">Thank you for your patience.</p>
+            <p id="message-2">Our engineers are working quickly to resolve the issue.</p>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </noscript>
+  </body>
+</html>
+
+2026-02-04 13:20:56,177 - ERROR: Data fetch error for EUR/USD: Failed to parse json response from Yahoo Finance: {'code': 'Not Found', 'description': 'HTTP 404 Not Found'}
+2026-02-04 13:20:56,525 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:20:56,877 - ERROR: HTTP Error 500: <!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="utf-8">
+    <title>Yahoo</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimal-ui">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <style>
+      html {
+          height: 100%;
+      }
+      body {
+          background: #fafafc url(https://s.yimg.com/nn/img/sad-panda-201402200631.png) 50% 50%;
+          background-size: cover;
+          height: 100%;
+          text-align: center;
+          font: 300 18px "helvetica neue", helvetica, verdana, tahoma, arial, sans-serif;
+          margin: 0;
+      }
+      table {
+          height: 100%;
+          width: 100%;
+          table-layout: fixed;
+          border-collapse: collapse;
+          border-spacing: 0;
+          border: none;
+      }
+      h1 {
+          font-size: 42px;
+          font-weight: 400;
+          color: #400090;
+      }
+      p {
+          color: #1A1A1A;
+      }
+      #message-1 {
+          font-weight: bold;
+          margin: 0;
+      }
+      #message-2 {
+          display: inline-block;
+          *display: inline;
+          zoom: 1;
+          max-width: 17em;
+          _width: 17em;
+      }
+      </style>
+      <script>
+      
+      </script>
+  </head>
+  <body>
+  <!-- status code : 500 -->
+  <!-- Unknown Host -->
+  <!-- host machine: ats-ncache-api--production-sg3-59887dd5cc-gpmhl -->
+  <!-- timestamp: 1770211256.821 -->
+  <!-- url: https://default.finance-yql-production.finance-k8s.omega.yahoo.com/v10/finance/quoteSummary/USD/JPY?modules=financialData%2CquoteType%2CdefaultKeyStatistics%2CassetProfile%2CsummaryDetail&corsDomain=finance.yahoo.com&formatted=false&symbol=USD%2FJPY&crumb=x2aBTWM5Oif-->
+  <script type="text/javascript">
+    function buildUrl(url, parameters){
+      var qs = [];
+      for(var key in parameters) {
+        var value = parameters[key];
+        qs.push(encodeURIComponent(key) + "=" + encodeURIComponent(value));
+      }
+      url = url + "?" + qs.join('&');
+      return url;
+    }
+
+    function generateBRBMarkup(site) {
+      params.source = 'brb';
+      generateBeaconMarkup(params);
+      var englishHeader = 'Will be right back...';
+      var englishMessage1 = 'Thank you for your patience.';
+      var englishMessage2 = 'Our engineers are working quickly to resolve the issue.';
+      var defaultLogoStyle = '';
+      var siteDataMap = {
+        'default': {
+          logo: 'https://s.yimg.com/rz/p/yahoo_frontpage_en-US_s_f_p_205x58_frontpage.png',
+          logoAlt: 'Yahoo Logo',
+          logoStyle: defaultLogoStyle,
+          header: englishHeader,
+          message1: englishMessage1,
+          message2: englishMessage2
+        }
+      };
+
+      var siteDetails = siteDataMap['default'];
+
+      document.write('<table><tbody><tr><td>');
+      document.write('<div id="content">');
+      document.write('<img src="' + siteDetails['logo'] + '" alt="' + siteDetails['logoAlt'] + '" style="' + siteDetails['logoStyle'] + '">');
+      document.write('<h1 style="margin-top:20px;">' + siteDetails['header'] + '</h1>');
+      document.write('<p id="message-1">' + siteDetails['message1'] + '</p>');
+      document.write('<p id="message-2">' + siteDetails['message2'] + '</p>');
+      document.write('</div>');
+      document.write('</td></tr></tbody></table>');
+    }
+
+    function generateBeaconMarkup(params) {
+        document.write('<img src="' + buildUrl('//geo.yahoo.com/b', params) + '" style="display:none;" width="0px" height="0px"/>');
+        var beacon = new Image();
+        beacon.src = buildUrl('//bcn.fp.yahoo.com/p', params);
+    }
+
+    var hostname = window.location.hostname;
+    var device = 'desktop';
+    var ynet = ('-' === '1');
+    var time = new Date().getTime();
+    var params = {
+        s: '1197757129',
+        t: time,
+        err_url: document.URL,
+        err: '500',
+        test: '-',
+        ats_host: 'ats-ncache-api--production-sg3-59887dd5cc-gpmhl',
+        rid: '-',
+        message: 'Unknown Host'
+    };
+
+    if(ynet) {
+        document.write('<div style="height: 5px; background-color: red;"></div>');
+    }
+    generateBRBMarkup(hostname, params);
+
+  </script>
+  <noscript>
+  <table>
+    <tbody>
+      <tr>
+        <td>
+          <div id="englishContent">
+            <h1 style="margin-top:20px;">Will be right back...</h1>
+            <p id="message-1">Thank you for your patience.</p>
+            <p id="message-2">Our engineers are working quickly to resolve the issue.</p>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  </noscript>
+  </body>
+</html>
+
+2026-02-04 13:20:57,139 - ERROR: Data fetch error for USD/JPY: Failed to parse json response from Yahoo Finance: {'code': 'Not Found', 'description': 'HTTP 404 Not Found'}
+2026-02-04 13:20:57,139 - INFO: Trades executed: 2
+2026-02-04 13:20:57,139 - INFO: Total potential profit: $-1,343.64
+2026-02-04 13:20:57,139 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:20:57,139 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:21:57,601 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:21:57,797 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:21:57,797 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:21:58,125 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:21:58,126 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:21:58,459 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:21:58,459 - INFO: Trades executed: 2
+2026-02-04 13:21:58,459 - INFO: Total potential profit: $-2,687.28
+2026-02-04 13:21:58,459 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:21:58,459 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:22:58,845 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:22:59,096 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:22:59,097 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:22:59,432 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:22:59,433 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:22:59,778 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:22:59,778 - INFO: Trades executed: 2
+2026-02-04 13:22:59,778 - INFO: Total potential profit: $-4,030.92
+2026-02-04 13:22:59,778 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:22:59,778 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:24:00,168 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:24:00,418 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:24:00,419 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:24:00,755 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:24:00,756 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:24:01,080 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:24:01,080 - INFO: Trades executed: 2
+2026-02-04 13:24:01,080 - INFO: Total potential profit: $-5,374.56
+2026-02-04 13:24:01,080 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:24:01,080 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:25:01,492 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:25:01,761 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:25:01,761 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:25:02,099 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:25:02,100 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:25:02,464 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:25:02,464 - INFO: Trades executed: 2
+2026-02-04 13:25:02,464 - INFO: Total potential profit: $-6,718.20
+2026-02-04 13:25:02,465 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:25:02,465 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:26:02,825 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:26:03,078 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:26:03,079 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:26:03,410 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:26:03,411 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:26:03,966 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:26:03,967 - INFO: Trades executed: 2
+2026-02-04 13:26:03,967 - INFO: Total potential profit: $-8,061.84
+2026-02-04 13:26:03,967 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:26:03,967 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:27:04,347 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:27:04,598 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:27:04,598 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:27:04,944 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:27:04,945 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:27:05,282 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:27:05,283 - INFO: Trades executed: 2
+2026-02-04 13:27:05,283 - INFO: Total potential profit: $-9,405.48
+2026-02-04 13:27:05,283 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:27:05,283 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:28:05,693 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:28:05,941 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:28:05,942 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:28:06,284 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:28:06,285 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:28:06,615 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:28:06,615 - INFO: Trades executed: 2
+2026-02-04 13:28:06,615 - INFO: Total potential profit: $-10,749.12
+2026-02-04 13:28:06,616 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:28:06,616 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:29:06,999 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:29:07,249 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:29:07,250 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:29:07,614 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:29:07,615 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:29:07,952 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:29:07,952 - INFO: Trades executed: 2
+2026-02-04 13:29:07,952 - INFO: Total potential profit: $-12,092.77
+2026-02-04 13:29:07,952 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:29:07,952 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:30:08,310 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:30:08,634 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:30:08,634 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:30:08,965 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:30:08,966 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:30:09,305 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:30:09,306 - INFO: Trades executed: 2
+2026-02-04 13:30:09,306 - INFO: Total potential profit: $-13,436.41
+2026-02-04 13:30:09,306 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:30:09,306 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:31:09,686 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:31:09,935 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:31:09,936 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:31:10,273 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:31:10,273 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:31:10,699 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:31:10,699 - INFO: Trades executed: 2
+2026-02-04 13:31:10,699 - INFO: Total potential profit: $-14,780.05
+2026-02-04 13:31:10,699 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:31:10,699 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:32:11,122 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:32:11,374 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:32:11,375 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:32:11,723 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:32:11,724 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:32:12,092 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:32:12,092 - INFO: Trades executed: 2
+2026-02-04 13:32:12,092 - INFO: Total potential profit: $-16,123.69
+2026-02-04 13:32:12,093 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:32:12,093 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:33:12,490 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:33:12,744 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:33:12,745 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:33:13,098 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:33:13,099 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:33:13,453 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:33:13,454 - INFO: Trades executed: 2
+2026-02-04 13:33:13,454 - INFO: Total potential profit: $-17,467.33
+2026-02-04 13:33:13,454 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:33:13,454 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:34:13,832 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:34:14,074 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:34:14,075 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:34:14,395 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:34:14,396 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:34:14,720 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:34:14,720 - INFO: Trades executed: 2
+2026-02-04 13:34:14,720 - INFO: Total potential profit: $-18,810.97
+2026-02-04 13:34:14,720 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:34:14,720 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:35:15,108 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:35:15,361 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:35:15,362 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:35:15,715 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:35:15,716 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:35:16,042 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:35:16,042 - INFO: Trades executed: 2
+2026-02-04 13:35:16,042 - INFO: Total potential profit: $-20,154.61
+2026-02-04 13:35:16,042 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:35:16,042 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:36:16,455 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:36:16,722 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:36:16,723 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:36:17,065 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:36:17,066 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:36:17,511 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:36:17,512 - INFO: Trades executed: 2
+2026-02-04 13:36:17,512 - INFO: Total potential profit: $-21,498.25
+2026-02-04 13:36:17,512 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:36:17,512 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:37:17,895 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:37:18,149 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:37:18,150 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:37:18,479 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:37:18,480 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:37:18,855 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:37:18,855 - INFO: Trades executed: 2
+2026-02-04 13:37:18,855 - INFO: Total potential profit: $-22,841.89
+2026-02-04 13:37:18,855 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:37:18,855 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:38:19,245 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:38:19,495 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:38:19,496 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:38:19,844 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:38:19,845 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:38:20,184 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:38:20,185 - INFO: Trades executed: 2
+2026-02-04 13:38:20,185 - INFO: Total potential profit: $-24,185.53
+2026-02-04 13:38:20,185 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:38:20,185 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:39:20,537 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:39:20,799 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:39:20,799 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:39:21,122 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:39:21,122 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:39:21,458 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:39:21,458 - INFO: Trades executed: 2
+2026-02-04 13:39:21,458 - INFO: Total potential profit: $-25,529.17
+2026-02-04 13:39:21,458 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:39:21,458 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:40:21,858 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:40:22,109 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:40:22,110 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:40:22,443 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:40:22,443 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:40:22,778 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:40:22,779 - INFO: Trades executed: 2
+2026-02-04 13:40:22,779 - INFO: Total potential profit: $-26,872.81
+2026-02-04 13:40:22,779 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:40:22,779 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:41:23,161 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:41:23,411 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:41:23,412 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:41:23,744 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:41:23,745 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:41:24,084 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:41:24,085 - INFO: Trades executed: 2
+2026-02-04 13:41:24,085 - INFO: Total potential profit: $-28,216.45
+2026-02-04 13:41:24,085 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:41:24,085 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:42:24,478 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:42:24,723 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:42:24,724 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:42:25,065 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:42:25,066 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:42:25,426 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:42:25,427 - INFO: Trades executed: 2
+2026-02-04 13:42:25,427 - INFO: Total potential profit: $-29,560.09
+2026-02-04 13:42:25,427 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:42:25,427 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:43:25,846 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:43:26,098 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:43:26,099 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:43:26,809 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:43:26,810 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:43:27,166 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:43:27,166 - INFO: Trades executed: 2
+2026-02-04 13:43:27,166 - INFO: Total potential profit: $-30,903.73
+2026-02-04 13:43:27,166 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:43:27,166 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:44:27,590 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:44:27,837 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:44:27,838 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:44:28,160 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:44:28,161 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:44:28,499 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:44:28,499 - INFO: Trades executed: 2
+2026-02-04 13:44:28,499 - INFO: Total potential profit: $-32,247.37
+2026-02-04 13:44:28,499 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:44:28,499 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:45:28,889 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:45:29,138 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:45:29,139 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:45:29,469 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:45:29,469 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:45:29,814 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:45:29,814 - INFO: Trades executed: 2
+2026-02-04 13:45:29,814 - INFO: Total potential profit: $-33,591.01
+2026-02-04 13:45:29,814 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:45:29,814 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:46:30,163 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:46:30,418 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:46:30,419 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:46:30,773 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:46:30,774 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:46:31,328 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:46:31,328 - INFO: Trades executed: 2
+2026-02-04 13:46:31,328 - INFO: Total potential profit: $-34,934.65
+2026-02-04 13:46:31,328 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:46:31,328 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:47:31,712 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:47:31,962 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:47:31,963 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:47:32,402 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:47:32,403 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:47:32,764 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:47:32,765 - INFO: Trades executed: 2
+2026-02-04 13:47:32,765 - INFO: Total potential profit: $-36,278.30
+2026-02-04 13:47:32,765 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:47:32,765 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:48:33,125 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:48:33,380 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:48:33,381 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:48:33,704 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:48:33,705 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:48:34,039 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:48:34,039 - INFO: Trades executed: 2
+2026-02-04 13:48:34,039 - INFO: Total potential profit: $-37,621.94
+2026-02-04 13:48:34,039 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:48:34,039 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:49:34,403 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:49:34,652 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:49:34,653 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:49:35,004 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:49:35,004 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:49:35,386 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:49:35,386 - INFO: Trades executed: 2
+2026-02-04 13:49:35,386 - INFO: Total potential profit: $-38,965.58
+2026-02-04 13:49:35,386 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:49:35,387 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69
+2026-02-04 13:50:35,844 - ERROR: Data fetch error for BTC/USDT: object list can't be used in 'await' expression
+2026-02-04 13:50:36,096 - ERROR: Data fetch error for ETH/USDT: object list can't be used in 'await' expression
+2026-02-04 13:50:36,097 - ERROR: Failed to get ticker 'EUR/USD' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:50:36,441 - ERROR: Data fetch error for EUR/USD: 'Response' object is not subscriptable
+2026-02-04 13:50:36,441 - ERROR: Failed to get ticker 'USD/JPY' reason: Expecting value: line 1 column 1 (char 0)
+2026-02-04 13:50:36,785 - ERROR: Data fetch error for USD/JPY: 'Response' object is not subscriptable
+2026-02-04 13:50:36,785 - INFO: Trades executed: 2
+2026-02-04 13:50:36,785 - INFO: Total potential profit: $-40,309.22
+2026-02-04 13:50:36,785 - INFO: Symbol: AAPL | Signal: -1 | Shares: 83 | Potential Profit: $-670.96
+2026-02-04 13:50:36,785 - INFO: Symbol: GOOGL | Signal: -1 | Shares: 66 | Potential Profit: $-672.69

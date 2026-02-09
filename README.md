@@ -1,104 +1,84 @@
-# Day Trader 📈
+# Trading Intelligence System
 
-An AI-powered day trading simulator with global market support (crypto, forex, stocks).
+## Overview
+A comprehensive, self-learning trading intelligence platform designed to generate sophisticated trading insights without relying on external API keys.
 
-## Features
+## Key Features
+- 🧠 Advanced Machine Learning
+  - Multiple predictive models (Random Forest, Gradient Boosting, Neural Networks)
+  - Self-generating synthetic market data
+  - Dynamic model training and evaluation
 
-- **24/7 Global Markets**: Crypto (BTC, ETH, SOL, etc.), Forex (EUR/USD, GBP/USD, etc.), and US stocks/ETFs
-- **Smart Scanner**: Finds gaps, volume surges, breakouts, mean reversion, and volatility plays
-- **Paper Trading**: Simulated $100k account with stop-losses and take-profits
-- **Learning System**: Adjusts indicator weights based on trade outcomes
-- **Regime Detection**: Identifies market conditions (trending, volatile, ranging)
-- **Next.js Dashboard**: Real-time web UI for monitoring
+- 📊 Multi-Strategy Ensemble
+  - Momentum trading
+  - Mean reversion
+  - Trend following
+  - Volatility breakout strategies
 
-## Quick Start
+- 🛡️ Advanced Risk Management
+  - Dynamic position sizing
+  - Comprehensive risk metrics
+  - Performance tracking
 
+- 📈 Intelligent Dashboard
+  - Real-time performance visualization
+  - Model evaluation insights
+  - Risk analysis tools
+
+## Components
+1. `trading_intelligence_core.py`: Core trading logic and ML models
+2. `trading_dashboard/app.py`: Interactive Streamlit dashboard
+3. `data/`: Directory for storing trading results and models
+
+## Setup
 ```bash
-# Install dependencies
-python -m venv venv
+# Create virtual environment
+python3 -m venv venv
 source venv/bin/activate
-pip install yfinance numpy pandas
 
-# Check market status
-python scanner.py markets
+# Install dependencies
+pip install -r trading_dashboard/requirements.txt
 
-# Run a global scan (crypto + forex + stocks)
-python scanner.py scan --global
+# Run trading intelligence
+python trading_intelligence_core.py
 
-# Run trading cycle
-python day_trader.py run --global
-
-# Check status
-python day_trader.py status
+# Launch dashboard
+streamlit run trading_dashboard/app.py
 ```
 
-## Commands
+## Usage
+1. Generate synthetic market data
+2. (Optional) Add API Keys
+3. Train machine learning models
+4. Backtest trading strategies
+5. Visualize results in the dashboard
 
-### Scanner
-```bash
-python scanner.py markets          # Show which markets are open
-python scanner.py scan             # Scan tradeable assets only
-python scanner.py scan --global    # Scan all assets (24/7)
-python scanner.py watchlist        # Show current watchlist
-```
+## API Key Management
+The system supports multiple data providers:
+- Finnhub
+- Alpha Vantage
+- Polygon
+- Yahoo Finance
+- Tiingo
+- Marketstack
+- Twelve Data
+- Financial Modeling Prep
 
-### Day Trader
-```bash
-python day_trader.py run           # Run one trading cycle
-python day_trader.py run --global  # Include global markets
-python day_trader.py status        # Daily P&L summary
-python day_trader.py close         # Close all positions
-python day_trader.py reset         # Reset to $100k
-```
+### Adding API Keys
+1. Visit provider websites to get free API keys
+2. Use the dashboard's API Key Management sidebar
+3. Enter keys securely
+4. System will automatically use available keys to enhance data
 
-### Regime Detector
-```bash
-python regime_detector.py          # Analyze current market regime
-python hourly_runner.py            # Full hourly check with regime + trades
-```
+### Free API Key Resources
+- [Finnhub](https://finnhub.io/) - Free tier available
+- [Alpha Vantage](https://www.alphavantage.co/) - Free API key
+- [Polygon](https://polygon.io/) - Free tier for developers
 
-## Dashboard
+## Disclaimer
+This is a research and educational tool. Not financial advice. Always consult professional financial advisors.
 
-```bash
-cd dashboard
-npm install
-npm run dev
-# Open http://localhost:3000
-```
-
-## Market Hours
-
-| Market | Hours (UTC) | Days |
-|--------|-------------|------|
-| Crypto | 24/7 | Every day |
-| Forex | Sun 22:00 - Fri 22:00 | 24/5 |
-| US Stocks | 14:30 - 21:00 | Mon-Fri |
-| US Pre-market | 09:00 - 14:30 | Mon-Fri |
-
-## Architecture
-
-```
-├── scanner.py          # Finds trading opportunities
-├── day_trader.py       # Executes paper trades
-├── regime_detector.py  # Market regime analysis
-├── hourly_runner.py    # Automated hourly checks
-├── learner.py          # Pattern learning from outcomes
-├── paper_trader.py     # Alternative paper trading logic
-├── sentiment.py        # News/sentiment analysis
-├── dashboard/          # Next.js web UI
-│   ├── src/app/        # Pages (positions, watchlist, markets)
-│   └── src/components/ # React components
-└── *.json              # State files (positions, watchlist, etc.)
-```
-
-## Cron Integration
-
-Works with Clawdbot cron for automated trading:
-- Every 15 min: Trading cycle with global markets
-- Every 4 hours: Full scanner refresh
-- Daily: Trade intel analysis
-- EOD: Position close and P&L report
-
-## License
-
-MIT
+### Security Notes
+- Keys are stored securely in an encrypted JSON file
+- Only basic keys are accepted (minimum length validation)
+- No sensitive data is transmitted without your explicit consent
