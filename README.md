@@ -1,84 +1,67 @@
-# Trading Intelligence System
+# Trading Intelligence Platform
 
-## Overview
-A comprehensive, self-learning trading intelligence platform designed to generate sophisticated trading insights without relying on external API keys.
+## 🚀 Advanced AI-Powered Trading System
 
-## Key Features
-- 🧠 Advanced Machine Learning
-  - Multiple predictive models (Random Forest, Gradient Boosting, Neural Networks)
-  - Self-generating synthetic market data
-  - Dynamic model training and evaluation
+### Overview
+A comprehensive, intelligent trading platform designed to:
+- Collect real-time market data
+- Generate advanced trading signals
+- Manage risk dynamically
+- Support multiple asset classes
 
-- 📊 Multi-Strategy Ensemble
-  - Momentum trading
-  - Mean reversion
-  - Trend following
-  - Volatility breakout strategies
+### Key Features
+- 📊 Multi-Source Market Data Integration
+- 🧠 Advanced Machine Learning Predictions
+- 💹 Real-Time Trading Signal Generation
+- 🛡️ Intelligent Risk Management
+- 🌐 Multi-Platform Support (Stocks, Crypto)
 
-- 🛡️ Advanced Risk Management
-  - Dynamic position sizing
-  - Comprehensive risk metrics
-  - Performance tracking
+### Components
+1. `market_data_integrator.py`: Advanced market data collection
+2. `trading_intelligence_core.py`: ML-powered trading logic
+3. `real_market_trader.py`: Automated trading execution
+4. `trading_dashboard/app.py`: Performance visualization
 
-- 📈 Intelligent Dashboard
-  - Real-time performance visualization
-  - Model evaluation insights
-  - Risk analysis tools
-
-## Components
-1. `trading_intelligence_core.py`: Core trading logic and ML models
-2. `trading_dashboard/app.py`: Interactive Streamlit dashboard
-3. `data/`: Directory for storing trading results and models
-
-## Setup
+### Setup & Installation
 ```bash
+# Clone the repository
+git clone https://github.com/tom2tomtomtom/trading-intelligence.git
+
 # Create virtual environment
-python3 -m venv venv
-source venv/bin/activate
+python3 -m venv trading_env
+source trading_env/bin/activate
 
 # Install dependencies
-pip install -r trading_dashboard/requirements.txt
+pip install -r requirements.txt
 
-# Run trading intelligence
-python trading_intelligence_core.py
-
-# Launch dashboard
-streamlit run trading_dashboard/app.py
+# Run the trading system
+python real_market_trader.py
 ```
 
-## Usage
-1. Generate synthetic market data
-2. (Optional) Add API Keys
-3. Train machine learning models
-4. Backtest trading strategies
-5. Visualize results in the dashboard
+### Configuration
+1. Set up API keys for trading platforms
+2. Configure `watchlist.json`
+3. Adjust risk management parameters
 
-## API Key Management
-The system supports multiple data providers:
-- Finnhub
-- Alpha Vantage
-- Polygon
-- Yahoo Finance
-- Tiingo
-- Marketstack
-- Twelve Data
-- Financial Modeling Prep
+### Supported Platforms
+- Stock Trading: Alpaca
+- Cryptocurrency: Binance, Coinbase, Kraken
 
-### Adding API Keys
-1. Visit provider websites to get free API keys
-2. Use the dashboard's API Key Management sidebar
-3. Enter keys securely
-4. System will automatically use available keys to enhance data
+### Disclaimer
+🚨 This is an experimental trading system. 
+- Use at your own risk
+- Not financial advice
+- Always consult professional financial advisors
 
-### Free API Key Resources
-- [Finnhub](https://finnhub.io/) - Free tier available
-- [Alpha Vantage](https://www.alphavantage.co/) - Free API key
-- [Polygon](https://polygon.io/) - Free tier for developers
+### Contributing
+1. Fork the repository
+2. Create feature branch
+3. Commit changes
+4. Push to the branch
+5. Create Pull Request
 
-## Disclaimer
-This is a research and educational tool. Not financial advice. Always consult professional financial advisors.
+### License
+MIT License
 
-### Security Notes
-- Keys are stored securely in an encrypted JSON file
-- Only basic keys are accepted (minimum length validation)
-- No sensitive data is transmitted without your explicit consent
+### Contact
+trading-intelligence@clawdbot.com
