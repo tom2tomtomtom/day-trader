@@ -1,67 +1,55 @@
-# Trading Intelligence Platform
+# Day Trader: Advanced Trading Intelligence System
 
-## 🚀 Advanced AI-Powered Trading System
+## Overview
+A comprehensive day trading platform with advanced machine learning, multi-asset support, and intelligent risk management.
 
-### Overview
-A comprehensive, intelligent trading platform designed to:
-- Collect real-time market data
-- Generate advanced trading signals
-- Manage risk dynamically
-- Support multiple asset classes
+## Key Features
+- 📊 Multi-Asset Trading
+  - Stocks
+  - Cryptocurrencies
+  - Forex
 
-### Key Features
-- 📊 Multi-Source Market Data Integration
-- 🧠 Advanced Machine Learning Predictions
-- 💹 Real-Time Trading Signal Generation
-- 🛡️ Intelligent Risk Management
-- 🌐 Multi-Platform Support (Stocks, Crypto)
+- 🧠 Machine Learning
+  - Dynamic signal generation
+  - Advanced prediction models
+  - Ensemble trading strategies
 
-### Components
-1. `market_data_integrator.py`: Advanced market data collection
-2. `trading_intelligence_core.py`: ML-powered trading logic
-3. `real_market_trader.py`: Automated trading execution
-4. `trading_dashboard/app.py`: Performance visualization
+- 🛡️ Risk Management
+  - Adaptive position sizing
+  - Dynamic stop-loss/take-profit
+  - Portfolio risk controls
 
-### Setup & Installation
+## Components
+- `day_trader.py`: Core trading logic
+- `market_data_integrator.py`: Advanced data collection
+- `paper_trader.py`: Simulation and backtesting
+
+## Setup
 ```bash
-# Clone the repository
-git clone https://github.com/tom2tomtomtom/trading-intelligence.git
-
-# Create virtual environment
-python3 -m venv trading_env
-source trading_env/bin/activate
-
 # Install dependencies
 pip install -r requirements.txt
 
-# Run the trading system
-python real_market_trader.py
+# Run day trader
+python day_trader.py
 ```
 
-### Configuration
-1. Set up API keys for trading platforms
-2. Configure `watchlist.json`
-3. Adjust risk management parameters
+## Trading Strategies
+- Momentum tracking
+- Mean reversion
+- Trend following
+- Volatility breakout
 
-### Supported Platforms
-- Stock Trading: Alpaca
-- Cryptocurrency: Binance, Coinbase, Kraken
-
-### Disclaimer
-🚨 This is an experimental trading system. 
-- Use at your own risk
+## Disclaimer
+⚠️ Experimental trading system
 - Not financial advice
-- Always consult professional financial advisors
+- Use at your own risk
+- Always consult financial professionals
 
-### Contributing
+## Contributing
 1. Fork the repository
 2. Create feature branch
-3. Commit changes
-4. Push to the branch
-5. Create Pull Request
+3. Implement improvements
+4. Submit pull request
 
-### License
+## License
 MIT License
-
-### Contact
-trading-intelligence@clawdbot.com
