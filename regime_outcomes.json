@@ -18,7 +18,7 @@
       },
       "spy_price_at_signal": 691.969970703125,
       "lookback_periods": {
-        "1d": null,
+        "1d": -0.344,
         "5d": null,
         "20d": null
       },
@@ -41,6 +41,54 @@
         }
       },
       "spy_price_at_signal": 691.969970703125,
+      "lookback_periods": {
+        "1d": null,
+        "5d": null,
+        "20d": null
+      },
+      "status": "pending"
+    },
+    {
+      "timestamp": "2026-02-02T14:30:19.147431",
+      "regimes": {
+        "volatility": "NORMAL",
+        "trend": "WEAK_UPTREND",
+        "risk": "NEUTRAL",
+        "regime_key": "NORMAL|WEAK_UPTREND|NEUTRAL",
+        "data": {
+          "spy": 689.6500244140625,
+          "vix": 18.399999618530273,
+          "sma_20": 690.8184936523437,
+          "sma_50": 683.557744140625,
+          "ret_1d": -0.3352669027971156,
+          "ret_5d": -0.8396908513873091
+        }
+      },
+      "spy_price_at_signal": 689.6500244140625,
+      "lookback_periods": {
+        "1d": null,
+        "5d": null,
+        "20d": null
+      },
+      "status": "pending"
+    },
+    {
+      "timestamp": "2026-02-02T18:30:24.617352",
+      "regimes": {
+        "volatility": "NORMAL",
+        "trend": "STRONG_UPTREND",
+        "risk": "NEUTRAL",
+        "regime_key": "NORMAL|STRONG_UPTREND|NEUTRAL",
+        "data": {
+          "spy": 696.1199951171875,
+          "vix": 16.270000457763672,
+          "sma_20": 691.1419921875,
+          "sma_50": 683.6871435546875,
+          "ret_1d": 0.5997405364058794,
+          "ret_5d": 0.09058432064568134
+        }
+      },
+      "spy_price_at_signal": 696.1199951171875,
       "lookback_periods": {
         "1d": null,
         "5d": null,

@@ -1,13 +1,26 @@
+# Machine Learning Models
+*.joblib
+*.pkl
+*.model
+
+# Data Files
+*.csv
+*.parquet
+*.db
+*.sqlite
+
+# Logs
+*.log
+
+# Virtual Environment
+venv/
+.env
+
 # Python
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-.venv/
-ENV/
-
+*.pyc
+*.pyo
+*.pyd
 # Logs and state (can be regenerated)
 *.jsonl
 *_log.jsonl
@@ -21,5 +34,23 @@ macro_triggers.json
 .vscode/
 .idea/
 
-# OS
+# OS Generated Files
 .DS_Store
+Thumbs.db
+
+# Large Model Files
+model_weights/
+pretrained_models/
+
+# API Keys and Secrets
+*.key
+secrets.json
+
+# Temporary Files
+*.tmp
+*.bak
+
+# Trading System Specific
+market_data/
+trading_results/
+backtest_results/
