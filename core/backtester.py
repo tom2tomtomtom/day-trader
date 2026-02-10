@@ -27,6 +27,7 @@ from enum import Enum
 
 from .trading_model import TradingModel, TechnicalIndicators, TradeSignal
 from .feature_engine import FeatureEngine, FeatureVector
+from .execution_engine import ExecutionEngine, ManagedPosition, ExitReason
 
 logger = logging.getLogger(__name__)
 
@@ -128,10 +129,12 @@ class Backtester:
 
     def __init__(self, initial_capital: float = 100000,
                  commission: float = 0.0,  # Per-trade commission
-                 slippage_pct: float = 0.001):  # 0.1% slippage
+                 slippage_pct: float = 0.001,  # 0.1% slippage
+                 latency_bars: int = 0):  # Bars of latency (0=same bar, 1=next bar open)
         self.initial_capital = initial_capital
         self.commission = commission
         self.slippage_pct = slippage_pct
+        self.latency_bars = latency_bars
 
     def run(self, symbol: str, prices: List[float],
             dates: List[str],
@@ -140,14 +143,10 @@ class Backtester:
             volumes: List[float] = None,
             model: TradingModel = None) -> BacktestResult:
         """
-        Run backtest on a single symbol.
+        Run backtest on a single symbol using the unified ExecutionEngine.
 
-        Args:
-            symbol: Ticker symbol
-            prices: List of closing prices
-            dates: List of date strings (ISO format)
-            highs/lows/volumes: Optional OHLCV data
-            model: TradingModel instance (creates default if None)
+        This shares the same exit logic (trailing stops, partial exits,
+        ATR stops, signal reversal) as the paper trader.
         """
         if model is None:
             model = TradingModel(portfolio_value=self.initial_capital)
@@ -156,154 +155,200 @@ class Backtester:
         if n < 50:
             raise ValueError(f"Need at least 50 price points, got {n}")
 
-        # Feature engine for computing ML features at each trade entry
+        engine = ExecutionEngine(
+            slippage_pct=self.slippage_pct,
+            commission=self.commission,
+        )
         feature_engine = FeatureEngine()
 
         # State
         cash = self.initial_capital
-        position = None  # Current position dict or None
+        position: Optional[ManagedPosition] = None
         trades: List[BacktestTrade] = []
         equity_curve: List[EquityCurvePoint] = []
         peak_value = self.initial_capital
 
-        # Min lookback for indicators
         lookback = 50
+        latency = self.latency_bars
+
+        # Pending entry: (bar_idx_to_execute, signal, feature_data)
+        pending_entry = None
+
+        def _record_trade(pos: ManagedPosition, exit_price: float,
+                          exit_shares: int, exit_reason: str,
+                          exit_date: str, exit_score: int, bar_idx: int):
+            pnl, return_pct = engine.calculate_pnl(pos, exit_price, exit_shares)
+            pnl_pct = round(pnl / self.initial_capital * 100, 4)
+            hold_days = bar_idx - pos.entry_idx
+            trades.append(BacktestTrade(
+                symbol=symbol,
+                direction=pos.direction,
+                entry_date=pos.entry_date,
+                entry_price=pos.entry_price,
+                exit_date=exit_date,
+                exit_price=exit_price,
+                shares=exit_shares,
+                pnl_dollars=pnl,
+                pnl_pct=pnl_pct,
+                return_pct=return_pct,
+                hold_days=hold_days,
+                exit_reason=exit_reason,
+                entry_score=pos.entry_score,
+                exit_score=exit_score,
+                entry_features=pos.entry_features,
+            ))
+            return pnl
 
         for i in range(lookback, n):
             current_price = prices[i]
             current_date = dates[i] if i < len(dates) else f"day_{i}"
 
-            # Get signal from model
             price_window = prices[:i + 1]
             high_window = highs[:i + 1] if highs else None
             low_window = lows[:i + 1] if lows else None
             vol_window = volumes[:i + 1] if volumes else None
+
+            # === EXECUTE PENDING ENTRY (latency-aware) ===
+            if pending_entry is not None and i >= pending_entry[0]:
+                p_signal, p_features = pending_entry[1], pending_entry[2]
+                pending_entry = None
+
+                if position is None:
+                    shares = p_signal.position_shares
+                    if shares <= 0:
+                        if p_signal.stop_loss > 0:
+                            risk = abs(current_price - p_signal.stop_loss)
+                            shares = max(1, int(self.initial_capital * 0.02 / risk)) if risk > 0 else 1
+                        else:
+                            shares = 1
+
+                    atr = p_signal.indicators.atr_14 if p_signal.indicators else 0
+
+                    # Latency > 0: execute at this bar's open (approximated by price)
+                    pos = engine.create_position(
+                        symbol=symbol,
+                        direction=p_signal.direction,
+                        entry_price=current_price,
+                        shares=shares,
+                        stop_loss=p_signal.stop_loss,
+                        take_profit=p_signal.take_profit,
+                        entry_date=current_date,
+                        entry_score=p_signal.score,
+                        atr=atr,
+                        entry_idx=i,
+                        apply_slippage=True,
+                    )
+
+                    position_cost = pos.shares * pos.entry_price + self.commission
+                    if position_cost <= cash:
+                        pos.entry_features = p_features
+                        cash -= position_cost
+                        position = pos
 
             signal = model.generate_signal(
                 symbol, price_window, high_window, low_window, vol_window
             )
 
             if signal is None:
+                # Still update position price for trailing stop tracking
+                if position is not None:
+                    position.update_price(current_price)
+                # Record equity even with no signal
+                positions_value = self._position_value(position, current_price)
+                portfolio_value = cash + positions_value
+                prev_val = equity_curve[-1].portfolio_value if equity_curve else self.initial_capital
+                daily_return = (portfolio_value - prev_val) / prev_val
+                cumulative_return = (portfolio_value - self.initial_capital) / self.initial_capital
+                peak_value = max(peak_value, portfolio_value)
+                drawdown = (peak_value - portfolio_value) / peak_value
+                equity_curve.append(EquityCurvePoint(
+                    date=current_date,
+                    portfolio_value=round(portfolio_value, 2),
+                    cash=round(cash, 2),
+                    positions_value=round(positions_value, 2),
+                    daily_return=round(daily_return, 6),
+                    cumulative_return=round(cumulative_return, 6),
+                    drawdown=round(drawdown, 6),
+                    num_positions=1 if position else 0,
+                ))
                 continue
 
             score = signal.score
 
-            # === POSITION MANAGEMENT ===
+            # === POSITION MANAGEMENT (via ExecutionEngine) ===
             if position is not None:
-                pos_direction = position["direction"]
-                entry_price = position["entry_price"]
-                stop_loss = position["stop_loss"]
-                take_profit = position["take_profit"]
-                shares = position["shares"]
+                position.update_price(current_price)
+                exit_signal = engine.check_exit(position, current_price, score)
 
-                exit_reason = None
-
-                # Check stop loss
-                if pos_direction == "long" and current_price <= stop_loss:
-                    exit_reason = "stop_loss"
-                elif pos_direction == "short" and current_price >= stop_loss:
-                    exit_reason = "stop_loss"
-                # Check take profit
-                elif pos_direction == "long" and current_price >= take_profit:
-                    exit_reason = "take_profit"
-                elif pos_direction == "short" and current_price <= take_profit:
-                    exit_reason = "take_profit"
-                # Check signal reversal
-                elif pos_direction == "long" and score <= -25:
-                    exit_reason = "signal_reversal"
-                elif pos_direction == "short" and score >= 25:
-                    exit_reason = "signal_reversal"
-
-                if exit_reason:
-                    # Apply slippage on exit
-                    if pos_direction == "long":
-                        exit_price = current_price * (1 - self.slippage_pct)
-                        pnl = (exit_price - entry_price) * shares
-                        return_pct = (exit_price - entry_price) / entry_price * 100
+                if exit_signal is not None:
+                    if exit_signal.is_partial:
+                        _record_trade(
+                            position, exit_signal.exit_price, exit_signal.exit_shares,
+                            exit_signal.reason.value, current_date, score, i,
+                        )
+                        cash += exit_signal.exit_shares * exit_signal.exit_price
+                        engine.apply_partial_exit(position, exit_signal.exit_shares)
                     else:
-                        exit_price = current_price * (1 + self.slippage_pct)
-                        pnl = (entry_price - exit_price) * shares
-                        return_pct = (entry_price - exit_price) / entry_price * 100
-
-                    pnl -= self.commission  # Exit commission
-
-                    hold_days = i - position["entry_idx"]
-
-                    trades.append(BacktestTrade(
-                        symbol=symbol,
-                        direction=pos_direction,
-                        entry_date=position["entry_date"],
-                        entry_price=entry_price,
-                        exit_date=current_date,
-                        exit_price=round(exit_price, 2),
-                        shares=shares,
-                        pnl_dollars=round(pnl, 2),
-                        pnl_pct=round(pnl / self.initial_capital * 100, 4),
-                        return_pct=round(return_pct, 4),
-                        hold_days=hold_days,
-                        exit_reason=exit_reason,
-                        entry_score=position["entry_score"],
-                        exit_score=score,
-                        entry_features=position.get("entry_features", {}),
-                    ))
-
-                    cash += shares * exit_price + pnl
-                    position = None
+                        pnl = _record_trade(
+                            position, exit_signal.exit_price, exit_signal.exit_shares,
+                            exit_signal.reason.value, current_date, score, i,
+                        )
+                        cash += exit_signal.exit_shares * exit_signal.exit_price
+                        position = None
 
             # === ENTRY LOGIC ===
             if position is None and signal.direction in ("long", "short"):
-                # Check we have enough cash
-                entry_price = current_price
-                if signal.direction == "long":
-                    entry_price *= (1 + self.slippage_pct)  # Slippage on buy
+                # Compute features now (from data available at signal bar)
+                entry_fv = feature_engine.compute(
+                    symbol=symbol,
+                    prices=price_window,
+                    highs=high_window,
+                    lows=low_window,
+                    volumes=vol_window,
+                    indicators=signal.indicators,
+                )
+                entry_features = entry_fv.to_dict()
+
+                if latency > 0:
+                    # Queue for execution on a future bar
+                    pending_entry = (i + latency, signal, entry_features)
                 else:
-                    entry_price *= (1 - self.slippage_pct)  # Slippage on short
+                    # Immediate execution (latency=0)
+                    shares = signal.position_shares
+                    if shares <= 0:
+                        if signal.stop_loss > 0:
+                            risk = abs(current_price - signal.stop_loss)
+                            shares = max(1, int(self.initial_capital * 0.02 / risk)) if risk > 0 else 1
+                        else:
+                            shares = 1
 
-                # Calculate position size using the model's sizing
-                shares = signal.position_shares
-                if shares <= 0:
-                    shares = max(1, int(self.initial_capital * 0.02 / abs(entry_price - signal.stop_loss))) if signal.stop_loss > 0 else 1
+                    atr = signal.indicators.atr_14 if signal.indicators else 0
 
-                position_cost = shares * entry_price + self.commission
-
-                if position_cost <= cash:
-                    # Compute feature vector from data available AT this bar
-                    # (no future data leakage — only prices[:i+1])
-                    entry_fv = feature_engine.compute(
+                    pos = engine.create_position(
                         symbol=symbol,
-                        prices=price_window,
-                        highs=high_window,
-                        lows=low_window,
-                        volumes=vol_window,
-                        indicators=signal.indicators,
+                        direction=signal.direction,
+                        entry_price=current_price,
+                        shares=shares,
+                        stop_loss=signal.stop_loss,
+                        take_profit=signal.take_profit,
+                        entry_date=current_date,
+                        entry_score=score,
+                        atr=atr,
+                        entry_idx=i,
+                        apply_slippage=True,
                     )
 
-                    cash -= position_cost
-                    position = {
-                        "direction": signal.direction,
-                        "entry_price": round(entry_price, 2),
-                        "stop_loss": signal.stop_loss,
-                        "take_profit": signal.take_profit,
-                        "shares": shares,
-                        "entry_date": current_date,
-                        "entry_idx": i,
-                        "entry_score": score,
-                        "entry_features": entry_fv.to_dict(),
-                    }
+                    position_cost = pos.shares * pos.entry_price + self.commission
+                    if position_cost <= cash:
+                        pos.entry_features = entry_features
+                        cash -= position_cost
+                        position = pos
 
             # === EQUITY CURVE ===
-            positions_value = 0
-            if position:
-                if position["direction"] == "long":
-                    positions_value = position["shares"] * current_price
-                else:
-                    # Short position P&L
-                    entry_val = position["shares"] * position["entry_price"]
-                    current_val = position["shares"] * current_price
-                    positions_value = entry_val + (entry_val - current_val)
-
+            positions_value = self._position_value(position, current_price)
             portfolio_value = cash + positions_value
-            daily_return = (portfolio_value - (equity_curve[-1].portfolio_value if equity_curve else self.initial_capital)) / (equity_curve[-1].portfolio_value if equity_curve else self.initial_capital)
+            prev_val = equity_curve[-1].portfolio_value if equity_curve else self.initial_capital
+            daily_return = (portfolio_value - prev_val) / prev_val
             cumulative_return = (portfolio_value - self.initial_capital) / self.initial_capital
             peak_value = max(peak_value, portfolio_value)
             drawdown = (peak_value - portfolio_value) / peak_value
@@ -321,32 +366,13 @@ class Backtester:
 
         # Close any remaining position at end
         if position:
-            final_price = prices[-1]
-            if position["direction"] == "long":
-                pnl = (final_price - position["entry_price"]) * position["shares"]
-                return_pct = (final_price - position["entry_price"]) / position["entry_price"] * 100
-            else:
-                pnl = (position["entry_price"] - final_price) * position["shares"]
-                return_pct = (position["entry_price"] - final_price) / position["entry_price"] * 100
-
-            trades.append(BacktestTrade(
-                symbol=symbol,
-                direction=position["direction"],
-                entry_date=position["entry_date"],
-                entry_price=position["entry_price"],
-                exit_date=dates[-1] if dates else "end",
-                exit_price=round(final_price, 2),
-                shares=position["shares"],
-                pnl_dollars=round(pnl, 2),
-                pnl_pct=round(pnl / self.initial_capital * 100, 4),
-                return_pct=round(return_pct, 4),
-                hold_days=n - position["entry_idx"],
-                exit_reason="end_of_data",
-                entry_score=position["entry_score"],
-                exit_score=0,
-                entry_features=position.get("entry_features", {}),
-            ))
-            cash += position["shares"] * final_price
+            exit_signal = engine.close_at_end(position, prices[-1])
+            _record_trade(
+                position, exit_signal.exit_price, exit_signal.exit_shares,
+                exit_signal.reason.value,
+                dates[-1] if dates else "end", 0, n,
+            )
+            cash += exit_signal.exit_shares * exit_signal.exit_price
 
         # Calculate metrics
         final_value = equity_curve[-1].portfolio_value if equity_curve else self.initial_capital
@@ -372,8 +398,21 @@ class Backtester:
                 "max_risk_per_trade": TradingModel.MAX_RISK_PER_TRADE,
                 "commission": self.commission,
                 "slippage_pct": self.slippage_pct,
+                "latency_bars": self.latency_bars,
             },
         )
+
+    @staticmethod
+    def _position_value(position: Optional[ManagedPosition], current_price: float) -> float:
+        """Calculate current value of an open position."""
+        if position is None:
+            return 0.0
+        if position.direction == "long":
+            return position.shares * current_price
+        else:
+            entry_val = position.shares * position.entry_price
+            current_val = position.shares * current_price
+            return entry_val + (entry_val - current_val)
 
     def _calculate_metrics(self, trades: List[BacktestTrade],
                            equity_curve: List[EquityCurvePoint],

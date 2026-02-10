@@ -26,6 +26,7 @@ class SignalType(Enum):
     FLOW = "flow"
     MOMENTUM = "momentum"
     REGIME = "regime"
+    RL_AGENT = "rl_agent"
 
 
 @dataclass
@@ -68,6 +69,7 @@ class SignalEnsemble:
         SignalType.FLOW: 0.25,
         SignalType.MOMENTUM: 0.20,
         SignalType.REGIME: 0.15,  # Regime is context, not signal
+        SignalType.RL_AGENT: 0.15,  # RL agent signal
     }
     
     # Minimum agreement required to act
@@ -275,7 +277,22 @@ class SignalEnsemble:
                     ))
         
         return signals
-    
+
+    def add_rl_signals(self, direction: float = 0.0, confidence: float = 0.0,
+                       using_rl: bool = False) -> List[Signal]:
+        """Generate RL agent signal."""
+        signals = []
+        if using_rl and abs(direction) > 0 and confidence > 0.3:
+            signals.append(Signal(
+                name="RL_PPO",
+                signal_type=SignalType.RL_AGENT,
+                direction=direction,
+                confidence=confidence,
+                weight=0.85,
+                reason=f"PPO agent: {'buy' if direction > 0 else 'sell'} (conf={confidence:.0%})"
+            ))
+        return signals
+
     def combine_signals(self, signals: List[Signal]) -> EnsembleResult:
         """
         Combine all signals into final decision

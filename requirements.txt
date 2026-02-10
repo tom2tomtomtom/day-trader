@@ -2,8 +2,13 @@
 numpy
 pandas
 scikit-learn
+lightgbm
 joblib
 yfinance
+
+# RL (optional — system works without these)
+gymnasium
+stable-baselines3
 
 # HTTP
 requests

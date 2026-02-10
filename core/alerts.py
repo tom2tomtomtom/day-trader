@@ -9,6 +9,8 @@ from datetime import datetime, timezone
 from typing import Dict, List, Optional
 from dataclasses import dataclass
 
+import httpx
+
 from .db import get_db
 
 logger = logging.getLogger(__name__)
@@ -29,6 +31,47 @@ class AlertSeverity:
     CRITICAL = "critical"
 
 
+class TelegramNotifier:
+    """Sends alerts to Telegram via Bot API."""
+
+    def __init__(self, bot_token: str, chat_id: str):
+        self.bot_token = bot_token
+        self.chat_id = chat_id
+        self.api_url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+
+    def send(self, alert: Dict) -> bool:
+        """Send formatted alert to Telegram."""
+        try:
+            text = self._format_alert(alert)
+            resp = httpx.post(
+                self.api_url,
+                json={
+                    "chat_id": self.chat_id,
+                    "text": text,
+                    "parse_mode": "Markdown",
+                },
+                timeout=10,
+            )
+            return resp.status_code == 200
+        except Exception as e:
+            logger.warning(f"Telegram send failed: {e}")
+            return False
+
+    def _format_alert(self, alert: Dict) -> str:
+        severity = alert.get("severity", "info").upper()
+        alert_type = alert.get("alert_type", "").replace("_", " ").upper()
+        title = alert.get("title", "")
+        message = alert.get("message", "")
+        symbol = alert.get("symbol", "")
+
+        lines = [f"*{alert_type}* — {severity}", f"{title}"]
+        if message:
+            lines.append(message)
+        if symbol:
+            lines.append(f"Symbol: `{symbol}`")
+        return "\n".join(lines)
+
+
 class AlertEngine:
     """Generates and logs alerts to the database."""
 
@@ -36,6 +79,26 @@ class AlertEngine:
         self.db = get_db()
         self._last_regime: Optional[str] = None
         self._last_drawdown_alert: float = 0
+        self._telegram: Optional[TelegramNotifier] = None
+        self._init_telegram()
+
+    def _init_telegram(self):
+        """Initialize Telegram if configured and enabled."""
+        try:
+            from .config import get_config, get_feature_flags
+            cfg = get_config()
+            flags = get_feature_flags()
+            if flags.telegram_enabled and cfg.has_telegram:
+                self._telegram = TelegramNotifier(cfg.telegram_bot_token, cfg.telegram_chat_id)
+                logger.info("Telegram notifications enabled")
+        except Exception as e:
+            logger.warning(f"Telegram init failed: {e}")
+
+    def _dispatch(self, alert: Dict):
+        """Log alert to DB and send to Telegram if enabled."""
+        self.db.log_alert(alert)
+        if self._telegram:
+            self._telegram.send(alert)
 
     def check_high_conviction(self, symbol: str, confidence: float,
                                action: str, reasons: List[str]) -> Optional[Dict]:
@@ -52,7 +115,7 @@ class AlertEngine:
             "symbol": symbol,
             "data": {"confidence": confidence, "action": action, "reasons": reasons},
         }
-        self.db.log_alert(alert)
+        self._dispatch(alert)
         return alert
 
     def check_drawdown(self, current_drawdown_pct: float, max_allowed: float) -> Optional[Dict]:
@@ -82,7 +145,7 @@ class AlertEngine:
                     "message": f"Current drawdown: {current_drawdown_pct:.1f}% of {max_allowed:.0f}% max",
                     "data": {"drawdown_pct": current_drawdown_pct, "max_allowed": max_allowed},
                 }
-                self.db.log_alert(alert)
+                self._dispatch(alert)
                 return alert
         return None
 
@@ -98,7 +161,7 @@ class AlertEngine:
                 "data": {"old_regime": self._last_regime, "new_regime": new_regime, "confidence": confidence},
             }
             self._last_regime = new_regime
-            self.db.log_alert(alert)
+            self._dispatch(alert)
             return alert
 
         self._last_regime = new_regime
@@ -117,7 +180,7 @@ class AlertEngine:
             "symbol": symbol,
             "data": {"pnl_dollars": pnl_dollars, "pnl_pct": pnl_pct, "exit_reason": exit_reason},
         }
-        self.db.log_alert(alert)
+        self._dispatch(alert)
         return alert
 
     def log_trade_entry(self, symbol: str, direction: str, shares: int,
@@ -131,7 +194,7 @@ class AlertEngine:
             "symbol": symbol,
             "data": {"direction": direction, "shares": shares, "entry_price": entry_price},
         }
-        self.db.log_alert(alert)
+        self._dispatch(alert)
         return alert
 
     def log_ml_retrain(self, accuracy: float, f1: float, samples: int) -> Dict:
@@ -143,7 +206,7 @@ class AlertEngine:
             "message": f"Trained on {samples} trades",
             "data": {"accuracy": accuracy, "f1": f1, "training_samples": samples},
         }
-        self.db.log_alert(alert)
+        self._dispatch(alert)
         return alert
 
 

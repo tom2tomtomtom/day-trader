@@ -70,6 +70,22 @@ class TechnicalIndicators:
     # Volatility
     volatility_20d: float  # Annualized 20-day vol
     atr_14: float  # Average True Range
+    # Stochastic
+    stochastic_k: float = 50.0
+    stochastic_d: float = 50.0
+    stochastic_score: int = 0
+    # ADX
+    adx: float = 0.0
+    plus_di: float = 0.0
+    minus_di: float = 0.0
+    adx_score: int = 0
+    # OBV
+    obv: float = 0.0
+    obv_slope: float = 0.0
+    obv_score: int = 0
+    # VWAP
+    vwap: float = 0.0
+    vwap_score: int = 0
     # Composite
     composite_score: int  # -100 to +100
 
@@ -157,12 +173,36 @@ class TradingModel:
         volatility = self._calculate_volatility(arr)
         atr = self._calculate_atr(arr, highs, lows)
 
+        # === STOCHASTIC ===
+        h_arr = np.array(highs, dtype=float) if highs else None
+        l_arr = np.array(lows, dtype=float) if lows else None
+        v_arr = np.array(volumes, dtype=float) if volumes else None
+        stoch_k, stoch_d = self._calculate_stochastic(arr, h_arr, l_arr)
+        stoch_score = self._score_stochastic(stoch_k, stoch_d)
+
+        # === ADX ===
+        adx_val, plus_di, minus_di = self._calculate_adx(arr, h_arr, l_arr)
+        adx_score = self._score_adx(adx_val, plus_di, minus_di)
+
+        # === OBV ===
+        obv_val, obv_slope = self._calculate_obv(arr, v_arr)
+        price_trend_up = current_price > sma_20
+        obv_score = self._score_obv(obv_slope, price_trend_up)
+
+        # === VWAP ===
+        vwap_val = self._calculate_vwap(arr, v_arr)
+        vwap_score = self._score_vwap(current_price, vwap_val)
+
         # === COMPOSITE SCORE ===
         composite = self._calculate_composite_score(
             rsi_score=rsi_score,
             macd_score=macd_score,
             bb_score=bb_score,
             ma_score=ma_score,
+            stochastic_score=stoch_score,
+            adx_score=adx_score,
+            obv_score=obv_score,
+            vwap_score=vwap_score,
         )
 
         return TechnicalIndicators(
@@ -188,6 +228,18 @@ class TradingModel:
             ma_score=ma_score,
             volatility_20d=round(volatility, 4),
             atr_14=round(atr, 4),
+            stochastic_k=round(stoch_k, 2),
+            stochastic_d=round(stoch_d, 2),
+            stochastic_score=stoch_score,
+            adx=round(adx_val, 2),
+            plus_di=round(plus_di, 2),
+            minus_di=round(minus_di, 2),
+            adx_score=adx_score,
+            obv=round(obv_val, 2),
+            obv_slope=round(obv_slope, 6),
+            obv_score=obv_score,
+            vwap=round(vwap_val, 2),
+            vwap_score=vwap_score,
             composite_score=composite,
         )
 
@@ -488,8 +540,192 @@ class TradingModel:
             returns = np.abs(np.diff(prices[-period - 1:]))
             return float(np.mean(returns))
 
+    def _calculate_stochastic(self, prices: np.ndarray, highs: np.ndarray = None,
+                              lows: np.ndarray = None, k_period: int = 14, d_period: int = 3) -> Tuple[float, float]:
+        """Calculate Stochastic %K and %D."""
+        if len(prices) < k_period:
+            return 50.0, 50.0
+
+        if highs is not None and lows is not None and len(highs) >= k_period:
+            h = np.array(highs, dtype=float)
+            l = np.array(lows, dtype=float)
+        else:
+            h = prices
+            l = prices
+
+        k_values = []
+        for i in range(k_period - 1, len(prices)):
+            highest = np.max(h[i - k_period + 1:i + 1])
+            lowest = np.min(l[i - k_period + 1:i + 1])
+            if highest != lowest:
+                k = (prices[i] - lowest) / (highest - lowest) * 100
+            else:
+                k = 50.0
+            k_values.append(k)
+
+        k_arr = np.array(k_values)
+        stoch_k = float(k_arr[-1])
+        stoch_d = float(np.mean(k_arr[-d_period:])) if len(k_arr) >= d_period else stoch_k
+        return stoch_k, stoch_d
+
+    def _score_stochastic(self, k: float, d: float) -> int:
+        """Score Stochastic: oversold <20 -> +20, overbought >80 -> -20."""
+        if k < 20 and d < 20:
+            return 20
+        elif k < 20:
+            return 15
+        elif k < 30:
+            return 10
+        elif k > 80 and d > 80:
+            return -20
+        elif k > 80:
+            return -15
+        elif k > 70:
+            return -10
+        return 0
+
+    def _calculate_adx(self, prices: np.ndarray, highs: np.ndarray = None,
+                       lows: np.ndarray = None, period: int = 14) -> Tuple[float, float, float]:
+        """Calculate ADX, +DI, -DI."""
+        if highs is None or lows is None or len(prices) < period + 1:
+            return 0.0, 0.0, 0.0
+
+        h = np.array(highs, dtype=float)
+        l = np.array(lows, dtype=float)
+        c = np.array(prices, dtype=float)
+
+        tr_list = []
+        plus_dm_list = []
+        minus_dm_list = []
+
+        for i in range(1, len(c)):
+            tr = max(h[i] - l[i], abs(h[i] - c[i-1]), abs(l[i] - c[i-1]))
+            tr_list.append(tr)
+
+            up_move = h[i] - h[i-1]
+            down_move = l[i-1] - l[i]
+
+            plus_dm = up_move if (up_move > down_move and up_move > 0) else 0
+            minus_dm = down_move if (down_move > up_move and down_move > 0) else 0
+            plus_dm_list.append(plus_dm)
+            minus_dm_list.append(minus_dm)
+
+        if len(tr_list) < period:
+            return 0.0, 0.0, 0.0
+
+        atr = np.mean(tr_list[:period])
+        plus_dm_smooth = np.mean(plus_dm_list[:period])
+        minus_dm_smooth = np.mean(minus_dm_list[:period])
+
+        dx_list = []
+        for i in range(period, len(tr_list)):
+            atr = (atr * (period - 1) + tr_list[i]) / period
+            plus_dm_smooth = (plus_dm_smooth * (period - 1) + plus_dm_list[i]) / period
+            minus_dm_smooth = (minus_dm_smooth * (period - 1) + minus_dm_list[i]) / period
+
+            plus_di = (plus_dm_smooth / atr * 100) if atr > 0 else 0
+            minus_di = (minus_dm_smooth / atr * 100) if atr > 0 else 0
+
+            di_sum = plus_di + minus_di
+            dx = abs(plus_di - minus_di) / di_sum * 100 if di_sum > 0 else 0
+            dx_list.append(dx)
+
+        if not dx_list:
+            return 0.0, 0.0, 0.0
+
+        adx = float(np.mean(dx_list[-period:])) if len(dx_list) >= period else float(np.mean(dx_list))
+
+        if atr > 0:
+            final_plus_di = plus_dm_smooth / atr * 100
+            final_minus_di = minus_dm_smooth / atr * 100
+        else:
+            final_plus_di, final_minus_di = 0.0, 0.0
+
+        return adx, final_plus_di, final_minus_di
+
+    def _score_adx(self, adx: float, plus_di: float, minus_di: float) -> int:
+        """Score ADX: strong trend with direction -> +/-15, no trend -> 0."""
+        if adx < 20:
+            return 0
+        if adx >= 25:
+            if plus_di > minus_di:
+                return 15
+            else:
+                return -15
+        if plus_di > minus_di:
+            return 8
+        else:
+            return -8
+
+    def _calculate_obv(self, prices: np.ndarray, volumes: np.ndarray = None) -> Tuple[float, float]:
+        """Calculate On-Balance Volume and its slope."""
+        if volumes is None or len(volumes) < 10 or len(prices) < 10:
+            return 0.0, 0.0
+
+        vol = np.array(volumes, dtype=float)
+        obv = np.zeros(len(prices))
+        obv[0] = vol[0]
+
+        for i in range(1, len(prices)):
+            if prices[i] > prices[i-1]:
+                obv[i] = obv[i-1] + vol[i]
+            elif prices[i] < prices[i-1]:
+                obv[i] = obv[i-1] - vol[i]
+            else:
+                obv[i] = obv[i-1]
+
+        obv_recent = obv[-10:]
+        x = np.arange(10)
+        slope = float(np.polyfit(x, obv_recent, 1)[0])
+        avg_obv = float(np.mean(np.abs(obv[-20:]))) if len(obv) >= 20 else 1.0
+        normalized_slope = slope / avg_obv if avg_obv > 0 else 0.0
+
+        return float(obv[-1]), normalized_slope
+
+    def _score_obv(self, obv_slope: float, price_trend_up: bool) -> int:
+        """Score OBV: confirms trend -> +10, diverges -> -10."""
+        if abs(obv_slope) < 0.01:
+            return 0
+        obv_up = obv_slope > 0
+        if obv_up == price_trend_up:
+            return 10
+        else:
+            return -10
+
+    def _calculate_vwap(self, prices: np.ndarray, volumes: np.ndarray = None) -> float:
+        """Calculate Volume Weighted Average Price."""
+        if volumes is None or len(volumes) < 5 or len(prices) < 5:
+            return float(prices[-1]) if len(prices) > 0 else 0.0
+
+        vol = np.array(volumes[-20:], dtype=float)
+        p = np.array(prices[-20:], dtype=float)
+
+        total_vol = np.sum(vol)
+        if total_vol > 0:
+            vwap = float(np.sum(p * vol) / total_vol)
+        else:
+            vwap = float(np.mean(p))
+        return vwap
+
+    def _score_vwap(self, current_price: float, vwap: float) -> int:
+        """Score VWAP: price above -> +10 (bullish), below -> -10 (bearish)."""
+        if vwap <= 0:
+            return 0
+        pct_diff = (current_price - vwap) / vwap * 100
+        if pct_diff > 1.0:
+            return 10
+        elif pct_diff > 0.2:
+            return 5
+        elif pct_diff < -1.0:
+            return -10
+        elif pct_diff < -0.2:
+            return -5
+        return 0
+
     def _calculate_composite_score(self, rsi_score: int, macd_score: int,
-                                    bb_score: int, ma_score: int) -> int:
+                                    bb_score: int, ma_score: int,
+                                    stochastic_score: int = 0, adx_score: int = 0,
+                                    obv_score: int = 0, vwap_score: int = 0) -> int:
         """
         Calculate composite score from -100 to +100.
 
@@ -498,10 +734,14 @@ class TradingModel:
         - MACD: -25 to +25
         - Bollinger: -25 to +25
         - Moving Averages: -25 to +25
+        - Stochastic: -20 to +20
+        - ADX: -15 to +15
+        - OBV: -10 to +10
+        - VWAP: -10 to +10
 
-        Max theoretical: 120, but we clamp to [-100, +100]
+        Max theoretical: 175, but we clamp to [-100, +100]
         """
-        raw = rsi_score + macd_score + bb_score + ma_score
+        raw = rsi_score + macd_score + bb_score + ma_score + stochastic_score + adx_score + obv_score + vwap_score
         return max(-100, min(100, raw))
 
     def _ema(self, data: np.ndarray, period: int) -> np.ndarray:

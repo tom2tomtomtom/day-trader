@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { BarChart3, Settings, TrendingUp, Globe, List, Zap, Target, Brain, Landmark, Activity, Cpu } from "lucide-react";
+import { BarChart3, Settings, Settings2, TrendingUp, Globe, List, Zap, Target, Brain, Landmark, Activity, Cpu, PieChart } from "lucide-react";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: BarChart3 },
@@ -10,11 +10,13 @@ const navItems = [
   { href: "/council", label: "Council", icon: Brain },
   { href: "/congress", label: "Congress", icon: Landmark },
   { href: "/performance", label: "Performance", icon: Activity },
+  { href: "/analytics", label: "Analytics", icon: PieChart },
   { href: "/ml", label: "ML", icon: Cpu },
   { href: "/signals", label: "Signals", icon: Zap },
   { href: "/edge", label: "Edge", icon: Target },
   { href: "/positions", label: "Positions", icon: TrendingUp },
   { href: "/markets", label: "Markets", icon: Globe },
+  { href: "/strategies", label: "Strategies", icon: Settings2 },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
 

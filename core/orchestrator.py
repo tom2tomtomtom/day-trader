@@ -24,6 +24,8 @@ from dataclasses import dataclass, asdict
 
 from .data_layer import DataAggregator
 from .regime_engine import RegimeDetector, StrategyRouter, MarketRegime
+from .strategy import StrategySignal
+from .rl_agent import get_rl_agent
 from .signal_ensemble import SignalEnsemble, SignalType
 from .risk_engine import RiskEngine
 from .intelligence_pipeline import IntelligencePipeline
@@ -57,6 +59,8 @@ class TradeRecommendation:
     ml_quality_score: float = 0.0
     ml_size_multiplier: float = 1.0
     ml_using_model: bool = False
+    strategy_name: str = ""
+    strategy_score: int = 0
 
 
 @dataclass
@@ -87,6 +91,7 @@ class TradingOrchestrator:
         self.trading_model = TradingModel(portfolio_value=portfolio_value)
         self.feature_engine = FeatureEngine()
         self.ml = get_ml_pipeline()
+        self.rl = get_rl_agent()
         self.db = get_db()
         self.alerts = get_alert_engine()
 
@@ -140,12 +145,23 @@ class TradingOrchestrator:
             regime_state.confidence if hasattr(regime_state, "confidence") else 0.7,
         )
 
-        # 3. Run TradingModel (primary signal engine)
+        # 3. Run regime-routed Strategy for additional signal
+        regime_strategy = self.strategy_router.get_strategy_instance(regime_state.regime)
+        strategy_signal = regime_strategy.generate_signals(
+            symbol=symbol,
+            prices=prices,
+            highs=highs,
+            lows=lows,
+            volumes=volumes,
+            indicators=None,
+        )
+
+        # 4. Run TradingModel (primary signal engine)
         model_signal = self.trading_model.generate_signal(
             symbol, prices, highs, lows, volumes
         )
 
-        # 4. Generate ensemble signals for additional context
+        # 6. Generate ensemble signals for additional context
         signals = []
         signals.extend(self.signal_ensemble.add_technical_signals(
             prices=prices, volumes=volumes
@@ -158,9 +174,20 @@ class TradingOrchestrator:
                 bullish_premium=options_data.get("bullish_premium"),
                 bearish_premium=options_data.get("bearish_premium")
             ))
+        # RL agent signal (feature-gated)
+        rl_pred = self.rl.predict(
+            features=self.feature_engine.compute(
+                symbol=symbol, prices=prices, highs=highs, lows=lows, volumes=volumes,
+            )
+        )
+        signals.extend(self.signal_ensemble.add_rl_signals(
+            direction=rl_pred.direction,
+            confidence=rl_pred.confidence,
+            using_rl=rl_pred.using_rl,
+        ))
         ensemble_result = self.signal_ensemble.combine_signals(signals)
 
-        # 5. Compute feature vector + ML prediction
+        # 7. Compute feature vector + ML prediction
         features = self.feature_engine.compute(
             symbol=symbol,
             prices=prices,
@@ -174,7 +201,7 @@ class TradingOrchestrator:
         )
         ml_pred = self.ml.predict(features)
 
-        # 6. Combine model score with regime filter + ML
+        # 8. Combine model score with regime filter + ML + strategy
         can_trade, regime_note = self.strategy_router.should_trade(
             regime_state.regime,
             "momentum" if model_signal and model_signal.direction == "long" else "mean_reversion"
@@ -222,6 +249,15 @@ class TradingOrchestrator:
             if not can_trade:
                 reasons.append(regime_note)
 
+        # Add strategy framework context
+        if strategy_signal and strategy_signal.direction != "flat":
+            reasons.append(f"Strategy [{strategy_signal.strategy_name}]: {strategy_signal.direction} "
+                         f"(score={strategy_signal.score}, strength={strategy_signal.strength})")
+            # Boost confidence when strategy agrees with model
+            if model_signal and model_signal.direction == strategy_signal.direction:
+                confidence = min(1.0, confidence * 1.15)
+                reasons.append("Strategy confirms model direction (+15% confidence)")
+
         # Add context to reasons
         reasons.append(f"Regime: {regime_state.regime.value} ({regime_state.recommended_strategy})")
         if model_signal and model_signal.indicators:
@@ -246,6 +282,8 @@ class TradingOrchestrator:
             ml_quality_score=ml_pred.quality_score,
             ml_size_multiplier=ml_pred.size_multiplier,
             ml_using_model=ml_pred.using_ml,
+            strategy_name=strategy_signal.strategy_name if strategy_signal else "",
+            strategy_score=strategy_signal.score if strategy_signal else 0,
         )
 
         # Log signal to DB

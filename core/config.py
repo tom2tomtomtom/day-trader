@@ -49,6 +49,15 @@ class TradingConfig:
     min_trades_for_ml: int = 30
 
 
+@dataclass(frozen=True)
+class FeatureFlags:
+    ml_gate_enabled: bool = False
+    pre_trade_risk_enabled: bool = False
+    rl_agent_enabled: bool = False
+    telegram_enabled: bool = False
+    advanced_orders_enabled: bool = False
+
+
 class Config:
     """Centralized configuration with typed access."""
 
@@ -67,6 +76,12 @@ class Config:
         )
         self.trading = TradingConfig()
         self.base_dir = BASE_DIR
+        self.telegram_bot_token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+        self.telegram_chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
+
+    @property
+    def has_telegram(self) -> bool:
+        return bool(self.telegram_bot_token and self.telegram_chat_id)
 
     @property
     def has_supabase(self) -> bool:
@@ -85,8 +100,9 @@ class Config:
         return bool(self.api_keys.perplexity)
 
 
-# Singleton
+# Singletons
 _config: Optional[Config] = None
+_feature_flags: Optional[FeatureFlags] = None
 
 
 def get_config() -> Config:
@@ -94,3 +110,16 @@ def get_config() -> Config:
     if _config is None:
         _config = Config()
     return _config
+
+
+def get_feature_flags() -> FeatureFlags:
+    global _feature_flags
+    if _feature_flags is None:
+        _feature_flags = FeatureFlags(
+            ml_gate_enabled=os.getenv("FEATURE_ML_GATE", "false").lower() == "true",
+            pre_trade_risk_enabled=os.getenv("FEATURE_PRE_TRADE_RISK", "false").lower() == "true",
+            rl_agent_enabled=os.getenv("FEATURE_RL_AGENT", "false").lower() == "true",
+            telegram_enabled=os.getenv("FEATURE_TELEGRAM", "false").lower() == "true",
+            advanced_orders_enabled=os.getenv("FEATURE_ADVANCED_ORDERS", "false").lower() == "true",
+        )
+    return _feature_flags

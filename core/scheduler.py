@@ -90,6 +90,16 @@ def run_ml_retrain():
     except Exception as e:
         logger.error(f"ML retrain failed: {e}")
 
+    # Always run signal evaluation during nightly cycle
+    try:
+        from .signal_evaluator import SignalEvaluator
+        evaluator = SignalEvaluator()
+        results = evaluator.evaluate()
+        if results:
+            logger.info(f"Signal evaluation: {len(results)} groups evaluated")
+    except Exception as e:
+        logger.error(f"Signal evaluation failed: {e}")
+
 
 def run_intelligence_briefing():
     """Run full intelligence briefing."""

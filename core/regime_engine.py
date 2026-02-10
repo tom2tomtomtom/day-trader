@@ -19,6 +19,8 @@ from enum import Enum
 import json
 from pathlib import Path
 
+from .strategy import Strategy, get_strategy_for_regime, StrategyConfig
+
 BASE_DIR = Path(__file__).parent.parent
 
 
@@ -256,6 +258,10 @@ class StrategyRouter:
         """Get recommended strategy for regime"""
         return self.STRATEGY_MAP.get(regime, self.STRATEGY_MAP[MarketRegime.RANGING])
     
+    def get_strategy_instance(self, regime: MarketRegime, config: Optional[StrategyConfig] = None) -> Strategy:
+        """Get a Strategy object for the current regime."""
+        return get_strategy_for_regime(regime.value, config)
+
     def should_trade(self, regime: MarketRegime, signal_type: str) -> Tuple[bool, str]:
         """Check if a signal type is appropriate for current regime"""
         strategy = self.STRATEGY_MAP.get(regime)

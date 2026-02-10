@@ -31,6 +31,7 @@ from pathlib import Path
 
 from .trading_model import TradingModel, TradeSignal, MEME_ASSETS
 from .feature_engine import FeatureEngine, FeatureVector
+from .execution_engine import ExecutionEngine, ManagedPosition, ExitReason
 from .db import get_db
 from .alerts import get_alert_engine
 
@@ -142,6 +143,9 @@ class PaperPortfolio:
 class PaperTrader:
     """
     Paper trading engine that simulates real trading with the TradingModel.
+
+    Uses the unified ExecutionEngine for position management so that
+    exit logic (trailing stops, partial exits) matches the backtester.
     """
 
     def __init__(self, initial_capital: float = 100000):
@@ -154,6 +158,7 @@ class PaperTrader:
 
         self.model = TradingModel(portfolio_value=initial_capital)
         self.feature_engine = FeatureEngine()
+        self.engine = ExecutionEngine(slippage_pct=0.0, commission=0.0)
         self.db = get_db()
         self.alerts = get_alert_engine()
 
@@ -224,67 +229,63 @@ class PaperTrader:
 
     def _manage_position(self, symbol: str, signal: TradeSignal,
                          current_price: float, timestamp: str):
-        """Check if position should be closed or partially exited."""
+        """Check if position should be closed or partially exited.
+
+        Delegates to ExecutionEngine for consistent exit logic
+        matching the backtester.
+        """
         pos = self.positions[symbol]
-        exit_reason = None
 
-        # Check ATR trailing stop first (tighter, dynamic)
-        if pos.trailing_stop > 0:
-            if pos.direction == "long" and current_price <= pos.trailing_stop:
-                exit_reason = "trailing_stop"
-            elif pos.direction == "short" and current_price >= pos.trailing_stop:
-                exit_reason = "trailing_stop"
+        # Build a ManagedPosition for the engine
+        managed = ManagedPosition(
+            symbol=pos.symbol,
+            direction=pos.direction,
+            entry_price=pos.entry_price,
+            current_price=pos.current_price,
+            shares=pos.shares,
+            stop_loss=pos.stop_loss,
+            take_profit=pos.take_profit,
+            entry_date=pos.entry_date,
+            entry_score=pos.entry_score,
+            atr_at_entry=pos.atr_at_entry,
+            trailing_stop=pos.trailing_stop,
+            partial_exited=pos.partial_exited,
+            original_shares=pos.original_shares,
+            max_favorable_excursion=pos.max_favorable_excursion,
+            max_adverse_excursion=pos.max_adverse_excursion,
+        )
 
-        # Check fixed stop loss
-        if not exit_reason:
-            if pos.direction == "long" and current_price <= pos.stop_loss:
-                exit_reason = "stop_loss"
-            elif pos.direction == "short" and current_price >= pos.stop_loss:
-                exit_reason = "stop_loss"
+        exit_signal = self.engine.check_exit(managed, current_price, signal.score)
+        if exit_signal is None:
+            return
 
-        # Check take profit
-        if not exit_reason:
-            if pos.direction == "long" and current_price >= pos.take_profit:
-                # Partial exit: sell 50% at first target if not already done
-                if not pos.partial_exited and pos.shares > 1:
-                    self._partial_exit(symbol, current_price, timestamp)
-                    return
-                exit_reason = "take_profit"
-            elif pos.direction == "short" and current_price <= pos.take_profit:
-                if not pos.partial_exited and pos.shares > 1:
-                    self._partial_exit(symbol, current_price, timestamp)
-                    return
-                exit_reason = "take_profit"
+        if exit_signal.is_partial:
+            self._partial_exit(symbol, exit_signal.exit_price,
+                               exit_signal.exit_shares, timestamp)
+        else:
+            self._close_position(symbol, exit_signal.exit_price,
+                                 exit_signal.reason.value, signal.score, timestamp)
 
-        # Check signal reversal
-        if not exit_reason:
-            if pos.direction == "long" and signal.score <= -25:
-                exit_reason = "signal_reversal"
-            elif pos.direction == "short" and signal.score >= 25:
-                exit_reason = "signal_reversal"
-
-        if exit_reason:
-            self._close_position(symbol, current_price, exit_reason,
-                                 signal.score, timestamp)
-
-    def _partial_exit(self, symbol: str, current_price: float, timestamp: str):
-        """Exit 50% of position and move stop to breakeven."""
+    def _partial_exit(self, symbol: str, exit_price: float,
+                      exit_shares: int, timestamp: str):
+        """Exit portion of position and move stop to breakeven."""
         pos = self.positions[symbol]
-        exit_shares = pos.shares // 2
-        remain_shares = pos.shares - exit_shares
 
         if exit_shares <= 0:
             return
 
         # Calculate P&L on exited portion
-        if pos.direction == "long":
-            pnl = (current_price - pos.entry_price) * exit_shares
-            pnl_pct = (current_price - pos.entry_price) / pos.entry_price * 100
-        else:
-            pnl = (pos.entry_price - current_price) * exit_shares
-            pnl_pct = (pos.entry_price - current_price) / pos.entry_price * 100
+        pnl, pnl_pct = self.engine.calculate_pnl(
+            ManagedPosition(
+                symbol=pos.symbol, direction=pos.direction,
+                entry_price=pos.entry_price, current_price=exit_price,
+                shares=exit_shares, stop_loss=0, take_profit=0,
+                entry_date=pos.entry_date, entry_score=pos.entry_score,
+            ),
+            exit_price, exit_shares,
+        )
 
-        self.cash += exit_shares * current_price
+        self.cash += exit_shares * exit_price
 
         # Log partial exit as a trade
         trade = PaperTrade(
@@ -293,9 +294,9 @@ class PaperTrader:
             entry_date=pos.entry_date,
             entry_price=pos.entry_price,
             exit_date=timestamp,
-            exit_price=current_price,
+            exit_price=exit_price,
             shares=exit_shares,
-            pnl_dollars=round(pnl, 2),
+            pnl_dollars=pnl,
             pnl_pct=round(pnl_pct, 2),
             exit_reason="partial_target",
             entry_score=pos.entry_score,
@@ -307,11 +308,12 @@ class PaperTrader:
         self._log_trade_to_db(trade)
 
         # Update position: fewer shares, move stop to breakeven
+        remain_shares = pos.shares - exit_shares
         pos.shares = remain_shares
         pos.stop_loss = pos.entry_price  # Breakeven stop
         pos.partial_exited = True
 
-        logger.info(f"Partial exit {symbol}: {exit_shares} shares @ ${current_price:.2f} "
+        logger.info(f"Partial exit {symbol}: {exit_shares} shares @ ${exit_price:.2f} "
                      f"(+{pnl_pct:.1f}%), trailing {remain_shares} shares")
 
     def _check_entry(self, symbol: str, signal: TradeSignal, timestamp: str,
@@ -339,6 +341,65 @@ class PaperTrader:
             regime_state=regime_state,
             fear_greed_data=fear_greed_data,
         )
+
+        # ML quality gate — block low-quality entries
+        from .ml_pipeline import get_ml_pipeline
+        from .config import get_feature_flags
+        ml_prediction = get_ml_pipeline().predict(features)
+        flags = get_feature_flags()
+
+        if flags.ml_gate_enabled and ml_prediction.quality_score < 0.35:
+            # Log blocked trade as signal for analysis
+            self.db.log_signal({
+                "symbol": symbol,
+                "action": "BLOCKED_BY_ML",
+                "score": signal.score,
+                "confidence": ml_prediction.quality_score,
+                "reasons": [f"ML quality {ml_prediction.quality_score:.3f} < 0.35 threshold"],
+                "regime": "",
+                "ml_quality_score": ml_prediction.quality_score,
+                "ml_size_multiplier": ml_prediction.size_multiplier,
+            })
+            logger.info(
+                f"BLOCKED: {symbol} entry blocked by ML gate "
+                f"(quality={ml_prediction.quality_score:.3f} < 0.35)"
+            )
+            return
+
+        # Pre-trade risk check
+        if flags.pre_trade_risk_enabled:
+            from .risk_engine import PreTradeRiskCheck, RiskEngine
+            risk_check = PreTradeRiskCheck(RiskEngine())
+            daily_pnl_pct = 0.0
+            if self.equity_history:
+                prev_val = self.equity_history[-1].get("value", self.initial_capital)
+                portfolio_val = self.cash + sum(
+                    p.shares * p.current_price for p in self.positions.values()
+                )
+                daily_pnl_pct = (portfolio_val - prev_val) / prev_val * 100 if prev_val else 0.0
+
+            result = risk_check.validate(
+                symbol=symbol,
+                direction=signal.direction,
+                position_value=position_cost,
+                portfolio_value=self.cash + sum(
+                    p.shares * p.current_price for p in self.positions.values()
+                ),
+                open_positions=self.positions,
+                daily_pnl_pct=daily_pnl_pct,
+                regime="",
+            )
+            if not result.can_trade:
+                self.db.log_signal({
+                    "symbol": symbol,
+                    "action": "BLOCKED_BY_RISK",
+                    "score": signal.score,
+                    "confidence": 0,
+                    "reasons": [result.reason],
+                    "regime": "",
+                })
+                logger.info(f"BLOCKED: {symbol} blocked by risk check: {result.reason}")
+                return
 
         # Enter position
         self.cash -= position_cost

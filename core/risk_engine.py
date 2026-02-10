@@ -13,7 +13,7 @@ The #1 factor in trading success is NOT signal quality - it's risk management.
 
 import numpy as np
 from typing import Dict, List, Optional, Tuple
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 import json
 from pathlib import Path
@@ -61,7 +61,7 @@ class RiskEngine:
     """
     Manages all risk-related decisions
     """
-    
+
     # Risk limits (aggressive — let ML learn optimal risk)
     MAX_PORTFOLIO_HEAT = 0.50  # Max 50% of portfolio at risk
     MAX_SINGLE_POSITION = 0.25  # Max 25% in any single position
@@ -70,6 +70,18 @@ class RiskEngine:
 
     # Kelly parameters
     KELLY_FRACTION = 0.50  # Use 50% of Kelly (aggressive)
+
+    # Sector mapping for correlation/concentration checks
+    SECTOR_MAP = {
+        "AAPL": "tech", "MSFT": "tech", "GOOGL": "tech", "AMZN": "tech",
+        "NVDA": "tech", "META": "tech", "AMD": "tech", "TSLA": "tech",
+        "BTC-USD": "crypto", "ETH-USD": "crypto", "SOL-USD": "crypto",
+        "DOGE-USD": "crypto", "SHIB-USD": "crypto", "PEPE-USD": "crypto",
+        "COIN": "crypto", "MSTR": "crypto",
+        "SPY": "index", "QQQ": "index", "IWM": "index", "DIA": "index",
+        "JPM": "finance", "GS": "finance", "BAC": "finance",
+        "XOM": "energy", "CVX": "energy",
+    }
     
     def __init__(self, portfolio_value: float = 100000):
         self.portfolio_value = portfolio_value
@@ -316,6 +328,96 @@ class RiskEngine:
             "max_heat": self.MAX_PORTFOLIO_HEAT * 100,
             "drawdown": round((self.starting_value - total_value) / self.starting_value * 100, 2)
         }
+
+
+@dataclass
+class RiskCheckResult:
+    """Result of pre-trade risk validation."""
+    can_trade: bool
+    reason: str = ""
+    checks_passed: List[str] = field(default_factory=list)
+    checks_failed: List[str] = field(default_factory=list)
+
+
+class PreTradeRiskCheck:
+    """
+    Pre-trade risk gates. All must pass for a trade to proceed.
+    Feature-gated via FeatureFlags.pre_trade_risk_enabled.
+    """
+
+    MAX_SIMULTANEOUS_POSITIONS = 8
+    MAX_DAILY_LOSS_PCT = 2.0  # Stop trading if down >2% today
+    MAX_CORRELATED_EXPOSURE = 0.35  # 35% in correlated assets
+
+    def __init__(self, risk_engine: RiskEngine):
+        self.risk = risk_engine
+
+    def validate(self, symbol: str, direction: str,
+                 position_value: float, portfolio_value: float,
+                 open_positions: Dict[str, any],
+                 daily_pnl_pct: float,
+                 regime: str = "unknown") -> RiskCheckResult:
+        """Run all pre-trade risk checks."""
+        result = RiskCheckResult(can_trade=True)
+
+        checks = [
+            ("max_positions", self._check_max_positions(open_positions)),
+            ("daily_loss_limit", self._check_daily_loss_limit(daily_pnl_pct)),
+            ("concentration", self._check_concentration(symbol, position_value, portfolio_value, open_positions)),
+            ("regime", self._check_regime_appropriateness(direction, regime)),
+        ]
+
+        for name, (passed, reason) in checks:
+            if passed:
+                result.checks_passed.append(name)
+            else:
+                result.checks_failed.append(name)
+                result.can_trade = False
+                result.reason = reason
+
+        return result
+
+    def _check_max_positions(self, open_positions) -> Tuple[bool, str]:
+        if len(open_positions) >= self.MAX_SIMULTANEOUS_POSITIONS:
+            return False, f"Max {self.MAX_SIMULTANEOUS_POSITIONS} positions reached ({len(open_positions)} open)"
+        return True, ""
+
+    def _check_daily_loss_limit(self, daily_pnl_pct: float) -> Tuple[bool, str]:
+        if daily_pnl_pct <= -self.MAX_DAILY_LOSS_PCT:
+            return False, f"Daily loss limit hit ({daily_pnl_pct:.2f}% <= -{self.MAX_DAILY_LOSS_PCT}%)"
+        return True, ""
+
+    def _check_concentration(self, symbol: str, position_value: float,
+                             portfolio_value: float,
+                             open_positions: dict) -> Tuple[bool, str]:
+        """Check sector concentration using RiskEngine sector mapping."""
+        if portfolio_value <= 0:
+            return True, ""
+
+        sector = RiskEngine.SECTOR_MAP.get(symbol, "other")
+
+        # Calculate current sector exposure
+        sector_exposure = 0.0
+        for sym, pos in open_positions.items():
+            pos_sector = RiskEngine.SECTOR_MAP.get(sym, "other")
+            if pos_sector == sector:
+                pos_value = getattr(pos, 'shares', 0) * getattr(pos, 'current_price', 0)
+                sector_exposure += pos_value
+
+        # Add proposed position
+        total_sector = sector_exposure + position_value
+        sector_pct = total_sector / portfolio_value
+
+        if sector_pct > self.MAX_CORRELATED_EXPOSURE:
+            return False, f"Sector '{sector}' exposure would be {sector_pct:.1%} > {self.MAX_CORRELATED_EXPOSURE:.0%} limit"
+        return True, ""
+
+    def _check_regime_appropriateness(self, direction: str, regime: str) -> Tuple[bool, str]:
+        """Block longs in CRISIS regime."""
+        regime_lower = regime.lower() if regime else "unknown"
+        if regime_lower == "crisis" and direction == "long":
+            return False, "Long entries blocked in CRISIS regime"
+        return True, ""
 
 
 # Test
