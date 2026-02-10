@@ -12,8 +12,9 @@
 # Logs
 *.log
 
-# Virtual Environment
+# Virtual Environments
 venv/
+.venv/
 .env
 
 # Python
@@ -21,15 +22,25 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-# Logs and state (can be regenerated)
+
+# Runtime state and data (can be regenerated)
 *.jsonl
-*_log.jsonl
+cache/
+backtest_results.json
+combined_signals.json
+current_state.json
+day_positions.json
+edge_signals.json
+learned_patterns.json
+meme_hype_scan.json
+portfolio.json
+regime_outcomes.json
+regime_state.json
 congressional_trades.json
 council_decisions.json
 intelligence_report.json
 opportunity_scores.json
 macro_triggers.json
-backtest_results.json
 paper_portfolio.json
 paper_trades.json
 
@@ -57,3 +68,6 @@ secrets.json
 market_data/
 trading_results/
 backtest_results/
+
+# Next.js
+dashboard/.next/
