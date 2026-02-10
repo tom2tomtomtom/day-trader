@@ -203,6 +203,17 @@ class PaperTrader:
                     self.positions[symbol].update(current_price)
                 continue
 
+            # Log every non-flat signal to DB for dashboard visibility
+            if signal.direction != "flat":
+                self.db.log_signal({
+                    "symbol": symbol,
+                    "action": "BUY" if signal.direction == "long" else "SELL",
+                    "score": signal.score,
+                    "confidence": abs(signal.score) / 100.0,
+                    "reasons": signal.reasons,
+                    "regime": "",
+                })
+
             # Check existing position
             if symbol in self.positions:
                 self._manage_position(symbol, signal, current_price, now)

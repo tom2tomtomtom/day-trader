@@ -25,6 +25,7 @@ from .congressional_intel import CongressionalIntelligence, CongressionalReport
 from .macro_intel import MacroIntelligence, MacroIntelReport
 from .opportunity_scorer import OpportunityScorer, OpportunityScore
 from .trade_narrator import TradeNarratorEngine, TradeNarrative, MarketDigest
+from .db import get_db
 
 BASE_DIR = Path(__file__).parent.parent
 INTEL_REPORT_PATH = BASE_DIR / "intelligence_report.json"
@@ -360,7 +361,7 @@ class IntelligencePipeline:
         }
 
     def save_briefing(self, briefing: SystemBriefing):
-        """Save briefing to disk for dashboard consumption"""
+        """Save briefing to disk and Supabase for dashboard consumption."""
         data = {
             "timestamp": briefing.timestamp,
             "market": {
@@ -388,5 +389,11 @@ class IntelligencePipeline:
                 "actionable_signals": briefing.actionable_signals,
             },
         }
+        # Save to local JSON
         INTEL_REPORT_PATH.write_text(json.dumps(data, indent=2, default=str))
+
+        # Save to Supabase for dashboard access on Railway
+        db = get_db()
+        db.save_intelligence_briefing(data)
+
         return INTEL_REPORT_PATH

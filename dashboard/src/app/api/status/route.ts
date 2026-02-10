@@ -5,18 +5,38 @@ export async function GET() {
   try {
     // Try Supabase first
     if (isSupabaseConfigured()) {
-      const [portfolioRes, positionsRes] = await Promise.all([
+      const [portfolioRes, positionsRes, lastSignalRes] = await Promise.all([
         supabase
           .from("portfolio_state")
           .select("*")
           .order("snapshot_at", { ascending: false })
           .limit(1),
         supabase.from("positions").select("*").eq("status", "open"),
+        supabase
+          .from("signals")
+          .select("created_at")
+          .order("created_at", { ascending: false })
+          .limit(1),
       ]);
 
       const p = portfolioRes.data?.[0];
       const positions = positionsRes.data || [];
       const pv = p?.portfolio_value || 100000;
+
+      // Determine engine status from last snapshot time
+      const lastScanAt = p?.snapshot_at || null;
+      const lastSignalAt = lastSignalRes.data?.[0]?.created_at || null;
+      const now = new Date();
+      const scanAge = lastScanAt
+        ? (now.getTime() - new Date(lastScanAt).getTime()) / 60000
+        : Infinity;
+      const engineStatus =
+        scanAge < 20
+          ? "active"
+          : scanAge < 60
+            ? "idle"
+            : "stale";
+
       return NextResponse.json({
         portfolio_value: pv,
         cash: p?.cash || 100000,
@@ -45,7 +65,14 @@ export async function GET() {
             },
           ])
         ),
+        engine: {
+          status: engineStatus,
+          last_scan: lastScanAt,
+          last_signal: lastSignalAt,
+          scan_age_min: Math.round(scanAge),
+        },
         source: "supabase",
+        last_updated: lastScanAt,
       });
     }
 
@@ -60,6 +87,12 @@ export async function GET() {
       win_rate: 0,
       open_positions: 0,
       positions: {},
+      engine: {
+        status: "disconnected",
+        last_scan: null,
+        last_signal: null,
+        scan_age_min: null,
+      },
       source: "none",
     });
   } catch (error) {

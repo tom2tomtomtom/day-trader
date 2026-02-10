@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { TrendingUp, TrendingDown, DollarSign, Activity, BarChart3, Zap } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, Activity, BarChart3, Zap, Radio } from "lucide-react";
 import Link from "next/link";
 import { PriceChart } from "@/components/PriceChart";
 import { AutomationControl } from "@/components/AutomationControl";
@@ -28,6 +28,13 @@ interface SignalsData {
   signals: Signal[];
 }
 
+interface EngineStatus {
+  status: "active" | "idle" | "stale" | "disconnected";
+  last_scan: string | null;
+  last_signal: string | null;
+  scan_age_min: number | null;
+}
+
 interface DayStatus {
   portfolio_value: number;
   cash: number;
@@ -38,6 +45,9 @@ interface DayStatus {
   losers: number;
   open_positions: number;
   positions: Record<string, Position>;
+  engine?: EngineStatus;
+  source?: string;
+  last_updated?: string;
 }
 
 interface Position {
@@ -53,6 +63,17 @@ interface Position {
 interface MarketStatus {
   active_markets: string[];
   global_regime: string;
+}
+
+function timeAgo(dateStr: string | null | undefined): string {
+  if (!dateStr) return "never";
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
 export default function Dashboard() {
@@ -121,8 +142,13 @@ export default function Dashboard() {
     .sort((a, b) => b.signal_score - a.signal_score)
     .slice(0, 3) || [];
 
+  const engine = status?.engine;
+
   return (
     <div className="space-y-6">
+      {/* Engine Status Banner */}
+      <EngineStatusBanner engine={engine} source={status?.source} lastUpdated={status?.last_updated} />
+
       {/* Automation Control */}
       <AutomationControl />
 
@@ -132,8 +158,8 @@ export default function Dashboard() {
         <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
           <h2 className="text-lg font-semibold mb-2 text-center">Market Sentiment</h2>
           {signals?.market_context ? (
-            <FearGreedGauge 
-              value={signals.market_context.fear_greed} 
+            <FearGreedGauge
+              value={signals.market_context.fear_greed}
               label={signals.market_context.fear_greed_label}
             />
           ) : (
@@ -148,13 +174,13 @@ export default function Dashboard() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold flex items-center gap-2">
               <Zap className="w-5 h-5 text-yellow-500" />
-              🎯 Top Picks
+              Top Picks
             </h2>
             <Link href="/signals" className="text-sm text-emerald-500 hover:text-emerald-400">
               View all →
             </Link>
           </div>
-          
+
           {topPicks.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {topPicks.map((signal, idx) => (
@@ -165,8 +191,8 @@ export default function Dashboard() {
                       <span className="font-bold">{signal.symbol}</span>
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full ${
-                      signal.action === "STRONG_BUY" 
-                        ? "bg-emerald-600 text-white" 
+                      signal.action === "STRONG_BUY"
+                        ? "bg-emerald-600 text-white"
                         : "bg-emerald-600/50 text-emerald-300"
                     }`}>
                       {signal.action.replace("_", " ")}
@@ -174,7 +200,7 @@ export default function Dashboard() {
                   </div>
                   <div className="text-xl font-semibold">${signal.price.toFixed(2)}</div>
                   <div className="text-sm text-zinc-400 mt-1">
-                    {(signal.signal_score * 100).toFixed(0)}% confidence • {signal.position_size} shares
+                    {(signal.signal_score * 100).toFixed(0)}% confidence
                   </div>
                   <div className="text-xs text-zinc-500 mt-2 line-clamp-1">
                     {signal.reasons[0]}
@@ -184,7 +210,9 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="text-zinc-500 text-center py-8">
-              No strong signals right now
+              {engine?.status === "active"
+                ? "No strong signals in current scan — the engine is actively analyzing"
+                : "Signals will appear as the engine scans markets"}
             </div>
           )}
         </div>
@@ -268,9 +296,76 @@ export default function Dashboard() {
               ))}
             </div>
           ) : (
-            <p className="text-zinc-500 text-center py-8">No open positions</p>
+            <div className="text-center py-8">
+              <p className="text-zinc-500">No open positions</p>
+              {engine?.status === "active" && (
+                <p className="text-zinc-600 text-xs mt-2">
+                  Engine scanning — positions open when signals hit
+                </p>
+              )}
+            </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function EngineStatusBanner({
+  engine,
+  source,
+  lastUpdated,
+}: {
+  engine?: EngineStatus;
+  source?: string;
+  lastUpdated?: string;
+}) {
+  if (!engine) return null;
+
+  const statusConfig = {
+    active: {
+      color: "border-emerald-700 bg-emerald-900/20",
+      dot: "bg-emerald-500",
+      label: "Engine Active",
+      desc: "Scanning markets and executing trades",
+    },
+    idle: {
+      color: "border-yellow-700 bg-yellow-900/20",
+      dot: "bg-yellow-500",
+      label: "Engine Idle",
+      desc: "Last scan was a while ago — may be between cycles",
+    },
+    stale: {
+      color: "border-red-700 bg-red-900/20",
+      dot: "bg-red-500",
+      label: "Engine Stale",
+      desc: "No recent scans detected — check Railway deployment",
+    },
+    disconnected: {
+      color: "border-zinc-700 bg-zinc-900",
+      dot: "bg-zinc-500",
+      label: "Not Connected",
+      desc: "Supabase not configured — running in offline mode",
+    },
+  };
+
+  const cfg = statusConfig[engine.status];
+
+  return (
+    <div className={`rounded-lg border px-4 py-3 flex items-center justify-between ${cfg.color}`}>
+      <div className="flex items-center gap-3">
+        <Radio className="w-4 h-4 text-zinc-400" />
+        <span className={`w-2 h-2 rounded-full ${cfg.dot} ${engine.status === "active" ? "animate-pulse" : ""}`} />
+        <span className="font-medium text-sm">{cfg.label}</span>
+        <span className="text-zinc-500 text-xs hidden sm:inline">{cfg.desc}</span>
+      </div>
+      <div className="flex items-center gap-4 text-xs text-zinc-500">
+        {engine.last_scan && (
+          <span>Last scan: {timeAgo(engine.last_scan)}</span>
+        )}
+        {lastUpdated && source === "supabase" && (
+          <span className="text-zinc-600">via Supabase</span>
+        )}
       </div>
     </div>
   );
@@ -312,7 +407,7 @@ function StatCard({
 }
 
 function PositionCard({ position }: { position: Position }) {
-  const isLong = position.direction === "LONG";
+  const isLong = position.direction === "long";
   const isProfitable = (position.pnl ?? 0) >= 0;
 
   return (

@@ -363,6 +363,44 @@ class TradingDB:
             logger.error(f"get_alerts: {e}")
             return []
 
+    # ── Intelligence Briefings ────────────────────────────────────────
+
+    def save_intelligence_briefing(self, data: Dict) -> bool:
+        """Save full intelligence briefing JSON to DB."""
+        if not self.connected:
+            return False
+        try:
+            row = {
+                "briefing_data": json.dumps(data, default=str),
+                "created_at": datetime.now(timezone.utc).isoformat(),
+            }
+            self._client.table("intelligence_briefings").insert(row).execute()
+            return True
+        except Exception as e:
+            logger.error(f"save_intelligence_briefing: {e}")
+            return False
+
+    def get_latest_briefing(self) -> Optional[Dict]:
+        """Get the most recent intelligence briefing."""
+        if not self.connected:
+            return None
+        try:
+            resp = (self._client.table("intelligence_briefings")
+                    .select("briefing_data, created_at")
+                    .order("created_at", desc=True)
+                    .limit(1)
+                    .execute())
+            if resp.data:
+                row = resp.data[0]
+                data = row["briefing_data"]
+                if isinstance(data, str):
+                    data = json.loads(data)
+                return data
+            return None
+        except Exception as e:
+            logger.error(f"get_latest_briefing: {e}")
+            return None
+
     # ── Watchlist ────────────────────────────────────────────────────
 
     def get_watchlist(self) -> List[str]:
