@@ -140,8 +140,8 @@ class TradeNarratorEngine:
                                 congress_report: Optional[Dict] = None) -> MarketDigest:
         """Generate daily market digest narrative"""
         regime = state.get("market_regime", "unknown")
-        fg = state.get("fear_greed", 50)
-        vix = state.get("vix", 20)
+        fg = state.get("fear_greed") or 50
+        vix = state.get("vix") or 20
         recs = state.get("recommendations", [])
 
         headline = self._digest_headline(regime, fg, vix, recs)
@@ -251,7 +251,7 @@ class TradeNarratorEngine:
         if rr and rr < 1.5:
             risks.append(f"tight risk/reward ({rr:.1f}:1)")
 
-        vix = context.get("vix", 20) if context else 20
+        vix = (context.get("vix") or 20) if context else 20
         if vix > 25:
             risks.append(f"VIX at {vix:.0f}")
 
@@ -290,7 +290,7 @@ class TradeNarratorEngine:
 
     def _generate_timing_note(self, symbol: str, reasons: List[str],
                               regime: str, context: Optional[Dict]) -> str:
-        fg = context.get("fear_greed", 50) if context else 50
+        fg = (context.get("fear_greed") or 50) if context else 50
 
         if fg < 25:
             return "Extreme fear creates entry opportunities. Historical edge is strongest here."

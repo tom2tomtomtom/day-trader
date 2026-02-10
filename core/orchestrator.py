@@ -328,8 +328,8 @@ class TradingOrchestrator:
             timestamp=datetime.now(timezone.utc).isoformat(),
             market_regime=context.get("market_regime", "unknown"),
             regime_confidence=0.7,
-            fear_greed=context.get("fear_greed", {}).get("value", 50),
-            vix=context.get("vix", 20),
+            fear_greed=context.get("fear_greed", {}).get("value") or 50,
+            vix=context.get("vix") or 20,
             portfolio_value=portfolio["portfolio_value"],
             portfolio_heat=portfolio["portfolio_heat"],
             positions_count=portfolio["num_positions"],
@@ -393,11 +393,11 @@ class TradingOrchestrator:
                     "reasons": ["No signal"],
                 }
 
-        # Build market context
+        # Build market context (coerce None → defaults so downstream comparisons don't crash)
         market_context = {
-            "market_regime": state.market_regime,
-            "fear_greed": state.fear_greed,
-            "vix": state.vix,
+            "market_regime": state.market_regime or "unknown",
+            "fear_greed": state.fear_greed if state.fear_greed is not None else 50,
+            "vix": state.vix if state.vix is not None else 20,
         }
 
         # Run the full intelligence pipeline

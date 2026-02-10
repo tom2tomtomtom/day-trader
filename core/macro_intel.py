@@ -554,10 +554,10 @@ class MacroIntelligence:
 
     def _build_regime_snapshot(self, data: Dict) -> MacroRegimeSnapshot:
         """Build comprehensive macro regime snapshot"""
-        vix = data.get("vix", 20)
-        fg = data.get("fear_greed", 50)
-        y2 = data.get("yield_2y", 4.0)
-        y10 = data.get("yield_10y", 4.5)
+        vix = data.get("vix") or 20
+        fg = data.get("fear_greed") or 50
+        y2 = data.get("yield_2y") or 4.0
+        y10 = data.get("yield_10y") or 4.5
 
         # Calculate regime score
         score = 0

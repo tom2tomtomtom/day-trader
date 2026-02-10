@@ -261,8 +261,8 @@ class IntelligencePipeline:
             )
             intel_results.append(intel)
 
-        # Sort by opportunity score
-        intel_results.sort(key=lambda x: x.opportunity_score, reverse=True)
+        # Sort by opportunity score (guard against None)
+        intel_results.sort(key=lambda x: x.opportunity_score or 0, reverse=True)
 
         # 4. Generate market digest
         state = {
@@ -302,7 +302,7 @@ class IntelligencePipeline:
         }
 
         # 7. Build briefing
-        actionable = [i for i in intel_results if i.action != "HOLD" and i.opportunity_score >= 40]
+        actionable = [i for i in intel_results if i.action != "HOLD" and (i.opportunity_score or 0) >= 40]
 
         return SystemBriefing(
             timestamp=datetime.now(timezone.utc).isoformat(),
