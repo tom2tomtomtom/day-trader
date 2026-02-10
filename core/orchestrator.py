@@ -24,6 +24,7 @@ from .regime_engine import RegimeDetector, StrategyRouter, MarketRegime
 from .signal_ensemble import SignalEnsemble, SignalType
 from .risk_engine import RiskEngine
 from .intelligence_pipeline import IntelligencePipeline
+from .trading_model import TradingModel, TradeSignal as ModelSignal
 
 BASE_DIR = Path(__file__).parent.parent
 ORCHESTRATOR_LOG = BASE_DIR / "orchestrator_log.jsonl"
@@ -70,16 +71,20 @@ class TradingOrchestrator:
         self.signal_ensemble = SignalEnsemble()
         self.risk_engine = RiskEngine(portfolio_value)
         self.intelligence = IntelligencePipeline(portfolio_value)
+        self.trading_model = TradingModel(portfolio_value=portfolio_value)
 
         self.last_state: Optional[SystemState] = None
     
     def analyze_symbol(self, symbol: str) -> TradeRecommendation:
         """
-        Full analysis pipeline for a single symbol
+        Full analysis pipeline for a single symbol.
+
+        Uses the TradingModel (RSI/MACD/BB/MA composite scorer) as the primary
+        signal engine, with regime detection and ensemble for context.
         """
         # 1. Get all data
         data = self.data.get_full_picture(symbol)
-        
+
         if not data.get("price"):
             return TradeRecommendation(
                 symbol=symbol,
@@ -95,83 +100,102 @@ class TradingOrchestrator:
                 regime="unknown",
                 timestamp=datetime.now(timezone.utc).isoformat()
             )
-        
+
         price_data = data["price"]
         fg_data = data.get("fear_greed", {})
         options_data = data.get("options_flow", {})
-        
+        prices = price_data.get("prices", [])
+        highs = price_data.get("highs")
+        lows = price_data.get("lows")
+        volumes = price_data.get("volumes")
+
         # 2. Detect regime
         regime_state = self.regime_detector.detect_regime(
-            prices=price_data.get("prices", []),
+            prices=prices,
             vix=fg_data.get("vix"),
             fear_greed=fg_data.get("value")
         )
-        
-        # 3. Generate signals
+
+        # 3. Run TradingModel (primary signal engine)
+        model_signal = self.trading_model.generate_signal(
+            symbol, prices, highs, lows, volumes
+        )
+
+        # 4. Generate ensemble signals for additional context
         signals = []
-        
-        # Technical signals
         signals.extend(self.signal_ensemble.add_technical_signals(
-            prices=price_data.get("prices", []),
-            volumes=price_data.get("volumes")
+            prices=prices, volumes=volumes
         ))
-        
-        # Sentiment signals
         signals.extend(self.signal_ensemble.add_sentiment_signals(
             fear_greed=fg_data.get("value")
         ))
-        
-        # Options flow signals (if available)
         if options_data.get("available"):
             signals.extend(self.signal_ensemble.add_flow_signals(
                 bullish_premium=options_data.get("bullish_premium"),
                 bearish_premium=options_data.get("bearish_premium")
             ))
-        
-        # 4. Combine signals
         ensemble_result = self.signal_ensemble.combine_signals(signals)
-        
-        # 5. Check if strategy is appropriate for regime
+
+        # 5. Combine model score with regime filter
         can_trade, regime_note = self.strategy_router.should_trade(
             regime_state.regime,
-            "momentum" if ensemble_result.action in ["BUY", "STRONG_BUY"] else "mean_reversion"
+            "momentum" if model_signal and model_signal.direction == "long" else "mean_reversion"
         )
-        
-        # Adjust confidence based on regime
-        adjusted_confidence = ensemble_result.confidence * regime_state.position_size_multiplier
-        
-        # 6. Calculate position size
-        entry_price = price_data.get("current_price", 0)
-        
-        risk_metrics = self.risk_engine.calculate_position_size(
-            symbol=symbol,
-            entry_price=entry_price,
-            stop_loss_pct=0.02 if regime_state.regime != MarketRegime.HIGH_VOL else 0.04,
-            confidence=adjusted_confidence,
-            win_rate=0.55,  # Conservative estimate
-            avg_win_pct=3.0,
-            avg_loss_pct=2.0
-        )
-        
-        # 7. Build recommendation
-        action = ensemble_result.action if can_trade and risk_metrics.can_trade else "HOLD"
-        
-        reasons = ensemble_result.reasoning.copy()
+
+        # Use TradingModel for primary decision, regime as filter
+        if model_signal and model_signal.direction != "flat":
+            action = "BUY" if model_signal.direction == "long" else "SELL"
+            confidence = abs(model_signal.score) / 100.0 * regime_state.position_size_multiplier
+            entry_price = model_signal.entry_price
+            stop_loss = model_signal.stop_loss
+            take_profit = model_signal.take_profit
+            rr = model_signal.risk_reward_ratio
+            shares = model_signal.position_shares
+            position_size = min(5, max(1, abs(model_signal.score) // 20))
+            reasons = model_signal.reasons.copy()
+
+            if not can_trade:
+                action = "HOLD"
+                reasons.append(f"Blocked by regime filter: {regime_note}")
+        else:
+            # Fall back to ensemble signals when model is flat
+            action = ensemble_result.action if can_trade else "HOLD"
+            entry_price = price_data.get("current_price", 0)
+            risk_metrics = self.risk_engine.calculate_position_size(
+                symbol=symbol,
+                entry_price=entry_price,
+                stop_loss_pct=0.02 if regime_state.regime != MarketRegime.HIGH_VOL else 0.04,
+                confidence=ensemble_result.confidence,
+                win_rate=0.55,
+                avg_win_pct=3.0,
+                avg_loss_pct=2.0
+            )
+            confidence = ensemble_result.confidence * regime_state.position_size_multiplier
+            stop_loss = risk_metrics.stop_loss_price
+            take_profit = risk_metrics.take_profit_price
+            rr = risk_metrics.risk_reward_ratio
+            shares = risk_metrics.recommended_shares if action != "HOLD" else 0
+            position_size = ensemble_result.position_size if action != "HOLD" else 0
+            reasons = ensemble_result.reasoning.copy()
+            if not can_trade:
+                reasons.append(regime_note)
+
+        # Add regime context
         reasons.append(f"Regime: {regime_state.regime.value} ({regime_state.recommended_strategy})")
-        reasons.append(regime_note)
-        if not risk_metrics.can_trade:
-            reasons.append(risk_metrics.reason)
-        
+        if model_signal and model_signal.indicators:
+            ind = model_signal.indicators
+            reasons.append(f"Model score: {ind.composite_score} (RSI:{ind.rsi_score} MACD:{ind.macd_score} BB:{ind.bb_score} MA:{ind.ma_score})")
+
         return TradeRecommendation(
             symbol=symbol,
             action=action,
-            confidence=round(adjusted_confidence, 3),
-            position_size=ensemble_result.position_size if action != "HOLD" else 0,
-            shares=risk_metrics.recommended_shares if action != "HOLD" else 0,
+            confidence=round(confidence, 3),
+            position_size=position_size,
+            shares=shares,
             entry_price=round(entry_price, 2),
-            stop_loss=risk_metrics.stop_loss_price,
-            take_profit=risk_metrics.take_profit_price,
-            risk_reward=risk_metrics.risk_reward_ratio,
+            stop_loss=stop_loss,
+            take_profit=take_profit,
+            risk_reward=rr,
             reasons=reasons,
             regime=regime_state.regime.value,
             timestamp=datetime.now(timezone.utc).isoformat()
@@ -338,11 +362,34 @@ if __name__ == "__main__":
     parser.add_argument("--portfolio", "-p", type=float, default=100000, help="Portfolio value")
     parser.add_argument("--json", action="store_true", help="Output JSON")
     parser.add_argument("--intel", action="store_true", help="Run full intelligence briefing")
+    parser.add_argument("--backtest", action="store_true", help="Run backtester on symbol(s)")
+    parser.add_argument("--paper", action="store_true", help="Run paper trader")
+    parser.add_argument("--period", default="6mo", help="Backtest period (default: 6mo)")
     args = parser.parse_args()
 
-    orchestrator = TradingOrchestrator(portfolio_value=args.portfolio)
-
-    if args.intel:
+    if args.backtest:
+        from .backtester import run_backtest_yfinance
+        symbols = [args.symbol] if args.symbol else DEFAULT_UNIVERSE[:5]
+        for sym in symbols:
+            print(f"\nBacktesting {sym}...")
+            result = run_backtest_yfinance(sym, period=args.period,
+                                           portfolio_value=args.portfolio)
+            if result:
+                m = result.metrics
+                print(f"  Return: {m.total_return_pct:+.2f}%  Sharpe: {m.sharpe_ratio:.2f}  "
+                      f"MaxDD: {m.max_drawdown_pct:.1f}%  Trades: {m.total_trades}  "
+                      f"WinRate: {m.win_rate:.1%}")
+            else:
+                print(f"  No data for {sym}")
+    elif args.paper:
+        from .paper_trader import run_paper_trading
+        symbols = [args.symbol] if args.symbol else None
+        portfolio = run_paper_trading(symbols, args.portfolio)
+        print(f"\nPaper Portfolio: ${portfolio.portfolio_value:,.2f}  "
+              f"Return: {portfolio.total_return_pct:+.2f}%  "
+              f"Trades: {portfolio.total_trades}  Win Rate: {portfolio.win_rate:.1%}")
+    elif args.intel:
+        orchestrator = TradingOrchestrator(portfolio_value=args.portfolio)
         print("Running full intelligence pipeline...")
         briefing = orchestrator.run_intelligence_briefing(DEFAULT_UNIVERSE)
         print(f"\n{'='*70}")
@@ -367,6 +414,7 @@ if __name__ == "__main__":
         print(f"\n{briefing.closing_thought}")
         print(f"\nFull report saved to intelligence_report.json")
     elif args.symbol:
+        orchestrator = TradingOrchestrator(portfolio_value=args.portfolio)
         rec = orchestrator.analyze_symbol(args.symbol)
         if args.json:
             print(json.dumps(asdict(rec), indent=2))
@@ -380,6 +428,7 @@ if __name__ == "__main__":
             for r in rec.reasons:
                 print(f"  - {r}")
     else:
+        orchestrator = TradingOrchestrator(portfolio_value=args.portfolio)
         state = orchestrator.scan_universe(DEFAULT_UNIVERSE)
         if args.json:
             print(json.dumps({

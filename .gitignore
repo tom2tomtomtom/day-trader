@@ -16,6 +16,9 @@ council_decisions.json
 intelligence_report.json
 opportunity_scores.json
 macro_triggers.json
+backtest_results.json
+paper_portfolio.json
+paper_trades.json
 
 # IDE
 .vscode/
