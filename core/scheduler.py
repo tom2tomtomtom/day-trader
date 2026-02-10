@@ -126,6 +126,10 @@ class TradingScheduler:
         self._last_briefing_pm = ""
         self._loop_count = 0
 
+        # Full orchestrator for market analysis + signal generation
+        from .orchestrator import TradingOrchestrator
+        self._orchestrator = TradingOrchestrator()
+
         # Persistent trader instance (loads state from DB once)
         from .paper_trader import PaperTrader
         self._trader = PaperTrader(initial_capital=100000)
@@ -138,37 +142,69 @@ class TradingScheduler:
         logger.info("Scheduler shutting down...")
         self.running = False
 
-    def _run_stock_scan(self):
-        """Run paper trading scan on stock universe."""
-        logger.info("Running stock scan...")
-        price_data = _fetch_price_data(STOCK_UNIVERSE)
-        if not price_data:
-            logger.warning("No stock price data fetched")
-            return
-        portfolio = self._trader.analyze_and_trade(STOCK_UNIVERSE, price_data)
+    def _run_orchestrator(self, symbols: List[str], label: str):
+        """Run the full orchestrator pipeline — logs signals + market data to DB."""
+        t0 = time.time()
+        try:
+            state = self._orchestrator.scan_universe(symbols)
+            elapsed = time.time() - t0
+            logger.info(
+                f"[{label}] Orchestrator: {len(state.recommendations)} actionable | "
+                f"regime={state.market_regime} | FG={state.fear_greed} | "
+                f"VIX={state.vix:.1f} | {elapsed:.1f}s"
+            )
+            if state.recommendations:
+                top = state.recommendations[0]
+                logger.info(
+                    f"[{label}] Top pick: {top.symbol} {top.action} "
+                    f"confidence={top.confidence:.0%} ML={top.ml_quality_score:.2f}"
+                )
+        except Exception as e:
+            logger.error(f"[{label}] Orchestrator failed ({time.time()-t0:.1f}s): {e}", exc_info=True)
+
+    def _run_paper_trader(self, symbols: List[str], price_data: dict, label: str):
+        """Run the paper trader for position management."""
+        t0 = time.time()
+        portfolio = self._trader.analyze_and_trade(symbols, price_data)
         logger.info(
-            f"Stock scan complete: ${portfolio.portfolio_value:,.2f} "
+            f"[{label}] Paper trader: ${portfolio.portfolio_value:,.2f} "
             f"({portfolio.total_return_pct:+.2f}%) | "
-            f"{len(portfolio.positions)} open positions"
+            f"{len(portfolio.positions)} positions | {time.time()-t0:.1f}s"
         )
 
+    def _run_stock_scan(self):
+        """Run full analysis + paper trading on stock universe."""
+        logger.info("=== STOCK SCAN START ===")
+
+        # 1. Full orchestrator — analyze market, generate signals, log to DB
+        self._run_orchestrator(STOCK_UNIVERSE, "STOCKS")
+
+        # 2. Paper trader — manage positions based on price data
+        price_data = _fetch_price_data(STOCK_UNIVERSE)
+        if not price_data:
+            logger.warning("No stock price data fetched for paper trader")
+            return
+        self._run_paper_trader(STOCK_UNIVERSE, price_data, "STOCKS")
+
     def _run_crypto_scan(self):
-        """Run paper trading scan on crypto universe."""
-        logger.info("Running crypto scan...")
+        """Run full analysis + paper trading on crypto universe."""
+        logger.info("=== CRYPTO SCAN START ===")
+
+        # 1. Full orchestrator — analyze market, generate signals, log to DB
+        self._run_orchestrator(CRYPTO_UNIVERSE, "CRYPTO")
+
+        # 2. Paper trader — manage positions based on price data
         price_data = _fetch_price_data(CRYPTO_UNIVERSE)
         if not price_data:
-            logger.warning("No crypto price data fetched")
+            logger.warning("No crypto price data fetched for paper trader")
             return
-        portfolio = self._trader.analyze_and_trade(CRYPTO_UNIVERSE, price_data)
-        logger.info(
-            f"Crypto scan complete: ${portfolio.portfolio_value:,.2f} "
-            f"({portfolio.total_return_pct:+.2f}%) | "
-            f"{len(portfolio.positions)} open positions"
-        )
+        self._run_paper_trader(CRYPTO_UNIVERSE, price_data, "CRYPTO")
 
     def run(self):
         """Main loop — runs forever until stopped."""
-        logger.info("Apex Trader Scheduler started")
+        logger.info("=" * 60)
+        logger.info("Apex Trader Scheduler started (FULL ORCHESTRATOR MODE)")
+        logger.info("=" * 60)
         logger.info(f"  Stock interval: {self.cfg.trading.stock_scan_interval}s")
         logger.info(f"  Crypto interval: {self.cfg.trading.crypto_scan_interval}s")
         logger.info(f"  Loaded {len(self._trader.positions)} existing positions")
