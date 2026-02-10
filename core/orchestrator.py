@@ -23,6 +23,7 @@ from .data_layer import DataAggregator
 from .regime_engine import RegimeDetector, StrategyRouter, MarketRegime
 from .signal_ensemble import SignalEnsemble, SignalType
 from .risk_engine import RiskEngine
+from .intelligence_pipeline import IntelligencePipeline
 
 BASE_DIR = Path(__file__).parent.parent
 ORCHESTRATOR_LOG = BASE_DIR / "orchestrator_log.jsonl"
@@ -61,14 +62,15 @@ class TradingOrchestrator:
     """
     Main orchestrator that coordinates all components
     """
-    
+
     def __init__(self, portfolio_value: float = 100000):
         self.data = DataAggregator()
         self.regime_detector = RegimeDetector()
         self.strategy_router = StrategyRouter()
         self.signal_ensemble = SignalEnsemble()
         self.risk_engine = RiskEngine(portfolio_value)
-        
+        self.intelligence = IntelligencePipeline(portfolio_value)
+
         self.last_state: Optional[SystemState] = None
     
     def analyze_symbol(self, symbol: str) -> TradeRecommendation:
@@ -213,6 +215,59 @@ class TradingOrchestrator:
         
         return state
     
+    def run_intelligence_briefing(self, symbols: List[str]):
+        """
+        Run the FULL intelligence pipeline including:
+        - Phantom Council analysis per symbol
+        - Congressional trade intelligence
+        - Macro trigger detection
+        - Multi-factor opportunity scoring
+        - AI-powered trade narratives
+
+        Returns a comprehensive SystemBriefing saved to disk.
+        """
+        # First, run standard analysis to get recommendations
+        state = self.scan_universe(symbols)
+
+        # Build recommendations dict
+        recommendations = {}
+        for rec in state.recommendations:
+            recommendations[rec.symbol] = asdict(rec)
+
+        # Also include HOLD symbols with basic data
+        for symbol in symbols:
+            if symbol not in recommendations:
+                data = self.data.get_full_picture(symbol)
+                recommendations[symbol] = {
+                    "action": "HOLD",
+                    "confidence": 0,
+                    "entry_price": data.get("price", {}).get("current_price", 0),
+                    "stop_loss": 0,
+                    "take_profit": 0,
+                    "risk_reward": 0,
+                    "reasons": ["No signal"],
+                }
+
+        # Build market context
+        context = self.data.get_market_context()
+        market_context = {
+            "market_regime": state.market_regime,
+            "fear_greed": state.fear_greed,
+            "vix": state.vix,
+        }
+
+        # Run the full intelligence pipeline
+        briefing = self.intelligence.run_full_briefing(
+            symbols=symbols,
+            recommendations=recommendations,
+            market_context=market_context,
+        )
+
+        # Save to disk for dashboard
+        self.intelligence.save_briefing(briefing)
+
+        return briefing
+
     def _log_state(self, state: SystemState):
         """Log state for analysis"""
         with open(ORCHESTRATOR_LOG, "a") as f:
@@ -282,11 +337,36 @@ if __name__ == "__main__":
     parser.add_argument("--symbol", "-s", help="Analyze single symbol")
     parser.add_argument("--portfolio", "-p", type=float, default=100000, help="Portfolio value")
     parser.add_argument("--json", action="store_true", help="Output JSON")
+    parser.add_argument("--intel", action="store_true", help="Run full intelligence briefing")
     args = parser.parse_args()
-    
+
     orchestrator = TradingOrchestrator(portfolio_value=args.portfolio)
-    
-    if args.symbol:
+
+    if args.intel:
+        print("Running full intelligence pipeline...")
+        briefing = orchestrator.run_intelligence_briefing(DEFAULT_UNIVERSE)
+        print(f"\n{'='*70}")
+        print(f"INTELLIGENCE BRIEFING")
+        print(f"{'='*70}")
+        print(f"\n{briefing.market_headline}")
+        print(f"\n{briefing.market_mood}")
+        print(f"\n{briefing.regime_narrative}")
+        print(f"\nRisk Score: {briefing.macro_risk_score:.0f}/100")
+        print(f"Opportunity Score: {briefing.macro_opportunity_score:.0f}/100")
+        if briefing.active_triggers:
+            print(f"\nActive Triggers ({len(briefing.active_triggers)}):")
+            for t in briefing.active_triggers[:5]:
+                print(f"  [{t['severity'].upper()}] {t['title']}")
+        print(f"\nTop Opportunities ({briefing.actionable_signals} actionable):")
+        for opp in briefing.top_opportunities[:5]:
+            print(f"  {opp.symbol}: {opp.action} | Score: {opp.opportunity_score:.0f}/100 ({opp.conviction_label})")
+            print(f"    Council: {opp.council_action} ({opp.council_conviction}) | Congress: {opp.congress_buying}B/{opp.congress_selling}S")
+            print(f"    {opp.headline}")
+        if briefing.congress_report_summary:
+            print(f"\nCongressional Intel: {briefing.congress_report_summary.get('signals', 0)} signals")
+        print(f"\n{briefing.closing_thought}")
+        print(f"\nFull report saved to intelligence_report.json")
+    elif args.symbol:
         rec = orchestrator.analyze_symbol(args.symbol)
         if args.json:
             print(json.dumps(asdict(rec), indent=2))

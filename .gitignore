@@ -21,6 +21,14 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
+# Logs and state (can be regenerated)
+*.jsonl
+*_log.jsonl
+congressional_trades.json
+council_decisions.json
+intelligence_report.json
+opportunity_scores.json
+macro_triggers.json
 
 # IDE
 .vscode/
