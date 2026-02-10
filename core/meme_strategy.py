@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 # Expanded meme / high-vol universe
 MEME_UNIVERSE = {
     # Crypto memes
-    "DOGE-USD", "SHIB-USD", "PEPE-USD", "FLOKI-USD", "BONK-USD", "WIF-USD",
+    "DOGE-USD", "SHIB-USD", "AVAX-USD", "FLOKI-USD", "BONK-USD", "WIF-USD",
     # Crypto majors (volatile)
     "SOL-USD", "AVAX-USD", "LINK-USD",
     # Meme stocks / high-beta

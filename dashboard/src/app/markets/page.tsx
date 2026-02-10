@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { Globe, TrendingUp, TrendingDown } from "lucide-react";
 import { PriceChart } from "@/components/PriceChart";
+import { TimeAgo } from "@/components/TimeAgo";
 import { useTableSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface MarketStatus {
@@ -12,18 +13,14 @@ interface MarketStatus {
 
 interface RegionalData {
   regime: string;
-  score: number;
-  change_1d: number;
-  market_open: boolean;
+  change_1d: number | null;
 }
 
 interface MarketsData {
   market_status: Record<string, MarketStatus>;
   active_markets: string[];
   global_regime: string;
-  regional?: {
-    regions: Record<string, RegionalData>;
-  };
+  regional?: Record<string, RegionalData>;
 }
 
 const MARKET_FLAGS: Record<string, string> = {
@@ -48,6 +45,7 @@ export default function MarketsPage() {
   const [data, setData] = useState<MarketsData | null>(null);
   const [selectedMarket, setSelectedMarket] = useState<string>("US");
   const [loading, setLoading] = useState(true);
+  const [fetchedAt, setFetchedAt] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -55,6 +53,7 @@ export default function MarketsPage() {
       if (res.ok) {
         const markets = await res.json();
         setData(markets);
+        setFetchedAt(new Date().toISOString());
       }
     } catch (error) {
       console.error("Failed to fetch markets:", error);
@@ -83,12 +82,15 @@ export default function MarketsPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Global Markets</h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-bold">Global Markets</h1>
+          <TimeAgo timestamp={fetchedAt} staleAfterMs={600000} />
+        </div>
         <div className="flex items-center gap-2">
           <Globe className="w-5 h-5 text-zinc-400" />
           <span className={`font-semibold ${
-            data?.global_regime === "GLOBAL_RISK_ON" 
-              ? "text-emerald-500" 
+            data?.global_regime === "GLOBAL_RISK_ON"
+              ? "text-emerald-500"
               : data?.global_regime === "GLOBAL_RISK_OFF"
               ? "text-red-500"
               : "text-zinc-400"
@@ -162,7 +164,11 @@ export default function MarketsPage() {
             </thead>
             <tbody className="divide-y divide-zinc-800">
               {Object.entries(data?.market_status || {}).map(([market, status]) => {
-                const index = MARKET_INDICES[market];
+                const regionData = data?.regional?.[market];
+                const regime = regionData?.regime || data?.global_regime || "N/A";
+                const change1d = regionData?.change_1d;
+                const hasChange = change1d !== null && change1d !== undefined;
+
                 return (
                   <tr key={market} className="hover:bg-zinc-800/50">
                     <td className="py-3">
@@ -184,12 +190,26 @@ export default function MarketsPage() {
                       </span>
                     </td>
                     <td className="py-3">
-                      <span className="text-sm text-zinc-400">
-                        {index?.symbol || "-"}
+                      <span className={`inline-flex items-center gap-1.5 text-sm font-medium ${
+                        regime === "BULLISH" ? "text-emerald-500"
+                          : regime === "BEARISH" ? "text-red-500"
+                          : "text-zinc-400"
+                      }`}>
+                        {regime === "BULLISH" && <TrendingUp className="w-3.5 h-3.5" />}
+                        {regime === "BEARISH" && <TrendingDown className="w-3.5 h-3.5" />}
+                        {regime}
                       </span>
                     </td>
                     <td className="py-3 text-right">
-                      <span className="text-zinc-400">-</span>
+                      {hasChange ? (
+                        <span className={`font-medium ${
+                          change1d > 0 ? "text-emerald-500" : change1d < 0 ? "text-red-500" : "text-zinc-400"
+                        }`}>
+                          {change1d > 0 ? "+" : ""}{change1d.toFixed(2)}%
+                        </span>
+                      ) : (
+                        <span className="text-zinc-500">N/A</span>
+                      )}
                     </td>
                   </tr>
                 );

@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { TrendingUp, TrendingDown, Clock, DollarSign } from "lucide-react";
+import { TimeAgo } from "@/components/TimeAgo";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface Position {
@@ -36,6 +37,7 @@ interface PositionsData {
 export default function PositionsPage() {
   const [data, setData] = useState<PositionsData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [fetchedAt, setFetchedAt] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
     try {
@@ -43,6 +45,7 @@ export default function PositionsPage() {
       if (res.ok) {
         const positions = await res.json();
         setData(positions);
+        setFetchedAt(new Date().toISOString());
       }
     } catch (error) {
       console.error("Failed to fetch positions:", error);
@@ -79,7 +82,10 @@ export default function PositionsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Positions</h1>
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Positions</h1>
+        <TimeAgo timestamp={fetchedAt} staleAfterMs={600000} />
+      </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">

@@ -51,7 +51,7 @@ STOCK_UNIVERSE = [
 # Crypto universe (24/7)
 CRYPTO_UNIVERSE = [
     "BTC-USD", "ETH-USD", "SOL-USD",
-    "DOGE-USD", "SHIB-USD", "PEPE-USD",
+    "DOGE-USD", "SHIB-USD", "AVAX-USD",
 ]
 
 

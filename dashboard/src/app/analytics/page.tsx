@@ -10,6 +10,7 @@ import {
   Activity,
   Grid3X3,
 } from "lucide-react";
+import { TimeAgo } from "@/components/TimeAgo";
 import {
   BarChart,
   Bar,
@@ -212,6 +213,7 @@ export default function AnalyticsPage() {
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [fetchedAt, setFetchedAt] = useState<string | null>(null);
 
   const fetchAnalytics = useCallback(async () => {
     try {
@@ -222,6 +224,7 @@ export default function AnalyticsPage() {
           setError(json.error);
         } else {
           setData(json);
+          setFetchedAt(new Date().toISOString());
         }
       } else {
         const err = await res.json();
@@ -249,7 +252,7 @@ export default function AnalyticsPage() {
   if (error && !data) {
     return (
       <div className="space-y-6">
-        <PageHeader />
+        <PageHeader fetchedAt={fetchedAt} />
         <EmptyState message={error} />
       </div>
     );
@@ -267,7 +270,7 @@ export default function AnalyticsPage() {
   if (!hasAnyData) {
     return (
       <div className="space-y-6">
-        <PageHeader />
+        <PageHeader fetchedAt={fetchedAt} />
         <EmptyState message="No analytics data available yet. Run some trades to populate the dashboard." />
       </div>
     );
@@ -275,7 +278,7 @@ export default function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader />
+      <PageHeader fetchedAt={fetchedAt} />
 
       {/* Row 1: Win Rate by Regime + P&L by Exit Reason */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -300,17 +303,20 @@ export default function AnalyticsPage() {
 
 // --- Sub-components ---
 
-function PageHeader() {
+function PageHeader({ fetchedAt }: { fetchedAt: string | null }) {
   return (
-    <div>
-      <h1 className="text-2xl font-bold flex items-center gap-2">
-        <BarChart3 className="w-7 h-7 text-emerald-500" />
-        Advanced Analytics
-      </h1>
-      <p className="text-zinc-400 text-sm">
-        Win rates, P&L breakdown, feature importance, signal accuracy, and
-        drawdown analysis
-      </p>
+    <div className="flex items-center justify-between">
+      <div>
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <BarChart3 className="w-7 h-7 text-emerald-500" />
+          Advanced Analytics
+        </h1>
+        <p className="text-zinc-400 text-sm">
+          Win rates, P&L breakdown, feature importance, signal accuracy, and
+          drawdown analysis
+        </p>
+      </div>
+      <TimeAgo timestamp={fetchedAt} staleAfterMs={3600000} />
     </div>
   );
 }

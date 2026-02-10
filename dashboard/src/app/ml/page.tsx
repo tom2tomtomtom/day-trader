@@ -13,6 +13,7 @@ import {
   XCircle,
   TrendingUp,
 } from "lucide-react";
+import { TimeAgo } from "@/components/TimeAgo";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface MLModel {
@@ -82,6 +83,7 @@ export default function MLPage() {
   const [data, setData] = useState<MLData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [fetchedAt, setFetchedAt] = useState<string | null>(null);
 
   const fetchML = useCallback(async () => {
     try {
@@ -89,6 +91,7 @@ export default function MLPage() {
       if (res.ok) {
         const json = await res.json();
         setData(json);
+        setFetchedAt(new Date().toISOString());
       } else {
         const err = await res.json();
         setError(err.error || "Failed to fetch ML data");
@@ -121,7 +124,7 @@ export default function MLPage() {
   if (error) {
     return (
       <div className="space-y-6">
-        <PageHeader />
+        <PageHeader fetchedAt={fetchedAt} />
         <EmptyState message={error} />
       </div>
     );
@@ -130,7 +133,7 @@ export default function MLPage() {
   if (!data?.model) {
     return (
       <div className="space-y-6">
-        <PageHeader />
+        <PageHeader fetchedAt={fetchedAt} />
         <EmptyState message="No ML models trained yet" />
       </div>
     );
@@ -138,7 +141,7 @@ export default function MLPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader />
+      <PageHeader fetchedAt={fetchedAt} />
       <ActiveModelSection model={data.model} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <FeatureImportanceChart features={data.model.feature_importance} />
@@ -150,17 +153,20 @@ export default function MLPage() {
   );
 }
 
-function PageHeader() {
+function PageHeader({ fetchedAt }: { fetchedAt: string | null }) {
   return (
-    <div>
-      <h1 className="text-2xl font-bold flex items-center gap-2">
-        <Cpu className="w-7 h-7 text-emerald-500" />
-        ML Performance
-      </h1>
-      <p className="text-zinc-400 text-sm">
-        Machine learning model metrics, feature importance, and prediction
-        accuracy
-      </p>
+    <div className="flex items-center justify-between">
+      <div>
+        <h1 className="text-2xl font-bold flex items-center gap-2">
+          <Cpu className="w-7 h-7 text-emerald-500" />
+          ML Performance
+        </h1>
+        <p className="text-zinc-400 text-sm">
+          Machine learning model metrics, feature importance, and prediction
+          accuracy
+        </p>
+      </div>
+      <TimeAgo timestamp={fetchedAt} staleAfterMs={3600000} />
     </div>
   );
 }

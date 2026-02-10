@@ -13,6 +13,7 @@ import {
   BarChart3,
   Brain,
 } from "lucide-react";
+import { TimeAgo } from "@/components/TimeAgo";
 
 interface PersonaVerdict {
   name: string;
@@ -184,9 +185,7 @@ export default function CouncilPage() {
             6 AI investor personas debate every trade opportunity
           </p>
         </div>
-        <div className="text-sm text-zinc-500">
-          {data.timestamp && new Date(data.timestamp).toLocaleString()}
-        </div>
+        <TimeAgo timestamp={data.timestamp} staleAfterMs={3600000} />
       </div>
 
       {/* Persona Legend */}

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Zap, TrendingUp, Flame, Target, AlertTriangle, Users } from "lucide-react";
+import { TimeAgo } from "@/components/TimeAgo";
 
 interface EdgeOpportunity {
   symbol: string;
@@ -118,9 +119,7 @@ export default function EdgePage() {
             <Target className="w-7 h-7 text-yellow-500" />
             Edge Scanner
           </h1>
-          <p className="text-zinc-400 text-sm">
-            Last scan: {new Date(data.timestamp).toLocaleString()}
-          </p>
+          <TimeAgo timestamp={data.timestamp} staleAfterMs={3600000} />
         </div>
         <div className="flex gap-4 text-sm">
           <div className="bg-zinc-800 px-3 py-2 rounded-lg">

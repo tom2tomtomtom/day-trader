@@ -76,7 +76,7 @@ class RiskEngine:
         "AAPL": "tech", "MSFT": "tech", "GOOGL": "tech", "AMZN": "tech",
         "NVDA": "tech", "META": "tech", "AMD": "tech", "TSLA": "tech",
         "BTC-USD": "crypto", "ETH-USD": "crypto", "SOL-USD": "crypto",
-        "DOGE-USD": "crypto", "SHIB-USD": "crypto", "PEPE-USD": "crypto",
+        "DOGE-USD": "crypto", "SHIB-USD": "crypto", "AVAX-USD": "crypto",
         "COIN": "crypto", "MSTR": "crypto",
         "SPY": "index", "QQQ": "index", "IWM": "index", "DIA": "index",
         "JPM": "finance", "GS": "finance", "BAC": "finance",

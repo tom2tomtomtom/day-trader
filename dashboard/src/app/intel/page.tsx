@@ -14,6 +14,7 @@ import {
   BarChart3,
   Flame,
 } from "lucide-react";
+import { TimeAgo } from "@/components/TimeAgo";
 
 interface Trigger {
   type: string;
@@ -183,6 +184,7 @@ export default function IntelPage() {
               {data.digest.headline}
             </p>
             <p className="text-sm text-zinc-400 max-w-2xl">{data.digest.mood}</p>
+            <TimeAgo timestamp={data.timestamp} staleAfterMs={3600000} className="mt-2 inline-block" />
           </div>
           <div className="text-right space-y-2">
             <div className="flex gap-4">
@@ -515,8 +517,8 @@ export default function IntelPage() {
       {/* Closing Thought */}
       <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800 text-center">
         <p className="text-zinc-300 italic">{data.digest.closing_thought}</p>
-        <p className="text-xs text-zinc-500 mt-2">
-          Analysis generated at {data.timestamp && new Date(data.timestamp).toLocaleString()}
+        <p className="text-xs mt-2">
+          <TimeAgo timestamp={data.timestamp} staleAfterMs={3600000} prefix="Analysis generated" />
         </p>
       </div>
     </div>

@@ -34,8 +34,8 @@ BASE_DIR = Path(__file__).parent.parent
 
 # Meme coins / high-risk assets that get extra conservative sizing
 MEME_ASSETS = {
-    "DOGE-USD", "SHIB-USD", "PEPE-USD", "FLOKI-USD", "BONK-USD",
-    "DOGE", "SHIB", "PEPE", "MEME", "WIF-USD",
+    "DOGE-USD", "SHIB-USD", "FLOKI-USD", "BONK-USD",
+    "DOGE", "SHIB", "MEME", "WIF-USD",
 }
 
 

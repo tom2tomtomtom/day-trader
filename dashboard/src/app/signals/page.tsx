@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle2, XCircle, Zap } from "lucide-react";
 import { FearGreedGauge } from "@/components/FearGreedGauge";
+import { TimeAgo } from "@/components/TimeAgo";
 import { useTableSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface Signal {
@@ -145,8 +146,8 @@ export default function SignalsPage() {
       </div>
 
       {/* Last Updated */}
-      <div className="text-sm text-zinc-500">
-        Last updated: {new Date(data.timestamp).toLocaleString()}
+      <div className="text-sm">
+        <TimeAgo timestamp={data.timestamp} staleAfterMs={600000} />
       </div>
 
       {/* Top Picks */}
