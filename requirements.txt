@@ -2,20 +2,12 @@
 numpy
 pandas
 scikit-learn
-scipy
-yfinance
 joblib
+yfinance
 
-# Trading Platforms
-ccxt
-alpaca-trade-api
-python-binance
-
-# Data Processing
+# HTTP
 requests
 httpx
-matplotlib
-seaborn
 
 # Database
 supabase
@@ -23,17 +15,5 @@ supabase
 # AI APIs
 anthropic
 
-# Logging and Utilities
+# Utilities
 python-dotenv
-
-# Optional: Dashboard
-streamlit
-plotly
-
-# Risk Management
-TA-Lib  # Technical Analysis Library
-
-# Development and Testing
-pytest
-mypy
-black  # Code formatter
