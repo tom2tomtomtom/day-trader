@@ -38,11 +38,15 @@ export async function GET() {
             thesis: opp.thesis,
             bull_case: opp.bull_case,
             bear_case: opp.bear_case,
+            key_drivers: opp.key_drivers || [],
+            key_risks: opp.key_risks || [],
           })
         );
 
         return NextResponse.json({
           timestamp: briefing.timestamp || data[0].created_at,
+          market: briefing.market || {},
+          digest: briefing.digest || {},
           opportunities,
           source: "supabase",
           last_updated: data[0].created_at,
@@ -75,10 +79,14 @@ export async function GET() {
             thesis: opp.thesis,
             bull_case: opp.bull_case,
             bear_case: opp.bear_case,
+            key_drivers: opp.key_drivers || [],
+            key_risks: opp.key_risks || [],
           })
         );
         return NextResponse.json({
           timestamp: briefing.timestamp,
+          market: briefing.market || {},
+          digest: briefing.digest || {},
           opportunities,
           source: "file",
         });

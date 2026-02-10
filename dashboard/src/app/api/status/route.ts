@@ -22,6 +22,15 @@ export async function GET() {
       const p = portfolioRes.data?.[0];
       const positions = positionsRes.data || [];
       const pv = p?.portfolio_value || 100000;
+      const initialCapital = 100000;
+      const totalReturn = pv - initialCapital;
+      const totalReturnPct = p?.total_return_pct ?? ((totalReturn / initialCapital) * 100);
+
+      // Sum unrealized P&L across open positions
+      const unrealizedPnl = positions.reduce(
+        (sum, pos) => sum + (pos.unrealized_pnl || 0),
+        0
+      );
 
       // Determine engine status from last snapshot time
       const lastScanAt = p?.snapshot_at || null;
@@ -40,8 +49,12 @@ export async function GET() {
       return NextResponse.json({
         portfolio_value: pv,
         cash: p?.cash || 100000,
-        day_pnl: pv - 100000,
-        day_pnl_pct: ((pv - 100000) / 100000) * 100,
+        initial_capital: initialCapital,
+        total_return: totalReturn,
+        total_return_pct: totalReturnPct,
+        unrealized_pnl: unrealizedPnl,
+        day_pnl: totalReturn,
+        day_pnl_pct: totalReturnPct,
         total_trades: p?.total_trades || 0,
         winners: p?.winning_trades || 0,
         losers: p?.losing_trades || 0,

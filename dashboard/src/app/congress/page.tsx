@@ -218,7 +218,7 @@ export default function CongressPage() {
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 text-sm">
                     <span className="text-emerald-400">{counts.buys} buys</span>
-                    <span className="text-zinc-600">|</span>
+                    <span className="text-zinc-500">|</span>
                     <span className="text-red-400">{counts.sells} sells</span>
                   </div>
                   <div className="w-24 h-2 bg-zinc-800 rounded-full overflow-hidden flex">

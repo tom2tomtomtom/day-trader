@@ -38,6 +38,10 @@ interface EngineStatus {
 interface DayStatus {
   portfolio_value: number;
   cash: number;
+  initial_capital: number;
+  total_return: number;
+  total_return_pct: number;
+  unrealized_pnl: number;
   day_pnl: number;
   day_pnl_pct: number;
   total_trades: number;
@@ -218,33 +222,55 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Live Ticker */}
+      {status?.positions && Object.keys(status.positions).length > 0 && (
+        <div className="overflow-hidden bg-zinc-900/50 border border-zinc-800 rounded-lg">
+          <div className="flex animate-marquee whitespace-nowrap py-2 px-4">
+            {Object.entries(status.positions).concat(Object.entries(status.positions)).map(([sym, pos], idx) => {
+              const pnl = pos.pnl ?? 0;
+              const pnlPct = pos.pnl_pct ?? 0;
+              const isUp = pnl >= 0;
+              return (
+                <span key={`${sym}-${idx}`} className="inline-flex items-center gap-2 mx-6 text-sm">
+                  <span className="font-bold text-zinc-200">{sym}</span>
+                  <span className="text-zinc-400">${pos.current_price?.toFixed(2) ?? pos.entry_price?.toFixed(2)}</span>
+                  <span className={isUp ? "text-emerald-400" : "text-red-400"}>
+                    {isUp ? "+" : ""}{pnlPct?.toFixed(2)}%
+                  </span>
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Header Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Portfolio Value"
-          value={`$${status?.portfolio_value?.toLocaleString() ?? "100,000"}`}
+          value={`$${status?.portfolio_value?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? "100,000.00"}`}
           icon={DollarSign}
-          trend={status?.day_pnl ?? 0}
-          trendLabel={`${status?.day_pnl_pct?.toFixed(2) ?? "0.00"}% today`}
+          trend={status?.total_return ?? 0}
+          trendLabel={`${status?.total_return_pct?.toFixed(2) ?? "0.00"}% total return`}
         />
         <StatCard
-          title="Day P&L"
-          value={`$${status?.day_pnl?.toLocaleString() ?? "0"}`}
-          icon={status?.day_pnl && status.day_pnl >= 0 ? TrendingUp : TrendingDown}
-          trend={status?.day_pnl ?? 0}
-          positive={status?.day_pnl ? status.day_pnl >= 0 : true}
+          title="Unrealized P&L"
+          value={`${(status?.unrealized_pnl ?? 0) >= 0 ? "+" : ""}$${(status?.unrealized_pnl ?? 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          icon={status?.unrealized_pnl && status.unrealized_pnl >= 0 ? TrendingUp : TrendingDown}
+          trend={status?.unrealized_pnl ?? 0}
+          positive={status?.unrealized_pnl ? status.unrealized_pnl >= 0 : true}
+        />
+        <StatCard
+          title="Cash Available"
+          value={`$${status?.cash?.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) ?? "100,000.00"}`}
+          icon={Activity}
+          subtitle={`${status?.open_positions ?? 0} positions open`}
         />
         <StatCard
           title="Win Rate"
           value={`${winRate}%`}
-          icon={Activity}
-          subtitle={`${status?.winners ?? 0}W / ${status?.losers ?? 0}L`}
-        />
-        <StatCard
-          title="Open Positions"
-          value={String(status?.open_positions ?? 0)}
           icon={BarChart3}
-          subtitle={`of 5 max`}
+          subtitle={`${status?.winners ?? 0}W / ${status?.losers ?? 0}L of ${status?.total_trades ?? 0}`}
         />
       </div>
 
@@ -299,7 +325,7 @@ export default function Dashboard() {
             <div className="text-center py-8">
               <p className="text-zinc-500">No open positions</p>
               {engine?.status === "active" && (
-                <p className="text-zinc-600 text-xs mt-2">
+                <p className="text-zinc-500 text-xs mt-2">
                   Engine scanning — positions open when signals hit
                 </p>
               )}
@@ -364,7 +390,7 @@ function EngineStatusBanner({
           <span>Last scan: {timeAgo(engine.last_scan)}</span>
         )}
         {lastUpdated && source === "supabase" && (
-          <span className="text-zinc-600">via Supabase</span>
+          <span className="text-zinc-500">via Supabase</span>
         )}
       </div>
     </div>
@@ -407,7 +433,7 @@ function StatCard({
 }
 
 function PositionCard({ position }: { position: Position }) {
-  const isLong = position.direction === "long";
+  const isLong = position.direction?.toLowerCase() === "long";
   const isProfitable = (position.pnl ?? 0) >= 0;
 
   return (

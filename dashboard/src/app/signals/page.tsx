@@ -70,12 +70,12 @@ export default function SignalsPage() {
   if (!data) {
     return (
       <div className="text-center py-16">
-        <Zap className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+        <Zap className="w-12 h-12 text-zinc-400 mx-auto mb-4" />
         <h2 className="text-lg font-semibold mb-2">No Signal Data Yet</h2>
         <p className="text-zinc-500 mb-4 max-w-sm mx-auto">
           The scheduler generates signals every 5 minutes during market hours and every 15 minutes for crypto.
         </p>
-        <p className="text-zinc-600 text-sm">Signals will appear here automatically once the next scan completes.</p>
+        <p className="text-zinc-400 text-sm">Signals will appear here automatically once the next scan completes.</p>
       </div>
     );
   }
