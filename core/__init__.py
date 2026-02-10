@@ -1,4 +1,4 @@
-# Day Trading System v3.0 - Intelligence-Driven Architecture
+# Apex Trader v4.0 - Autonomous ML-Driven Trading System
 #
 # Core trading model:
 # - trading_model: Multi-factor ensemble scorer (-100 to +100) with RSI, MACD, BB, MA
