@@ -1,19 +1,43 @@
 import { NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
-import { DATA_DIR } from "@/lib/data-dir";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 
 export async function GET() {
   try {
-    const edgePath = path.join(DATA_DIR, "edge_signals.json");
-    const data = await fs.readFile(edgePath, "utf-8");
-    const edge = JSON.parse(data);
-    return NextResponse.json(edge);
+    if (isSupabaseConfigured()) {
+      // Edge signals come from the signals table with high scores
+      const { data, error } = await supabase
+        .from("signals")
+        .select("*")
+        .gte("score", 50)
+        .order("created_at", { ascending: false })
+        .limit(20);
+
+      if (!error) {
+        return NextResponse.json({
+          timestamp: new Date().toISOString(),
+          signals: (data || []).map((s) => ({
+            symbol: s.symbol,
+            action: s.action,
+            score: s.score,
+            confidence: s.confidence,
+            reasons: s.reasons,
+            regime: s.regime,
+          })),
+          source: "supabase",
+        });
+      }
+    }
+
+    return NextResponse.json({
+      timestamp: new Date().toISOString(),
+      signals: [],
+      message: "No edge signals yet. The worker will generate them during market scans.",
+    });
   } catch (error) {
     console.error("Edge API error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch edge signals. Run edge_scanner.py first." },
-      { status: 500 }
-    );
+    return NextResponse.json({
+      timestamp: new Date().toISOString(),
+      signals: [],
+    });
   }
 }

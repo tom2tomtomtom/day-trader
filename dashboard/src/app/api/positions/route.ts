@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { promises as fs } from "fs";
-import path from "path";
-import { DATA_DIR } from "@/lib/data-dir";
 
 export async function GET() {
   try {
@@ -12,10 +9,17 @@ export async function GET() {
         .select("*")
         .eq("status", "open");
 
-      if (!error && data) {
+      const tradesRes = await supabase
+        .from("trades")
+        .select("*")
+        .eq("is_backtest", false)
+        .order("exit_date", { ascending: false })
+        .limit(50);
+
+      if (!error) {
         return NextResponse.json({
           positions: Object.fromEntries(
-            data.map((pos) => [
+            (data || []).map((pos) => [
               pos.symbol,
               {
                 symbol: pos.symbol,
@@ -31,17 +35,30 @@ export async function GET() {
               },
             ])
           ),
-          closed_trades: [],
-          total_trades: data.length,
+          closed_trades: (tradesRes.data || []).map((t) => ({
+            symbol: t.symbol,
+            direction: t.direction,
+            entry_price: t.entry_price,
+            exit_price: t.exit_price,
+            shares: t.shares,
+            pnl_dollars: t.pnl_dollars,
+            pnl_pct: t.pnl_pct,
+            exit_reason: t.exit_reason,
+            entry_date: t.entry_date,
+            exit_date: t.exit_date,
+          })),
+          total_trades: (data || []).length + (tradesRes.data || []).length,
           source: "supabase",
         });
       }
     }
 
-    // Fallback
-    const positionsPath = path.join(DATA_DIR, "day_positions.json");
-    const data = await fs.readFile(positionsPath, "utf-8");
-    return NextResponse.json(JSON.parse(data));
+    return NextResponse.json({
+      positions: {},
+      closed_trades: [],
+      total_trades: 0,
+      source: "none",
+    });
   } catch (error) {
     console.error("Positions API error:", error);
     return NextResponse.json({

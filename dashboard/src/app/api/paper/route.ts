@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { promises as fs } from "fs";
-import path from "path";
-import { DATA_DIR } from "@/lib/data-dir";
 
 export async function GET() {
   try {
@@ -29,67 +26,70 @@ export async function GET() {
             .limit(100),
         ]);
 
-      if (portfolioRes.data?.length) {
-        const p = portfolioRes.data[0];
-        return NextResponse.json({
-          timestamp: p.snapshot_at,
-          portfolio: {
-            initial_capital: 100000,
-            current_value: p.portfolio_value,
-            cash: p.cash,
-            total_return_pct: p.total_return_pct,
-            daily_pnl: 0,
-            max_drawdown_pct: p.max_drawdown_pct,
-          },
-          stats: {
-            total_trades: p.total_trades,
-            win_rate: p.win_rate,
-            avg_win_pct: 0,
-            avg_loss_pct: 0,
-            profit_factor: p.profit_factor,
-          },
-          positions: (positionsRes.data || []).map((pos) => ({
-            symbol: pos.symbol,
-            direction: pos.direction,
-            entry_price: pos.entry_price,
-            current_price: pos.current_price,
-            shares: pos.shares,
-            stop_loss: pos.stop_loss,
-            take_profit: pos.take_profit,
-            entry_date: pos.entry_date,
-            entry_score: pos.entry_score,
-            unrealized_pnl: pos.unrealized_pnl,
-            unrealized_pnl_pct: pos.unrealized_pnl_pct,
+      const p = portfolioRes.data?.[0];
+      return NextResponse.json({
+        timestamp: p?.snapshot_at || new Date().toISOString(),
+        portfolio: {
+          initial_capital: 100000,
+          current_value: p?.portfolio_value || 100000,
+          cash: p?.cash || 100000,
+          total_return_pct: p?.total_return_pct || 0,
+          daily_pnl: 0,
+          max_drawdown_pct: p?.max_drawdown_pct || 0,
+        },
+        stats: {
+          total_trades: p?.total_trades || 0,
+          win_rate: p?.win_rate || 0,
+          avg_win_pct: 0,
+          avg_loss_pct: 0,
+          profit_factor: p?.profit_factor || 0,
+        },
+        positions: (positionsRes.data || []).map((pos) => ({
+          symbol: pos.symbol,
+          direction: pos.direction,
+          entry_price: pos.entry_price,
+          current_price: pos.current_price,
+          shares: pos.shares,
+          stop_loss: pos.stop_loss,
+          take_profit: pos.take_profit,
+          entry_date: pos.entry_date,
+          entry_score: pos.entry_score,
+          unrealized_pnl: pos.unrealized_pnl,
+          unrealized_pnl_pct: pos.unrealized_pnl_pct,
+        })),
+        recent_trades: (tradesRes.data || []).map((t) => ({
+          symbol: t.symbol,
+          direction: t.direction,
+          entry_price: t.entry_price,
+          exit_price: t.exit_price,
+          shares: t.shares,
+          pnl_dollars: t.pnl_dollars,
+          pnl_pct: t.pnl_pct,
+          exit_reason: t.exit_reason,
+          entry_date: t.entry_date,
+          exit_date: t.exit_date,
+        })),
+        equity_curve: (equityRes.data || [])
+          .reverse()
+          .map((e) => ({
+            date: e.recorded_at,
+            value: e.portfolio_value,
+            cash: e.cash,
+            positions: e.positions_value,
           })),
-          recent_trades: (tradesRes.data || []).map((t) => ({
-            symbol: t.symbol,
-            direction: t.direction,
-            entry_price: t.entry_price,
-            exit_price: t.exit_price,
-            shares: t.shares,
-            pnl_dollars: t.pnl_dollars,
-            pnl_pct: t.pnl_pct,
-            exit_reason: t.exit_reason,
-            entry_date: t.entry_date,
-            exit_date: t.exit_date,
-          })),
-          equity_curve: (equityRes.data || [])
-            .reverse()
-            .map((e) => ({
-              date: e.recorded_at,
-              value: e.portfolio_value,
-              cash: e.cash,
-              positions: e.positions_value,
-            })),
-          source: "supabase",
-        });
-      }
+        source: "supabase",
+      });
     }
 
-    // Fallback to JSON
-    const paperPath = path.join(DATA_DIR, "paper_trades.json");
-    const data = await fs.readFile(paperPath, "utf-8");
-    return NextResponse.json({ ...JSON.parse(data), source: "json" });
+    return NextResponse.json({
+      timestamp: new Date().toISOString(),
+      portfolio: { initial_capital: 100000, current_value: 100000, cash: 100000, total_return_pct: 0, daily_pnl: 0, max_drawdown_pct: 0 },
+      stats: { total_trades: 0, win_rate: 0, avg_win_pct: 0, avg_loss_pct: 0, profit_factor: 0 },
+      positions: [],
+      recent_trades: [],
+      equity_curve: [],
+      source: "none",
+    });
   } catch (error) {
     console.error("Paper trader API error:", error);
     return NextResponse.json(

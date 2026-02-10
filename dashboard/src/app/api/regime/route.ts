@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
-import { promises as fs } from "fs";
-import path from "path";
-import { DATA_DIR } from "@/lib/data-dir";
 
 export async function GET() {
   try {
@@ -13,30 +10,26 @@ export async function GET() {
         .order("created_at", { ascending: false })
         .limit(1);
 
-      if (!error && data?.length) {
-        const s = data[0];
+      if (!error) {
+        const s = data?.[0];
         return NextResponse.json({
-          regime: s.regime,
-          fear_greed: s.fear_greed,
-          vix: s.vix,
-          spy_change_pct: s.spy_change_pct,
-          portfolio_value: s.portfolio_value,
-          extra: s.extra,
-          timestamp: s.created_at,
+          regime: s?.regime || "UNKNOWN",
+          fear_greed: s?.fear_greed || 50,
+          vix: s?.vix || 0,
+          spy_change_pct: s?.spy_change_pct || 0,
+          portfolio_value: s?.portfolio_value || 0,
+          extra: s?.extra || {},
+          timestamp: s?.created_at || new Date().toISOString(),
           source: "supabase",
         });
       }
     }
 
-    // Fallback
-    const [regimeState, currentState] = await Promise.all([
-      fs.readFile(path.join(DATA_DIR, "regime_state.json"), "utf-8").catch(() => "{}"),
-      fs.readFile(path.join(DATA_DIR, "current_state.json"), "utf-8").catch(() => "{}"),
-    ]);
-
     return NextResponse.json({
-      ...JSON.parse(regimeState),
-      current_state: JSON.parse(currentState),
+      regime: "UNKNOWN",
+      fear_greed: 50,
+      vix: 0,
+      source: "none",
     });
   } catch (error) {
     console.error("Regime API error:", error);
