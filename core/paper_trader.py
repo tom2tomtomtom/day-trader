@@ -555,7 +555,73 @@ class PaperTrader:
         PAPER_STATE.write_text(json.dumps(state, indent=2, default=str))
 
     def _load_state(self):
-        """Load state from disk"""
+        """Load state from Supabase DB first, then fall back to JSON file."""
+        # Try Supabase first (works on Railway where there's no filesystem)
+        if self.db.connected:
+            try:
+                portfolio = self.db.get_latest_portfolio()
+                if portfolio:
+                    self.cash = portfolio.get("cash", self.initial_capital)
+                    self.peak_value = portfolio.get("portfolio_value", self.initial_capital)
+                    logger.info(f"Loaded portfolio from DB: ${self.cash:,.2f} cash")
+
+                # Restore open positions from DB
+                db_positions = self.db.get_open_positions()
+                for pos in db_positions:
+                    features = pos.get("entry_features", "{}")
+                    if isinstance(features, str):
+                        features = json.loads(features) if features else {}
+                    self.positions[pos["symbol"]] = PaperPosition(
+                        symbol=pos["symbol"],
+                        direction=pos.get("direction", "long"),
+                        entry_price=pos.get("entry_price", 0),
+                        current_price=pos.get("current_price", pos.get("entry_price", 0)),
+                        shares=pos.get("shares", 0),
+                        stop_loss=pos.get("stop_loss", 0),
+                        take_profit=pos.get("take_profit", 0),
+                        entry_date=pos.get("entry_date", ""),
+                        entry_score=pos.get("entry_score", 0),
+                        entry_features=features,
+                        unrealized_pnl=pos.get("unrealized_pnl", 0),
+                        unrealized_pnl_pct=pos.get("unrealized_pnl_pct", 0),
+                        max_favorable_excursion=pos.get("max_favorable_excursion", 0),
+                        max_adverse_excursion=pos.get("max_adverse_excursion", 0),
+                        trailing_stop=pos.get("stop_loss", 0),
+                        atr_at_entry=0,
+                        partial_exited=False,
+                    )
+                if db_positions:
+                    logger.info(f"Loaded {len(db_positions)} open positions from DB")
+
+                # Restore recent trades from DB
+                db_trades = self.db.get_trades(limit=200)
+                for t in db_trades:
+                    features = t.get("entry_features", "{}")
+                    if isinstance(features, str):
+                        features = json.loads(features) if features else {}
+                    self.closed_trades.append(PaperTrade(
+                        symbol=t["symbol"],
+                        direction=t.get("direction", "long"),
+                        entry_date=t.get("entry_date", ""),
+                        entry_price=t.get("entry_price", 0),
+                        exit_date=t.get("exit_date", ""),
+                        exit_price=t.get("exit_price", 0),
+                        shares=t.get("shares", 0),
+                        pnl_dollars=t.get("pnl_dollars", 0),
+                        pnl_pct=t.get("pnl_pct", 0),
+                        exit_reason=t.get("exit_reason", ""),
+                        entry_score=t.get("entry_score", 0),
+                        entry_features=features,
+                        max_favorable_excursion=t.get("max_favorable_excursion", 0),
+                        max_adverse_excursion=t.get("max_adverse_excursion", 0),
+                    ))
+                if db_trades:
+                    logger.info(f"Loaded {len(db_trades)} historical trades from DB")
+                return
+            except Exception as e:
+                logger.warning(f"Could not load state from DB: {e}")
+
+        # Fall back to JSON file (local dev)
         if not PAPER_STATE.exists():
             return
 
@@ -567,7 +633,6 @@ class PaperTrader:
 
             # Restore positions
             for sym, pos_data in state.get("positions", {}).items():
-                # Filter out unknown fields for backward compat
                 known = {f.name for f in PaperPosition.__dataclass_fields__.values()}
                 filtered = {k: v for k, v in pos_data.items() if k in known}
                 self.positions[sym] = PaperPosition(**filtered)

@@ -55,32 +55,24 @@ CRYPTO_UNIVERSE = [
 ]
 
 
-def run_stock_scan():
-    """Run paper trading scan on stock universe."""
-    try:
-        from .paper_trader import run_paper_trading
-        logger.info("Running stock scan...")
-        portfolio = run_paper_trading(STOCK_UNIVERSE)
-        logger.info(
-            f"Stock scan complete: ${portfolio.portfolio_value:,.2f} "
-            f"({portfolio.total_return_pct:+.2f}%)"
-        )
-    except Exception as e:
-        logger.error(f"Stock scan failed: {e}")
-
-
-def run_crypto_scan():
-    """Run paper trading scan on crypto universe."""
-    try:
-        from .paper_trader import run_paper_trading
-        logger.info("Running crypto scan...")
-        portfolio = run_paper_trading(CRYPTO_UNIVERSE)
-        logger.info(
-            f"Crypto scan complete: ${portfolio.portfolio_value:,.2f} "
-            f"({portfolio.total_return_pct:+.2f}%)"
-        )
-    except Exception as e:
-        logger.error(f"Crypto scan failed: {e}")
+def _fetch_price_data(symbols: List[str]) -> dict:
+    """Fetch price data for symbols via yfinance."""
+    import yfinance as yf
+    price_data = {}
+    for symbol in symbols:
+        try:
+            ticker = yf.Ticker(symbol)
+            hist = ticker.history(period="3mo", interval="1d")
+            if not hist.empty and len(hist) >= 20:
+                price_data[symbol] = {
+                    "prices": hist["Close"].tolist(),
+                    "highs": hist["High"].tolist(),
+                    "lows": hist["Low"].tolist(),
+                    "volumes": hist["Volume"].tolist(),
+                }
+        except Exception as e:
+            logger.warning(f"Failed to fetch {symbol}: {e}")
+    return price_data
 
 
 def run_ml_retrain():
@@ -122,6 +114,11 @@ class TradingScheduler:
         self._last_ml_retrain = 0.0
         self._last_briefing_am = ""
         self._last_briefing_pm = ""
+        self._loop_count = 0
+
+        # Persistent trader instance (loads state from DB once)
+        from .paper_trader import PaperTrader
+        self._trader = PaperTrader(initial_capital=100000)
 
         # Graceful shutdown
         signal.signal(signal.SIGINT, self._shutdown)
@@ -131,42 +128,86 @@ class TradingScheduler:
         logger.info("Scheduler shutting down...")
         self.running = False
 
+    def _run_stock_scan(self):
+        """Run paper trading scan on stock universe."""
+        logger.info("Running stock scan...")
+        price_data = _fetch_price_data(STOCK_UNIVERSE)
+        if not price_data:
+            logger.warning("No stock price data fetched")
+            return
+        portfolio = self._trader.analyze_and_trade(STOCK_UNIVERSE, price_data)
+        logger.info(
+            f"Stock scan complete: ${portfolio.portfolio_value:,.2f} "
+            f"({portfolio.total_return_pct:+.2f}%) | "
+            f"{len(portfolio.positions)} open positions"
+        )
+
+    def _run_crypto_scan(self):
+        """Run paper trading scan on crypto universe."""
+        logger.info("Running crypto scan...")
+        price_data = _fetch_price_data(CRYPTO_UNIVERSE)
+        if not price_data:
+            logger.warning("No crypto price data fetched")
+            return
+        portfolio = self._trader.analyze_and_trade(CRYPTO_UNIVERSE, price_data)
+        logger.info(
+            f"Crypto scan complete: ${portfolio.portfolio_value:,.2f} "
+            f"({portfolio.total_return_pct:+.2f}%) | "
+            f"{len(portfolio.positions)} open positions"
+        )
+
     def run(self):
         """Main loop — runs forever until stopped."""
         logger.info("Apex Trader Scheduler started")
         logger.info(f"  Stock interval: {self.cfg.trading.stock_scan_interval}s")
         logger.info(f"  Crypto interval: {self.cfg.trading.crypto_scan_interval}s")
+        logger.info(f"  Loaded {len(self._trader.positions)} existing positions")
+        logger.info(f"  Portfolio cash: ${self._trader.cash:,.2f}")
 
         while self.running:
-            now = time.time()
-            now_et = _now_et()
-            today = now_et.strftime("%Y-%m-%d")
+            try:
+                now = time.time()
+                now_et = _now_et()
+                today = now_et.strftime("%Y-%m-%d")
+                self._loop_count += 1
 
-            # Stock scan (during market hours)
-            if _is_market_hours():
-                if now - self._last_stock_scan >= self.cfg.trading.stock_scan_interval:
-                    run_stock_scan()
-                    self._last_stock_scan = now
+                # Heartbeat every 10 loops (~5 min)
+                if self._loop_count % 10 == 0:
+                    logger.info(
+                        f"Heartbeat: loop {self._loop_count} | "
+                        f"positions={len(self._trader.positions)} | "
+                        f"cash=${self._trader.cash:,.2f} | "
+                        f"ET={now_et.strftime('%H:%M')}"
+                    )
 
-            # Crypto scan (24/7)
-            if now - self._last_crypto_scan >= self.cfg.trading.crypto_scan_interval:
-                run_crypto_scan()
-                self._last_crypto_scan = now
+                # Stock scan (during market hours)
+                if _is_market_hours():
+                    if now - self._last_stock_scan >= self.cfg.trading.stock_scan_interval:
+                        self._run_stock_scan()
+                        self._last_stock_scan = now
 
-            # ML retrain (daily at midnight ET)
-            if now_et.hour == 0 and now - self._last_ml_retrain >= 82800:  # ~23 hours guard
-                run_ml_retrain()
-                self._last_ml_retrain = now
+                # Crypto scan (24/7)
+                if now - self._last_crypto_scan >= self.cfg.trading.crypto_scan_interval:
+                    self._run_crypto_scan()
+                    self._last_crypto_scan = now
 
-            # Morning briefing (9:00 AM ET)
-            if now_et.hour == 9 and now_et.minute < 5 and self._last_briefing_am != today:
-                run_intelligence_briefing()
-                self._last_briefing_am = today
+                # ML retrain (daily at midnight ET)
+                if now_et.hour == 0 and now - self._last_ml_retrain >= 82800:
+                    run_ml_retrain()
+                    self._last_ml_retrain = now
 
-            # Closing briefing (4:30 PM ET)
-            if now_et.hour == 16 and 30 <= now_et.minute < 35 and self._last_briefing_pm != today:
-                run_intelligence_briefing()
-                self._last_briefing_pm = today
+                # Morning briefing (9:00 AM ET)
+                if now_et.hour == 9 and now_et.minute < 5 and self._last_briefing_am != today:
+                    run_intelligence_briefing()
+                    self._last_briefing_am = today
+
+                # Closing briefing (4:30 PM ET)
+                if now_et.hour == 16 and 30 <= now_et.minute < 35 and self._last_briefing_pm != today:
+                    run_intelligence_briefing()
+                    self._last_briefing_pm = today
+
+            except Exception as e:
+                logger.error(f"Scheduler loop error: {e}", exc_info=True)
 
             # Sleep between checks
             time.sleep(30)
