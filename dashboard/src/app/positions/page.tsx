@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { TrendingUp, TrendingDown, Clock, DollarSign } from "lucide-react";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface Position {
   symbol: string;
@@ -36,25 +37,31 @@ export default function PositionsPage() {
   const [data, setData] = useState<PositionsData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("/api/positions");
-        if (res.ok) {
-          const positions = await res.json();
-          setData(positions);
-        }
-      } catch (error) {
-        console.error("Failed to fetch positions:", error);
-      } finally {
-        setLoading(false);
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch("/api/positions");
+      if (res.ok) {
+        const positions = await res.json();
+        setData(positions);
       }
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 10000);
-    return () => clearInterval(interval);
+    } catch (error) {
+      console.error("Failed to fetch positions:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 120000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
+
+  // Real-time: refetch when positions or trades change
+  useRealtimeSubscription([
+    { table: "positions", onchange: fetchData },
+    { table: "trades", onchange: fetchData },
+  ]);
 
   if (loading) {
     return (

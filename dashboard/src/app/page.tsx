@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { TrendingUp, TrendingDown, DollarSign, Activity, BarChart3, Zap } from "lucide-react";
 import Link from "next/link";
 import { PriceChart } from "@/components/PriceChart";
 import { AutomationControl } from "@/components/AutomationControl";
 import { FearGreedGauge } from "@/components/FearGreedGauge";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface Signal {
   symbol: string;
@@ -60,14 +61,14 @@ export default function Dashboard() {
   const [signals, setSignals] = useState<SignalsData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       const [statusRes, marketRes, signalsRes] = await Promise.all([
         fetch("/api/status"),
         fetch("/api/markets"),
         fetch("/api/signals"),
       ]);
-      
+
       if (statusRes.ok) {
         const data = await statusRes.json();
         setStatus(data);
@@ -85,13 +86,22 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 30000); // Refresh every 30s
+    // Fallback polling (2 min) for when Supabase realtime isn't configured
+    const interval = setInterval(fetchData, 120000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchData]);
+
+  // Real-time: refetch when positions, signals, or market snapshots change
+  useRealtimeSubscription([
+    { table: "portfolio_state", onchange: fetchData },
+    { table: "positions", onchange: fetchData },
+    { table: "signals", onchange: fetchData },
+    { table: "market_snapshots", onchange: fetchData },
+  ]);
 
   if (loading) {
     return (

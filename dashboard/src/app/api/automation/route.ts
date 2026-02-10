@@ -3,9 +3,9 @@ import { promises as fs } from "fs";
 import path from "path";
 import { exec } from "child_process";
 import { promisify } from "util";
+import { DATA_DIR } from "@/lib/data-dir";
 
 const execAsync = promisify(exec);
-const DATA_DIR = path.join(process.cwd(), "..");
 const PYTHON = path.join(DATA_DIR, "..", "day-trader", "venv", "bin", "python");
 
 interface AutomationConfig {

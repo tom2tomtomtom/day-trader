@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
 import { FearGreedGauge } from "@/components/FearGreedGauge";
+import { useTableSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface Signal {
   symbol: string;
@@ -34,25 +35,28 @@ export default function SignalsPage() {
   const [data, setData] = useState<SignalsData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("/api/signals");
-        if (res.ok) {
-          const signals = await res.json();
-          setData(signals);
-        }
-      } catch (error) {
-        console.error("Failed to fetch signals:", error);
-      } finally {
-        setLoading(false);
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch("/api/signals");
+      if (res.ok) {
+        const signals = await res.json();
+        setData(signals);
       }
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 60000);
-    return () => clearInterval(interval);
+    } catch (error) {
+      console.error("Failed to fetch signals:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 120000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
+
+  // Real-time: refetch when signals change
+  useTableSubscription("signals", fetchData);
 
   if (loading) {
     return (

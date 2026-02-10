@@ -1,30 +1,36 @@
 import { NextResponse } from "next/server";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 import { promises as fs } from "fs";
 import path from "path";
-
-const DATA_DIR = path.join(process.cwd(), "..");
+import { DATA_DIR } from "@/lib/data-dir";
 
 export async function GET() {
   try {
-    const watchlistPath = path.join(DATA_DIR, "watchlist.json");
-    
-    try {
-      const data = await fs.readFile(watchlistPath, "utf-8");
-      const watchlist = JSON.parse(data);
-      return NextResponse.json(watchlist);
-    } catch {
-      return NextResponse.json({
-        timestamp: new Date().toISOString(),
-        scanned: 0,
-        setups: {},
-        watchlist: [],
-      });
+    if (isSupabaseConfigured()) {
+      const { data, error } = await supabase
+        .from("watchlist")
+        .select("*")
+        .eq("active", true);
+
+      if (!error && data?.length) {
+        return NextResponse.json({
+          timestamp: new Date().toISOString(),
+          scanned: data.length,
+          watchlist: data.map((w) => w.symbol),
+          source: "supabase",
+        });
+      }
     }
-  } catch (error) {
-    console.error("Watchlist API error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch watchlist" },
-      { status: 500 }
-    );
+
+    // Fallback
+    const watchlistPath = path.join(DATA_DIR, "watchlist.json");
+    const data = await fs.readFile(watchlistPath, "utf-8");
+    return NextResponse.json(JSON.parse(data));
+  } catch {
+    return NextResponse.json({
+      timestamp: new Date().toISOString(),
+      scanned: 0,
+      watchlist: [],
+    });
   }
 }

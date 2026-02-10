@@ -20,12 +20,18 @@ Split decisions = reduce size or skip.
 """
 
 import json
+import logging
+import httpx
 import numpy as np
 from datetime import datetime, timezone
 from dataclasses import dataclass, field, asdict
 from typing import List, Dict, Optional, Tuple
 from pathlib import Path
 from enum import Enum
+
+from .config import get_config
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).parent.parent
 COUNCIL_LOG = BASE_DIR / "council_decisions.json"
@@ -75,7 +81,36 @@ class PhantomCouncil:
     Runs all personas against a symbol and synthesizes their views.
     """
 
+    # System prompts for Claude-powered persona analysis
+    PERSONA_PROMPTS = {
+        "Warren": (
+            "You are Warren, a deep value investor. Focus on P/E, margins, moats, "
+            "dividend quality. Be skeptical of hype."
+        ),
+        "Michael": (
+            "You are Michael, a contrarian short seller. Look for overvaluation, "
+            "bubbles, sentiment extremes. Be naturally bearish."
+        ),
+        "Cathie": (
+            "You are Cathie, a growth/innovation investor. Focus on revenue growth, "
+            "TAM, disruption. Accept high valuations if growth justifies it."
+        ),
+        "Ray": (
+            "You are Ray, a macro strategist. Focus on VIX, yield curve, regime, "
+            "correlations. Think about portfolio-level risk."
+        ),
+        "Nancy": (
+            "You are Nancy, a smart money tracker. Focus on options flow, insider "
+            "buying, institutional accumulation. Follow the big money."
+        ),
+        "Jesse": (
+            "You are Jesse, a momentum trader. Focus on trend, RSI, volume, "
+            "breakouts. Price action is everything."
+        ),
+    }
+
     def __init__(self):
+        self.config = get_config()
         self.personas = [
             WarrenPersona(),
             MichaelPersona(),
@@ -97,15 +132,138 @@ class PhantomCouncil:
         - flow: options flow, institutional buys/sells
         - macro: VIX, yield curve, regime
         """
-        verdicts = []
-        for persona in self.personas:
-            verdict = persona.analyze(symbol, market_data)
-            verdicts.append(verdict)
+        # Try AI-powered council first (single Claude call for all 6 personas)
+        verdicts = self._convene_with_claude(symbol, market_data)
+
+        # Fall back to rule-based personas
+        if verdicts is None:
+            verdicts = []
+            for persona in self.personas:
+                verdict = persona.analyze(symbol, market_data)
+                verdicts.append(verdict)
 
         decision = self._synthesize(symbol, verdicts, market_data)
 
         self._log_decision(decision)
         return decision
+
+    def _convene_with_claude(self, symbol: str, market_data: Dict) -> Optional[List[PersonaVerdict]]:
+        """
+        Ask Claude to analyze the symbol as all 6 personas in a single API call.
+        Returns a list of 6 PersonaVerdicts, or None if unavailable/error.
+        """
+        if not self.config.has_anthropic:
+            return None
+
+        persona_descriptions = "\n".join(
+            f"- **{name}** ({self.personas[i].style}): {prompt}"
+            for i, (name, prompt) in enumerate(self.PERSONA_PROMPTS.items())
+        )
+
+        system_prompt = (
+            "You are the Phantom Council — six legendary investor archetypes who independently "
+            "analyze trading opportunities. You must roleplay ALL six personas and provide each "
+            "one's independent analysis.\n\n"
+            f"The personas are:\n{persona_descriptions}\n\n"
+            "For each persona, provide a structured analysis. You MUST respond with ONLY a JSON "
+            "array of exactly 6 objects (one per persona, in the order listed above). "
+            "Each object must have these fields:\n"
+            '- "persona_name": string (Warren, Michael, Cathie, Ray, Nancy, or Jesse)\n'
+            '- "persona_style": string (their investing style)\n'
+            '- "stance": string (one of: STRONG_BUY, BUY, HOLD, SELL, STRONG_SELL)\n'
+            '- "conviction": integer 0-100\n'
+            '- "reasoning": array of 2-4 short strings explaining the analysis\n'
+            '- "key_metric": string (the single most important metric for this persona)\n'
+            '- "key_value": string (the value of that metric from the data)\n'
+            '- "risk_flag": string or null (primary risk concern, if any)\n\n'
+            "Respond with ONLY the JSON array. No markdown, no code fences, no explanation."
+        )
+
+        user_prompt = (
+            f"Analyze {symbol} for a potential trade.\n\n"
+            f"Market data:\n{json.dumps(market_data, indent=2, default=str)}"
+        )
+
+        try:
+            resp = httpx.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": self.config.api_keys.anthropic,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": "claude-sonnet-4-5-20250929",
+                    "max_tokens": 1500,
+                    "system": system_prompt,
+                    "messages": [{"role": "user", "content": user_prompt}],
+                },
+                timeout=30,
+            )
+
+            if resp.status_code != 200:
+                logger.warning(
+                    "Claude API returned status %d: %s", resp.status_code, resp.text[:200]
+                )
+                return None
+
+            body = resp.json()
+            raw_text = body["content"][0]["text"].strip()
+
+            # Strip markdown code fences if present
+            if raw_text.startswith("```"):
+                raw_text = raw_text.split("\n", 1)[1] if "\n" in raw_text else raw_text[3:]
+                if raw_text.endswith("```"):
+                    raw_text = raw_text[:-3].strip()
+
+            parsed = json.loads(raw_text)
+
+            if not isinstance(parsed, list) or len(parsed) != 6:
+                logger.warning(
+                    "Claude returned %d verdicts instead of 6, falling back",
+                    len(parsed) if isinstance(parsed, list) else -1,
+                )
+                return None
+
+            valid_stances = {"STRONG_BUY", "BUY", "HOLD", "SELL", "STRONG_SELL"}
+            verdicts = []
+            for item in parsed:
+                stance = item.get("stance", "HOLD")
+                if stance not in valid_stances:
+                    stance = "HOLD"
+
+                conviction = item.get("conviction", 50)
+                if not isinstance(conviction, (int, float)):
+                    conviction = 50
+                conviction = max(0, min(100, float(conviction)))
+
+                reasoning = item.get("reasoning", [])
+                if not isinstance(reasoning, list):
+                    reasoning = [str(reasoning)]
+
+                verdicts.append(PersonaVerdict(
+                    persona_name=item.get("persona_name", "Unknown"),
+                    persona_style=item.get("persona_style", "Unknown"),
+                    stance=stance,
+                    conviction=conviction,
+                    reasoning=reasoning,
+                    key_metric=item.get("key_metric", "N/A"),
+                    key_value=str(item.get("key_value", "N/A")),
+                    risk_flag=item.get("risk_flag"),
+                ))
+
+            logger.info("Claude-powered council convened successfully for %s", symbol)
+            return verdicts
+
+        except (httpx.HTTPError, httpx.TimeoutException) as exc:
+            logger.warning("Claude API call failed: %s", exc)
+            return None
+        except (json.JSONDecodeError, KeyError, TypeError, IndexError) as exc:
+            logger.warning("Failed to parse Claude response: %s", exc)
+            return None
+        except Exception as exc:
+            logger.warning("Unexpected error in Claude council: %s", exc)
+            return None
 
     def _synthesize(self, symbol: str, verdicts: List[PersonaVerdict],
                     market_data: Dict) -> CouncilDecision:

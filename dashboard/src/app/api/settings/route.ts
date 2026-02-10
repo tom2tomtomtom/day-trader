@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { promises as fs } from "fs";
 import path from "path";
+import { DATA_DIR } from "@/lib/data-dir";
 
-const SETTINGS_PATH = path.join(process.cwd(), "..", "settings.json");
+const SETTINGS_PATH = path.join(DATA_DIR, "settings.json");
 
 interface Settings {
   keys: {

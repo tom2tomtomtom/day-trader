@@ -7,13 +7,17 @@ Run any strategy against historical price data with realistic assumptions:
 - Slippage simulation
 - Partial fill modeling
 - Walk-forward out-of-sample testing
+- Feature vector computation at each trade entry (Phase 2.4: Cold Start)
+- Optional bulk upload of backtested trades to Supabase for ML training
 
 Usage:
     python3 -m core.backtester --symbol AAPL --period 1y
     python3 -m core.backtester --universe default --period 6mo --json
+    python3 -m core.backtester --symbol SPY --period 2y --upload  # Upload trades to DB
 """
 
 import json
+import logging
 import numpy as np
 from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass, field, asdict
@@ -22,6 +26,9 @@ from pathlib import Path
 from enum import Enum
 
 from .trading_model import TradingModel, TechnicalIndicators, TradeSignal
+from .feature_engine import FeatureEngine, FeatureVector
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).parent.parent
 BACKTEST_RESULTS = BASE_DIR / "backtest_results.json"
@@ -49,6 +56,7 @@ class BacktestTrade:
     exit_reason: str  # "stop_loss", "take_profit", "signal_reversal", "end_of_data"
     entry_score: int
     exit_score: int
+    entry_features: Dict = field(default_factory=dict)  # FeatureVector at entry for ML
 
 
 @dataclass
@@ -148,6 +156,9 @@ class Backtester:
         if n < 50:
             raise ValueError(f"Need at least 50 price points, got {n}")
 
+        # Feature engine for computing ML features at each trade entry
+        feature_engine = FeatureEngine()
+
         # State
         cash = self.initial_capital
         position = None  # Current position dict or None
@@ -233,6 +244,7 @@ class Backtester:
                         exit_reason=exit_reason,
                         entry_score=position["entry_score"],
                         exit_score=score,
+                        entry_features=position.get("entry_features", {}),
                     ))
 
                     cash += shares * exit_price + pnl
@@ -255,6 +267,17 @@ class Backtester:
                 position_cost = shares * entry_price + self.commission
 
                 if position_cost <= cash:
+                    # Compute feature vector from data available AT this bar
+                    # (no future data leakage — only prices[:i+1])
+                    entry_fv = feature_engine.compute(
+                        symbol=symbol,
+                        prices=price_window,
+                        highs=high_window,
+                        lows=low_window,
+                        volumes=vol_window,
+                        indicators=signal.indicators,
+                    )
+
                     cash -= position_cost
                     position = {
                         "direction": signal.direction,
@@ -265,6 +288,7 @@ class Backtester:
                         "entry_date": current_date,
                         "entry_idx": i,
                         "entry_score": score,
+                        "entry_features": entry_fv.to_dict(),
                     }
 
             # === EQUITY CURVE ===
@@ -320,6 +344,7 @@ class Backtester:
                 exit_reason="end_of_data",
                 entry_score=position["entry_score"],
                 exit_score=0,
+                entry_features=position.get("entry_features", {}),
             ))
             cash += position["shares"] * final_price
 
@@ -457,10 +482,75 @@ class Backtester:
         }
         BACKTEST_RESULTS.write_text(json.dumps(data, indent=2))
 
+    def upload_trades_to_db(self, result: BacktestResult) -> int:
+        """
+        Bulk upload backtested trades to Supabase for ML training (Phase 2.4).
+
+        Each trade is marked with is_backtest=True and includes the full
+        entry_features dict computed at the time of the trade entry.
+
+        Returns the number of successfully uploaded trades.
+        """
+        try:
+            from .db import get_db
+        except ImportError:
+            logger.warning("Could not import db module — skipping DB upload")
+            return 0
+
+        db = get_db()
+        if not db.connected:
+            logger.warning("Supabase not connected — skipping DB upload. "
+                           "Trades are still saved locally in backtest_results.json")
+            return 0
+
+        uploaded = 0
+        failed = 0
+        for trade in result.trades:
+            # Only upload trades that have feature data (meaningful for ML)
+            if not trade.entry_features:
+                logger.debug(f"Skipping trade {trade.symbol} {trade.entry_date} — no entry features")
+                continue
+
+            success = db.log_trade({
+                "symbol": trade.symbol,
+                "direction": trade.direction,
+                "entry_date": trade.entry_date,
+                "entry_price": trade.entry_price,
+                "exit_date": trade.exit_date,
+                "exit_price": trade.exit_price,
+                "shares": trade.shares,
+                "pnl_dollars": trade.pnl_dollars,
+                "pnl_pct": trade.pnl_pct,
+                "exit_reason": trade.exit_reason,
+                "entry_score": trade.entry_score,
+                "entry_features": trade.entry_features,
+                "regime_at_entry": trade.entry_features.get("regime", ""),
+                "is_backtest": True,
+            })
+
+            if success:
+                uploaded += 1
+            else:
+                failed += 1
+
+        logger.info(f"Uploaded {uploaded}/{len(result.trades)} backtested trades to DB "
+                     f"({failed} failed)")
+        return uploaded
+
 
 def run_backtest_yfinance(symbol: str, period: str = "1y",
-                          initial_capital: float = 100000) -> BacktestResult:
-    """Convenience function: fetch from Yahoo Finance and backtest"""
+                          initial_capital: float = 100000,
+                          upload_to_db: bool = False) -> BacktestResult:
+    """
+    Convenience function: fetch from Yahoo Finance and backtest.
+
+    Args:
+        symbol: Ticker symbol
+        period: yfinance period string (1mo, 3mo, 6mo, 1y, 2y, 5y)
+        initial_capital: Starting portfolio value
+        upload_to_db: If True, upload backtested trades to Supabase
+                      for ML training data (Phase 2.4 cold start)
+    """
     import yfinance as yf
 
     ticker = yf.Ticker(symbol)
@@ -480,55 +570,176 @@ def run_backtest_yfinance(symbol: str, period: str = "1y",
 
     result = bt.run(symbol, prices, dates, highs, lows, volumes, model)
     bt.save_results(result)
+
+    if upload_to_db:
+        uploaded = bt.upload_trades_to_db(result)
+        trades_with_features = sum(1 for t in result.trades if t.entry_features)
+        print(f"  DB Upload: {uploaded}/{trades_with_features} trades with features uploaded")
+
     return result
+
+
+def run_cold_start_backtest(symbols: List[str] = None,
+                            period: str = "2y",
+                            initial_capital: float = 100000,
+                            upload: bool = True) -> Dict:
+    """
+    Phase 2.4: Cold Start via Backtesting.
+
+    Run backtests across multiple symbols to generate 100-300+ trades
+    with full feature context for initial ML model training.
+
+    Args:
+        symbols: List of symbols to backtest (defaults to diversified universe)
+        period: History period per symbol
+        initial_capital: Starting capital per backtest
+        upload: Whether to upload trades to Supabase
+
+    Returns:
+        Summary dict with total trades, uploads, and per-symbol results
+    """
+    import yfinance as yf
+
+    if symbols is None:
+        # Diversified universe designed to generate plenty of trades
+        symbols = [
+            # Major indices / ETFs
+            "SPY", "QQQ", "IWM", "DIA",
+            # Mega-cap tech (high liquidity, frequent signals)
+            "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA", "TSLA", "META", "AMD",
+            # Volatile / momentum stocks
+            "COIN", "MSTR", "PLTR", "SQ", "SHOP", "ROKU", "SNAP",
+            # Crypto (high volatility = more trades)
+            "BTC-USD", "ETH-USD", "SOL-USD", "DOGE-USD",
+        ]
+
+    total_trades = 0
+    total_uploaded = 0
+    total_with_features = 0
+    results_summary = []
+
+    for symbol in symbols:
+        try:
+            print(f"\nBacktesting {symbol} ({period})...")
+            result = run_backtest_yfinance(
+                symbol, period, initial_capital,
+                upload_to_db=upload,
+            )
+            n_trades = len(result.trades)
+            n_features = sum(1 for t in result.trades if t.entry_features)
+            total_trades += n_trades
+            total_with_features += n_features
+
+            results_summary.append({
+                "symbol": symbol,
+                "trades": n_trades,
+                "trades_with_features": n_features,
+                "total_return_pct": result.metrics.total_return_pct,
+                "win_rate": result.metrics.win_rate,
+            })
+
+            print(f"  {symbol}: {n_trades} trades ({n_features} with features), "
+                  f"return {result.metrics.total_return_pct:+.2f}%, "
+                  f"win rate {result.metrics.win_rate:.1%}")
+
+        except Exception as e:
+            print(f"  {symbol}: FAILED - {e}")
+            results_summary.append({
+                "symbol": symbol,
+                "trades": 0,
+                "error": str(e),
+            })
+
+    print(f"\n{'='*60}")
+    print(f"COLD START BACKTEST COMPLETE")
+    print(f"{'='*60}")
+    print(f"  Symbols tested:      {len(symbols)}")
+    print(f"  Total trades:        {total_trades}")
+    print(f"  Trades with features: {total_with_features}")
+    if upload:
+        print(f"  (Trades uploaded to Supabase with is_backtest=True)")
+    print(f"  Target range:        100-300 trades")
+    if total_with_features < 100:
+        print(f"  WARNING: Below target. Consider adding more symbols or longer period.")
+    elif total_with_features > 300:
+        print(f"  Excellent: Above target range for ML training.")
+    else:
+        print(f"  On target for initial ML model training.")
+
+    return {
+        "total_trades": total_trades,
+        "total_with_features": total_with_features,
+        "symbols_tested": len(symbols),
+        "results": results_summary,
+    }
 
 
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser(description="Backtest Trading Model")
     parser.add_argument("--symbol", "-s", default="SPY", help="Symbol to backtest")
-    parser.add_argument("--period", "-p", default="1y", help="History period (1mo, 3mo, 6mo, 1y, 2y)")
+    parser.add_argument("--period", "-p", default="1y", help="History period (1mo, 3mo, 6mo, 1y, 2y, 5y)")
     parser.add_argument("--capital", "-c", type=float, default=100000, help="Initial capital")
     parser.add_argument("--json", action="store_true", help="Output JSON")
+    parser.add_argument("--upload", action="store_true",
+                        help="Upload backtested trades to Supabase for ML training")
+    parser.add_argument("--cold-start", action="store_true",
+                        help="Run Phase 2.4 cold start: backtest multiple symbols and upload trades")
     args = parser.parse_args()
 
-    print(f"Backtesting {args.symbol} over {args.period}...")
-    result = run_backtest_yfinance(args.symbol, args.period, args.capital)
-
-    if args.json:
-        print(json.dumps({
-            "symbol": args.symbol,
-            "metrics": asdict(result.metrics),
-            "trades": len(result.trades),
-            "final_value": result.final_value,
-        }, indent=2))
+    if args.cold_start:
+        # Phase 2.4: Cold Start — backtest diversified universe for ML training data
+        summary = run_cold_start_backtest(
+            period=args.period,
+            initial_capital=args.capital,
+            upload=args.upload,
+        )
+        if args.json:
+            print(json.dumps(summary, indent=2))
     else:
-        m = result.metrics
-        print(f"\n{'='*60}")
-        print(f"BACKTEST RESULTS: {args.symbol} ({args.period})")
-        print(f"{'='*60}")
-        print(f"  Period: {result.start_date} to {result.end_date}")
-        print(f"  Initial Capital: ${result.initial_capital:,.2f}")
-        print(f"  Final Value:     ${result.final_value:,.2f}")
-        print(f"\n--- Returns ---")
-        print(f"  Total Return:       {m.total_return_pct:+.2f}%")
-        print(f"  Annualized Return:  {m.annualized_return_pct:+.2f}%")
-        print(f"\n--- Risk ---")
-        print(f"  Max Drawdown:       {m.max_drawdown_pct:.2f}%")
-        print(f"  Drawdown Duration:  {m.max_drawdown_duration_days} days")
-        print(f"  Volatility (ann.):  {m.volatility_annualized:.2f}%")
-        print(f"\n--- Risk-Adjusted ---")
-        print(f"  Sharpe Ratio:       {m.sharpe_ratio:.2f}")
-        print(f"  Sortino Ratio:      {m.sortino_ratio:.2f}")
-        print(f"  Calmar Ratio:       {m.calmar_ratio:.2f}")
-        print(f"\n--- Trades ---")
-        print(f"  Total Trades:       {m.total_trades}")
-        print(f"  Win Rate:           {m.win_rate:.1%}")
-        print(f"  Avg Win:            {m.avg_win_pct:+.2f}%")
-        print(f"  Avg Loss:           {m.avg_loss_pct:+.2f}%")
-        print(f"  Largest Win:        {m.largest_win_pct:+.2f}%")
-        print(f"  Largest Loss:       {m.largest_loss_pct:+.2f}%")
-        print(f"  Avg Hold Days:      {m.avg_hold_days:.1f}")
-        print(f"  Profit Factor:      {m.profit_factor:.2f}")
-        print(f"  Expectancy:         ${m.expectancy:+.2f}/trade")
-        print(f"\nResults saved to backtest_results.json")
+        print(f"Backtesting {args.symbol} over {args.period}...")
+        result = run_backtest_yfinance(args.symbol, args.period, args.capital,
+                                       upload_to_db=args.upload)
+
+        if args.json:
+            print(json.dumps({
+                "symbol": args.symbol,
+                "metrics": asdict(result.metrics),
+                "trades": len(result.trades),
+                "trades_with_features": sum(1 for t in result.trades if t.entry_features),
+                "final_value": result.final_value,
+            }, indent=2))
+        else:
+            m = result.metrics
+            print(f"\n{'='*60}")
+            print(f"BACKTEST RESULTS: {args.symbol} ({args.period})")
+            print(f"{'='*60}")
+            print(f"  Period: {result.start_date} to {result.end_date}")
+            print(f"  Initial Capital: ${result.initial_capital:,.2f}")
+            print(f"  Final Value:     ${result.final_value:,.2f}")
+            print(f"\n--- Returns ---")
+            print(f"  Total Return:       {m.total_return_pct:+.2f}%")
+            print(f"  Annualized Return:  {m.annualized_return_pct:+.2f}%")
+            print(f"\n--- Risk ---")
+            print(f"  Max Drawdown:       {m.max_drawdown_pct:.2f}%")
+            print(f"  Drawdown Duration:  {m.max_drawdown_duration_days} days")
+            print(f"  Volatility (ann.):  {m.volatility_annualized:.2f}%")
+            print(f"\n--- Risk-Adjusted ---")
+            print(f"  Sharpe Ratio:       {m.sharpe_ratio:.2f}")
+            print(f"  Sortino Ratio:      {m.sortino_ratio:.2f}")
+            print(f"  Calmar Ratio:       {m.calmar_ratio:.2f}")
+            print(f"\n--- Trades ---")
+            print(f"  Total Trades:       {m.total_trades}")
+            trades_with_ft = sum(1 for t in result.trades if t.entry_features)
+            print(f"  With Features:      {trades_with_ft}/{m.total_trades}")
+            print(f"  Win Rate:           {m.win_rate:.1%}")
+            print(f"  Avg Win:            {m.avg_win_pct:+.2f}%")
+            print(f"  Avg Loss:           {m.avg_loss_pct:+.2f}%")
+            print(f"  Largest Win:        {m.largest_win_pct:+.2f}%")
+            print(f"  Largest Loss:       {m.largest_loss_pct:+.2f}%")
+            print(f"  Avg Hold Days:      {m.avg_hold_days:.1f}")
+            print(f"  Profit Factor:      {m.profit_factor:.2f}")
+            print(f"  Expectancy:         ${m.expectancy:+.2f}/trade")
+            print(f"\nResults saved to backtest_results.json")
+            if args.upload:
+                print(f"Trades uploaded to Supabase (is_backtest=True)")

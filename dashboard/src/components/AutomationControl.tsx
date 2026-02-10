@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { 
-  Play, Pause, Square, ShieldCheck, 
-  RefreshCw, CheckCircle, XCircle, 
+import { useState, useEffect, useCallback } from "react";
+import {
+  Play, Pause, Square, ShieldCheck,
+  RefreshCw, CheckCircle, XCircle,
   AlertTriangle, Zap
 } from "lucide-react";
+import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface PendingTrade {
   id: string;
@@ -61,7 +62,7 @@ export function AutomationControl() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
 
-  const fetchStatus = async () => {
+  const fetchStatus = useCallback(async () => {
     try {
       const res = await fetch("/api/automation");
       if (res.ok) {
@@ -73,13 +74,20 @@ export function AutomationControl() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchStatus();
-    const interval = setInterval(fetchStatus, 10000);
+    const interval = setInterval(fetchStatus, 120000);
     return () => clearInterval(interval);
-  }, []);
+  }, [fetchStatus]);
+
+  // Real-time: refetch when positions or pending trades change
+  useRealtimeSubscription([
+    { table: "positions", onchange: fetchStatus },
+    { table: "pending_trades", onchange: fetchStatus },
+    { table: "portfolio_state", onchange: fetchStatus },
+  ]);
 
   const setMode = async (mode: string) => {
     setActionLoading(`mode-${mode}`);

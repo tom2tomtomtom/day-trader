@@ -111,7 +111,7 @@ class TradingModel:
 
     # Position sizing
     MAX_RISK_PER_TRADE = 0.02  # 2% of portfolio
-    MEME_RISK_MULTIPLIER = 0.3  # Meme coins get 30% of normal size
+    MEME_RISK_MULTIPLIER = 1.0  # ML learns optimal meme sizing — no hard reduction
 
     def __init__(self, portfolio_value: float = 100000):
         self.portfolio_value = portfolio_value

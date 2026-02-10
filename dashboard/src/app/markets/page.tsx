@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Globe, TrendingUp, TrendingDown } from "lucide-react";
 import { PriceChart } from "@/components/PriceChart";
+import { useTableSubscription } from "@/hooks/useRealtimeSubscription";
 
 interface MarketStatus {
   open: boolean;
@@ -48,25 +49,28 @@ export default function MarketsPage() {
   const [selectedMarket, setSelectedMarket] = useState<string>("US");
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("/api/markets");
-        if (res.ok) {
-          const markets = await res.json();
-          setData(markets);
-        }
-      } catch (error) {
-        console.error("Failed to fetch markets:", error);
-      } finally {
-        setLoading(false);
+  const fetchData = useCallback(async () => {
+    try {
+      const res = await fetch("/api/markets");
+      if (res.ok) {
+        const markets = await res.json();
+        setData(markets);
       }
-    };
-
-    fetchData();
-    const interval = setInterval(fetchData, 60000);
-    return () => clearInterval(interval);
+    } catch (error) {
+      console.error("Failed to fetch markets:", error);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchData();
+    const interval = setInterval(fetchData, 120000);
+    return () => clearInterval(interval);
+  }, [fetchData]);
+
+  // Real-time: refetch when market snapshots change
+  useTableSubscription("market_snapshots", fetchData);
 
   if (loading) {
     return (

@@ -9,8 +9,11 @@ Features:
 - Virtual portfolio with cash and positions
 - Real-time signal generation from TradingModel
 - Automatic stop-loss and take-profit execution
+- Partial exits (50% at first target, trail remainder)
+- MFE/MAE tracking for ML learning
 - Full trade log with performance metrics
-- JSON output for dashboard consumption
+- DB persistence via Supabase (falls back to JSON)
+- Feature vector logging at entry for ML training
 
 Usage:
     python3 -m core.paper_trader                    # Scan default universe
@@ -19,6 +22,7 @@ Usage:
 """
 
 import json
+import logging
 import numpy as np
 from datetime import datetime, timezone
 from dataclasses import dataclass, field, asdict
@@ -26,6 +30,11 @@ from typing import List, Dict, Optional
 from pathlib import Path
 
 from .trading_model import TradingModel, TradeSignal, MEME_ASSETS
+from .feature_engine import FeatureEngine, FeatureVector
+from .db import get_db
+from .alerts import get_alert_engine
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).parent.parent
 PAPER_STATE = BASE_DIR / "paper_portfolio.json"
@@ -46,6 +55,17 @@ class PaperPosition:
     entry_score: int
     unrealized_pnl: float = 0
     unrealized_pnl_pct: float = 0
+    # ML features
+    entry_features: Dict = field(default_factory=dict)
+    # MFE / MAE tracking
+    max_favorable_excursion: float = 0  # Best unrealized % gain
+    max_adverse_excursion: float = 0    # Worst unrealized % loss
+    # Partial exit tracking
+    partial_exited: bool = False
+    original_shares: int = 0
+    # ATR trailing stop
+    atr_at_entry: float = 0
+    trailing_stop: float = 0  # Dynamic trailing stop level
 
     def update(self, current_price: float):
         self.current_price = current_price
@@ -55,6 +75,27 @@ class PaperPosition:
         else:
             self.unrealized_pnl = (self.entry_price - current_price) * self.shares
             self.unrealized_pnl_pct = (self.entry_price - current_price) / self.entry_price * 100
+
+        # Track MFE/MAE
+        if self.unrealized_pnl_pct > self.max_favorable_excursion:
+            self.max_favorable_excursion = self.unrealized_pnl_pct
+        if self.unrealized_pnl_pct < -self.max_adverse_excursion:
+            self.max_adverse_excursion = abs(self.unrealized_pnl_pct)
+
+        # Update ATR trailing stop (only ratchets in favorable direction)
+        if self.atr_at_entry > 0 and self.trailing_stop > 0:
+            if self.direction == "long":
+                new_trail = current_price - self.atr_at_entry * self._trail_multiplier()
+                if new_trail > self.trailing_stop:
+                    self.trailing_stop = new_trail
+            else:
+                new_trail = current_price + self.atr_at_entry * self._trail_multiplier()
+                if new_trail < self.trailing_stop:
+                    self.trailing_stop = new_trail
+
+    def _trail_multiplier(self) -> float:
+        """ATR multiplier: tighter after partial exit (riding with house money)."""
+        return 1.5 if self.partial_exited else 2.5
 
 
 @dataclass
@@ -71,6 +112,9 @@ class PaperTrade:
     pnl_pct: float
     exit_reason: str
     entry_score: int
+    entry_features: Dict = field(default_factory=dict)
+    max_favorable_excursion: float = 0
+    max_adverse_excursion: float = 0
 
 
 @dataclass
@@ -109,18 +153,25 @@ class PaperTrader:
         self.peak_value = initial_capital
 
         self.model = TradingModel(portfolio_value=initial_capital)
+        self.feature_engine = FeatureEngine()
+        self.db = get_db()
+        self.alerts = get_alert_engine()
 
         # Try to load existing state
         self._load_state()
 
     def analyze_and_trade(self, symbols: List[str],
-                          price_data: Dict[str, Dict]) -> PaperPortfolio:
+                          price_data: Dict[str, Dict],
+                          regime_state=None,
+                          fear_greed_data: Optional[Dict] = None) -> PaperPortfolio:
         """
         Main loop: analyze all symbols and execute paper trades.
 
         Args:
             symbols: List of symbols to analyze
             price_data: Dict mapping symbol -> {prices, highs, lows, volumes}
+            regime_state: Optional regime detection result
+            fear_greed_data: Optional fear & greed index data
         """
         now = datetime.now(timezone.utc).isoformat()
 
@@ -151,45 +202,121 @@ class PaperTrader:
             if symbol in self.positions:
                 self._manage_position(symbol, signal, current_price, now)
             else:
-                self._check_entry(symbol, signal, now)
+                self._check_entry(symbol, signal, now,
+                                  prices=prices, highs=highs, lows=lows,
+                                  volumes=volumes, regime_state=regime_state,
+                                  fear_greed_data=fear_greed_data)
 
             # Update position price if still open
             if symbol in self.positions:
                 self.positions[symbol].update(current_price)
+                # Sync position to DB
+                self._sync_position_to_db(symbol)
 
         # Update portfolio value and equity curve
         portfolio = self._build_portfolio_state(now)
+
+        # Save state (JSON fallback + DB)
         self._save_state()
+        self._sync_portfolio_to_db(portfolio)
 
         return portfolio
 
     def _manage_position(self, symbol: str, signal: TradeSignal,
                          current_price: float, timestamp: str):
-        """Check if position should be closed"""
+        """Check if position should be closed or partially exited."""
         pos = self.positions[symbol]
         exit_reason = None
 
-        # Check stop loss
-        if pos.direction == "long" and current_price <= pos.stop_loss:
-            exit_reason = "stop_loss"
-        elif pos.direction == "short" and current_price >= pos.stop_loss:
-            exit_reason = "stop_loss"
+        # Check ATR trailing stop first (tighter, dynamic)
+        if pos.trailing_stop > 0:
+            if pos.direction == "long" and current_price <= pos.trailing_stop:
+                exit_reason = "trailing_stop"
+            elif pos.direction == "short" and current_price >= pos.trailing_stop:
+                exit_reason = "trailing_stop"
+
+        # Check fixed stop loss
+        if not exit_reason:
+            if pos.direction == "long" and current_price <= pos.stop_loss:
+                exit_reason = "stop_loss"
+            elif pos.direction == "short" and current_price >= pos.stop_loss:
+                exit_reason = "stop_loss"
+
         # Check take profit
-        elif pos.direction == "long" and current_price >= pos.take_profit:
-            exit_reason = "take_profit"
-        elif pos.direction == "short" and current_price <= pos.take_profit:
-            exit_reason = "take_profit"
+        if not exit_reason:
+            if pos.direction == "long" and current_price >= pos.take_profit:
+                # Partial exit: sell 50% at first target if not already done
+                if not pos.partial_exited and pos.shares > 1:
+                    self._partial_exit(symbol, current_price, timestamp)
+                    return
+                exit_reason = "take_profit"
+            elif pos.direction == "short" and current_price <= pos.take_profit:
+                if not pos.partial_exited and pos.shares > 1:
+                    self._partial_exit(symbol, current_price, timestamp)
+                    return
+                exit_reason = "take_profit"
+
         # Check signal reversal
-        elif pos.direction == "long" and signal.score <= -25:
-            exit_reason = "signal_reversal"
-        elif pos.direction == "short" and signal.score >= 25:
-            exit_reason = "signal_reversal"
+        if not exit_reason:
+            if pos.direction == "long" and signal.score <= -25:
+                exit_reason = "signal_reversal"
+            elif pos.direction == "short" and signal.score >= 25:
+                exit_reason = "signal_reversal"
 
         if exit_reason:
             self._close_position(symbol, current_price, exit_reason,
                                  signal.score, timestamp)
 
-    def _check_entry(self, symbol: str, signal: TradeSignal, timestamp: str):
+    def _partial_exit(self, symbol: str, current_price: float, timestamp: str):
+        """Exit 50% of position and move stop to breakeven."""
+        pos = self.positions[symbol]
+        exit_shares = pos.shares // 2
+        remain_shares = pos.shares - exit_shares
+
+        if exit_shares <= 0:
+            return
+
+        # Calculate P&L on exited portion
+        if pos.direction == "long":
+            pnl = (current_price - pos.entry_price) * exit_shares
+            pnl_pct = (current_price - pos.entry_price) / pos.entry_price * 100
+        else:
+            pnl = (pos.entry_price - current_price) * exit_shares
+            pnl_pct = (pos.entry_price - current_price) / pos.entry_price * 100
+
+        self.cash += exit_shares * current_price
+
+        # Log partial exit as a trade
+        trade = PaperTrade(
+            symbol=symbol,
+            direction=pos.direction,
+            entry_date=pos.entry_date,
+            entry_price=pos.entry_price,
+            exit_date=timestamp,
+            exit_price=current_price,
+            shares=exit_shares,
+            pnl_dollars=round(pnl, 2),
+            pnl_pct=round(pnl_pct, 2),
+            exit_reason="partial_target",
+            entry_score=pos.entry_score,
+            entry_features=pos.entry_features,
+            max_favorable_excursion=round(pos.max_favorable_excursion, 2),
+            max_adverse_excursion=round(pos.max_adverse_excursion, 2),
+        )
+        self.closed_trades.append(trade)
+        self._log_trade_to_db(trade)
+
+        # Update position: fewer shares, move stop to breakeven
+        pos.shares = remain_shares
+        pos.stop_loss = pos.entry_price  # Breakeven stop
+        pos.partial_exited = True
+
+        logger.info(f"Partial exit {symbol}: {exit_shares} shares @ ${current_price:.2f} "
+                     f"(+{pnl_pct:.1f}%), trailing {remain_shares} shares")
+
+    def _check_entry(self, symbol: str, signal: TradeSignal, timestamp: str,
+                     prices=None, highs=None, lows=None, volumes=None,
+                     regime_state=None, fear_greed_data=None):
         """Check if we should enter a new position"""
         if signal.direction == "flat":
             return
@@ -201,19 +328,52 @@ class PaperTrader:
         if signal.position_shares <= 0:
             return
 
+        # Compute feature vector for ML training
+        features = self.feature_engine.compute(
+            symbol=symbol,
+            prices=prices or [],
+            highs=highs,
+            lows=lows,
+            volumes=volumes,
+            indicators=signal.indicators if signal else None,
+            regime_state=regime_state,
+            fear_greed_data=fear_greed_data,
+        )
+
         # Enter position
         self.cash -= position_cost
+        shares = signal.position_shares
+
+        # ATR trailing stop: 2.5x ATR from entry, adapts to regime
+        atr = signal.indicators.atr_14 if signal.indicators else 0
+        if atr > 0 and signal.direction == "long":
+            trailing = signal.entry_price - atr * 2.5
+        elif atr > 0 and signal.direction == "short":
+            trailing = signal.entry_price + atr * 2.5
+        else:
+            trailing = 0
+
         self.positions[symbol] = PaperPosition(
             symbol=symbol,
             direction=signal.direction,
             entry_price=signal.entry_price,
             current_price=signal.entry_price,
-            shares=signal.position_shares,
+            shares=shares,
             stop_loss=signal.stop_loss,
             take_profit=signal.take_profit,
             entry_date=timestamp,
             entry_score=signal.score,
+            entry_features=features.to_dict(),
+            original_shares=shares,
+            atr_at_entry=atr,
+            trailing_stop=trailing,
         )
+
+        # Log entry alert
+        self.alerts.log_trade_entry(symbol, signal.direction, shares, signal.entry_price)
+
+        # Sync to DB
+        self._sync_position_to_db(symbol)
 
     def _close_position(self, symbol: str, exit_price: float,
                         reason: str, exit_score: int, timestamp: str):
@@ -230,7 +390,7 @@ class PaperTrader:
         # Return position value to cash
         self.cash += pos.shares * exit_price
 
-        self.closed_trades.append(PaperTrade(
+        trade = PaperTrade(
             symbol=symbol,
             direction=pos.direction,
             entry_date=pos.entry_date,
@@ -242,7 +402,82 @@ class PaperTrader:
             pnl_pct=round(pnl_pct, 2),
             exit_reason=reason,
             entry_score=pos.entry_score,
-        ))
+            entry_features=pos.entry_features,
+            max_favorable_excursion=round(pos.max_favorable_excursion, 2),
+            max_adverse_excursion=round(pos.max_adverse_excursion, 2),
+        )
+        self.closed_trades.append(trade)
+
+        # Log to DB
+        self._log_trade_to_db(trade)
+
+        # Close position in DB
+        self.db.close_position(symbol)
+
+        # Alert
+        self.alerts.log_trade_exit(symbol, pnl, pnl_pct, reason)
+
+    def _log_trade_to_db(self, trade: PaperTrade):
+        """Log a completed trade to Supabase."""
+        self.db.log_trade({
+            "symbol": trade.symbol,
+            "direction": trade.direction,
+            "entry_date": trade.entry_date,
+            "entry_price": trade.entry_price,
+            "exit_date": trade.exit_date,
+            "exit_price": trade.exit_price,
+            "shares": trade.shares,
+            "pnl_dollars": trade.pnl_dollars,
+            "pnl_pct": trade.pnl_pct,
+            "exit_reason": trade.exit_reason,
+            "entry_score": trade.entry_score,
+            "entry_features": trade.entry_features,
+            "max_favorable_excursion": trade.max_favorable_excursion,
+            "max_adverse_excursion": trade.max_adverse_excursion,
+        })
+
+    def _sync_position_to_db(self, symbol: str):
+        """Sync an open position to Supabase."""
+        if symbol not in self.positions:
+            return
+        pos = self.positions[symbol]
+        self.db.upsert_position({
+            "symbol": pos.symbol,
+            "direction": pos.direction,
+            "entry_price": pos.entry_price,
+            "current_price": pos.current_price,
+            "shares": pos.shares,
+            "stop_loss": pos.stop_loss,
+            "take_profit": pos.take_profit,
+            "entry_date": pos.entry_date,
+            "entry_score": pos.entry_score,
+            "entry_features": pos.entry_features,
+            "unrealized_pnl": pos.unrealized_pnl,
+            "unrealized_pnl_pct": pos.unrealized_pnl_pct,
+            "max_favorable_excursion": pos.max_favorable_excursion,
+            "max_adverse_excursion": pos.max_adverse_excursion,
+        })
+
+    def _sync_portfolio_to_db(self, portfolio: PaperPortfolio):
+        """Sync portfolio state to Supabase."""
+        self.db.save_portfolio_state({
+            "cash": portfolio.cash,
+            "portfolio_value": portfolio.portfolio_value,
+            "total_return_pct": portfolio.total_return_pct,
+            "max_drawdown_pct": portfolio.max_drawdown_pct,
+            "total_trades": portfolio.total_trades,
+            "winning_trades": portfolio.winning_trades,
+            "losing_trades": portfolio.losing_trades,
+            "win_rate": portfolio.win_rate,
+            "profit_factor": portfolio.profit_factor,
+            "portfolio_heat": 0,  # Calculated elsewhere
+            "open_positions": len(portfolio.positions),
+        })
+        self.db.log_equity_point(
+            value=portfolio.portfolio_value,
+            cash=portfolio.cash,
+            positions_value=portfolio.portfolio_value - portfolio.cash,
+        )
 
     def _build_portfolio_state(self, timestamp: str) -> PaperPortfolio:
         """Build current portfolio state"""
@@ -255,6 +490,11 @@ class PaperTrader:
         # Track peak for drawdown
         self.peak_value = max(self.peak_value, portfolio_value)
         max_dd = (self.peak_value - portfolio_value) / self.peak_value * 100
+
+        # Check drawdown alerts
+        from .config import get_config
+        cfg = get_config()
+        self.alerts.check_drawdown(max_dd, cfg.trading.max_drawdown_halt * 100)
 
         # Trade stats
         winners = [t for t in self.closed_trades if t.pnl_dollars > 0]
@@ -312,7 +552,7 @@ class PaperTrader:
             "equity_history": self.equity_history[-500:],
             "saved_at": datetime.now(timezone.utc).isoformat(),
         }
-        PAPER_STATE.write_text(json.dumps(state, indent=2))
+        PAPER_STATE.write_text(json.dumps(state, indent=2, default=str))
 
     def _load_state(self):
         """Load state from disk"""
@@ -327,14 +567,19 @@ class PaperTrader:
 
             # Restore positions
             for sym, pos_data in state.get("positions", {}).items():
-                self.positions[sym] = PaperPosition(**pos_data)
+                # Filter out unknown fields for backward compat
+                known = {f.name for f in PaperPosition.__dataclass_fields__.values()}
+                filtered = {k: v for k, v in pos_data.items() if k in known}
+                self.positions[sym] = PaperPosition(**filtered)
 
             # Restore trades
             for trade_data in state.get("closed_trades", []):
-                self.closed_trades.append(PaperTrade(**trade_data))
+                known = {f.name for f in PaperTrade.__dataclass_fields__.values()}
+                filtered = {k: v for k, v in trade_data.items() if k in known}
+                self.closed_trades.append(PaperTrade(**filtered))
 
-        except Exception:
-            pass  # Start fresh if state is corrupt
+        except Exception as e:
+            logger.warning(f"Could not load paper state: {e} — starting fresh")
 
     def reset(self):
         """Reset paper portfolio to initial state"""
@@ -381,7 +626,7 @@ def run_paper_trading(symbols: List[str] = None,
     # Run analysis
     portfolio = trader.analyze_and_trade(symbols, price_data)
 
-    # Save full portfolio state for dashboard
+    # Save full portfolio state for dashboard (JSON fallback)
     dashboard_data = {
         "timestamp": portfolio.timestamp,
         "portfolio": {
@@ -403,7 +648,7 @@ def run_paper_trading(symbols: List[str] = None,
         "recent_trades": [asdict(t) for t in portfolio.closed_trades[-20:]],
         "equity_curve": portfolio.equity_history,
     }
-    PAPER_LOG.write_text(json.dumps(dashboard_data, indent=2))
+    PAPER_LOG.write_text(json.dumps(dashboard_data, indent=2, default=str))
 
     return portfolio
 

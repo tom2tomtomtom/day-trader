@@ -62,14 +62,14 @@ class RiskEngine:
     Manages all risk-related decisions
     """
     
-    # Risk limits
-    MAX_PORTFOLIO_HEAT = 0.20  # Max 20% of portfolio at risk
-    MAX_SINGLE_POSITION = 0.10  # Max 10% in any single position
-    MAX_CORRELATED_EXPOSURE = 0.25  # Max 25% in correlated assets
-    MAX_DRAWDOWN_HALT = 0.15  # Stop trading if down 15%
-    
+    # Risk limits (aggressive — let ML learn optimal risk)
+    MAX_PORTFOLIO_HEAT = 0.50  # Max 50% of portfolio at risk
+    MAX_SINGLE_POSITION = 0.25  # Max 25% in any single position
+    MAX_CORRELATED_EXPOSURE = 0.35  # Max 35% in correlated assets
+    MAX_DRAWDOWN_HALT = 0.30  # Stop trading if down 30%
+
     # Kelly parameters
-    KELLY_FRACTION = 0.25  # Use 25% of Kelly (conservative)
+    KELLY_FRACTION = 0.50  # Use 50% of Kelly (aggressive)
     
     def __init__(self, portfolio_value: float = 100000):
         self.portfolio_value = portfolio_value

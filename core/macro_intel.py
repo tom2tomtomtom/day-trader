@@ -167,6 +167,82 @@ class MacroIntelligence:
             correlation_matrix_status="normal",
         )
 
+    def fetch_and_analyze(self) -> MacroIntelReport:
+        """
+        Fetch real market data and run full macro analysis.
+        Uses yfinance for VIX, yield curves, SPY, QQQ, DXY, gold, oil.
+        Uses data_layer for Fear & Greed.
+        """
+        import yfinance as yf
+        from .data_layer import FearGreedSource
+
+        # Fetch real data
+        market_data = {}
+
+        # VIX
+        try:
+            vix_ticker = yf.Ticker("^VIX")
+            vix_hist = vix_ticker.history(period="1mo")
+            if not vix_hist.empty:
+                market_data["vix"] = float(vix_hist['Close'].iloc[-1])
+                market_data["vix_history"] = [float(v) for v in vix_hist['Close'].tolist()]
+        except Exception:
+            pass
+
+        # Yield curve (2Y and 10Y treasury yields)
+        try:
+            tnx = yf.Ticker("^TNX")  # 10Y
+            tnx_hist = tnx.history(period="5d")
+            if not tnx_hist.empty:
+                market_data["yield_10y"] = float(tnx_hist['Close'].iloc[-1])
+        except Exception:
+            pass
+
+        try:
+            two_yr = yf.Ticker("2YY=F")  # 2Y yield futures
+            two_hist = two_yr.history(period="5d")
+            if not two_hist.empty:
+                market_data["yield_2y"] = float(two_hist['Close'].iloc[-1])
+        except Exception:
+            pass
+
+        # SPY, QQQ, IWM prices for statistical analysis
+        prices = {}
+        volumes = {}
+        for sym in ["SPY", "QQQ", "IWM"]:
+            try:
+                t = yf.Ticker(sym)
+                h = t.history(period="1mo")
+                if not h.empty:
+                    prices[sym] = [float(p) for p in h['Close'].tolist()]
+                    volumes[sym] = [int(v) for v in h['Volume'].tolist()]
+            except Exception:
+                pass
+        market_data["prices"] = prices
+        market_data["volumes"] = volumes
+        market_data["spy_prices"] = prices.get("SPY", [])
+
+        # DXY (dollar index), Gold, Oil
+        for sym, key in [("DX-Y.NYB", "dxy"), ("GC=F", "gold"), ("CL=F", "oil")]:
+            try:
+                t = yf.Ticker(sym)
+                h = t.history(period="5d")
+                if not h.empty:
+                    market_data[key] = float(h['Close'].iloc[-1])
+            except Exception:
+                pass
+
+        # Fear & Greed
+        try:
+            fg = FearGreedSource()
+            fg_data = fg.fetch()
+            if fg_data and "value" in fg_data:
+                market_data["fear_greed"] = fg_data["value"]
+        except Exception:
+            pass
+
+        return self.analyze(market_data)
+
     def _detect_vix_triggers(self, data: Dict):
         """Detect VIX-based triggers"""
         vix = data.get("vix")
@@ -690,3 +766,25 @@ def run_macro_scan(market_data: Dict) -> MacroIntelReport:
     """Convenience function to run macro analysis"""
     intel = MacroIntelligence()
     return intel.analyze(market_data)
+
+
+def run_live_macro_scan() -> MacroIntelReport:
+    """Run macro analysis with live market data"""
+    intel = MacroIntelligence()
+    return intel.fetch_and_analyze()
+
+
+if __name__ == "__main__":
+    report = run_live_macro_scan()
+    print(f"\n{'='*60}")
+    print(f"MACRO INTELLIGENCE REPORT (LIVE DATA)")
+    print(f"{'='*60}")
+    print(f"Regime: {report.regime.primary_regime} (score: {report.regime.regime_score})")
+    print(f"VIX Regime: {report.regime.vix_regime}")
+    print(f"Risk Score: {report.risk_score:.0f}/100")
+    print(f"Opportunity Score: {report.opportunity_score:.0f}/100")
+    print(f"\nNarrative: {report.narrative}")
+    print(f"\nActive Triggers: {len(report.active_triggers)}")
+    for t in report.active_triggers:
+        print(f"  [{t.severity.upper()}] {t.title}")
+        print(f"    {t.description}")

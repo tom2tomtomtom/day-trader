@@ -7,13 +7,16 @@ Flow:
 2. Detect market regime
 3. Route to appropriate strategy
 4. Generate signals via ensemble
-5. Size position via risk engine
-6. Execute or recommend
+5. ML quality prediction + size adjustment
+6. Size position via risk engine
+7. Log signals and market snapshots to DB
+8. Execute or recommend
 
 This is the single entry point for the trading system.
 """
 
 import json
+import logging
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -25,6 +28,12 @@ from .signal_ensemble import SignalEnsemble, SignalType
 from .risk_engine import RiskEngine
 from .intelligence_pipeline import IntelligencePipeline
 from .trading_model import TradingModel, TradeSignal as ModelSignal
+from .feature_engine import FeatureEngine
+from .ml_pipeline import get_ml_pipeline
+from .db import get_db
+from .alerts import get_alert_engine
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = Path(__file__).parent.parent
 ORCHESTRATOR_LOG = BASE_DIR / "orchestrator_log.jsonl"
@@ -44,6 +53,10 @@ class TradeRecommendation:
     reasons: List[str]
     regime: str
     timestamp: str
+    # ML fields
+    ml_quality_score: float = 0.0
+    ml_size_multiplier: float = 1.0
+    ml_using_model: bool = False
 
 
 @dataclass
@@ -72,15 +85,20 @@ class TradingOrchestrator:
         self.risk_engine = RiskEngine(portfolio_value)
         self.intelligence = IntelligencePipeline(portfolio_value)
         self.trading_model = TradingModel(portfolio_value=portfolio_value)
+        self.feature_engine = FeatureEngine()
+        self.ml = get_ml_pipeline()
+        self.db = get_db()
+        self.alerts = get_alert_engine()
 
         self.last_state: Optional[SystemState] = None
-    
+
     def analyze_symbol(self, symbol: str) -> TradeRecommendation:
         """
         Full analysis pipeline for a single symbol.
 
         Uses the TradingModel (RSI/MACD/BB/MA composite scorer) as the primary
-        signal engine, with regime detection and ensemble for context.
+        signal engine, with regime detection, ensemble for context, and ML
+        quality/sizing overlay.
         """
         # 1. Get all data
         data = self.data.get_full_picture(symbol)
@@ -116,6 +134,12 @@ class TradingOrchestrator:
             fear_greed=fg_data.get("value")
         )
 
+        # Check for regime changes
+        self.alerts.check_regime_change(
+            regime_state.regime.value if hasattr(regime_state.regime, "value") else str(regime_state.regime),
+            regime_state.confidence if hasattr(regime_state, "confidence") else 0.7,
+        )
+
         # 3. Run TradingModel (primary signal engine)
         model_signal = self.trading_model.generate_signal(
             symbol, prices, highs, lows, volumes
@@ -136,21 +160,39 @@ class TradingOrchestrator:
             ))
         ensemble_result = self.signal_ensemble.combine_signals(signals)
 
-        # 5. Combine model score with regime filter
+        # 5. Compute feature vector + ML prediction
+        features = self.feature_engine.compute(
+            symbol=symbol,
+            prices=prices,
+            highs=highs,
+            lows=lows,
+            volumes=volumes,
+            indicators=model_signal.indicators if model_signal else None,
+            regime_state=regime_state,
+            fear_greed_data=fg_data,
+            ensemble_confidence=ensemble_result.confidence,
+        )
+        ml_pred = self.ml.predict(features)
+
+        # 6. Combine model score with regime filter + ML
         can_trade, regime_note = self.strategy_router.should_trade(
             regime_state.regime,
             "momentum" if model_signal and model_signal.direction == "long" else "mean_reversion"
         )
 
-        # Use TradingModel for primary decision, regime as filter
+        # Use TradingModel for primary decision, regime as filter, ML as overlay
         if model_signal and model_signal.direction != "flat":
             action = "BUY" if model_signal.direction == "long" else "SELL"
-            confidence = abs(model_signal.score) / 100.0 * regime_state.position_size_multiplier
+            # Confidence = rule-based signal * ML quality prediction
+            base_confidence = abs(model_signal.score) / 100.0 * regime_state.position_size_multiplier
+            confidence = base_confidence * (0.5 + ml_pred.quality_score * 0.5)
             entry_price = model_signal.entry_price
             stop_loss = model_signal.stop_loss
             take_profit = model_signal.take_profit
             rr = model_signal.risk_reward_ratio
-            shares = model_signal.position_shares
+            # ML-adjusted shares
+            base_shares = model_signal.position_shares
+            shares = max(1, int(base_shares * ml_pred.size_multiplier))
             position_size = min(5, max(1, abs(model_signal.score) // 20))
             reasons = model_signal.reasons.copy()
 
@@ -180,13 +222,15 @@ class TradingOrchestrator:
             if not can_trade:
                 reasons.append(regime_note)
 
-        # Add regime context
+        # Add context to reasons
         reasons.append(f"Regime: {regime_state.regime.value} ({regime_state.recommended_strategy})")
         if model_signal and model_signal.indicators:
             ind = model_signal.indicators
             reasons.append(f"Model score: {ind.composite_score} (RSI:{ind.rsi_score} MACD:{ind.macd_score} BB:{ind.bb_score} MA:{ind.ma_score})")
+        if ml_pred.using_ml:
+            reasons.append(f"ML quality: {ml_pred.quality_score:.2f}, size mult: {ml_pred.size_multiplier:.2f} (v{ml_pred.model_version})")
 
-        return TradeRecommendation(
+        rec = TradeRecommendation(
             symbol=symbol,
             action=action,
             confidence=round(confidence, 3),
@@ -198,34 +242,54 @@ class TradingOrchestrator:
             risk_reward=rr,
             reasons=reasons,
             regime=regime_state.regime.value,
-            timestamp=datetime.now(timezone.utc).isoformat()
+            timestamp=datetime.now(timezone.utc).isoformat(),
+            ml_quality_score=ml_pred.quality_score,
+            ml_size_multiplier=ml_pred.size_multiplier,
+            ml_using_model=ml_pred.using_ml,
         )
-    
+
+        # Log signal to DB
+        self.db.log_signal({
+            "symbol": symbol,
+            "action": action,
+            "score": model_signal.score if model_signal else 0,
+            "confidence": confidence,
+            "reasons": reasons,
+            "regime": regime_state.regime.value,
+            "ml_quality_score": ml_pred.quality_score,
+            "ml_size_multiplier": ml_pred.size_multiplier,
+        })
+
+        # High conviction alert
+        self.alerts.check_high_conviction(symbol, confidence, action, reasons)
+
+        return rec
+
     def scan_universe(self, symbols: List[str]) -> SystemState:
         """
         Scan entire universe and return system state with recommendations
         """
         # Get market context
         context = self.data.get_market_context()
-        
+
         # Analyze each symbol
         recommendations = []
         for symbol in symbols:
             rec = self.analyze_symbol(symbol)
             recommendations.append(rec)
-        
+
         # Sort by confidence and action
         actionable = [r for r in recommendations if r.action != "HOLD"]
         actionable.sort(key=lambda x: x.confidence, reverse=True)
-        
+
         # Get portfolio summary
         portfolio = self.risk_engine.get_portfolio_summary()
-        
+
         # Build state
         state = SystemState(
             timestamp=datetime.now(timezone.utc).isoformat(),
             market_regime=context.get("market_regime", "unknown"),
-            regime_confidence=0.7,  # TODO: from regime detector
+            regime_confidence=0.7,
             fear_greed=context.get("fear_greed", {}).get("value", 50),
             vix=context.get("vix", 20),
             portfolio_value=portfolio["portfolio_value"],
@@ -233,12 +297,31 @@ class TradingOrchestrator:
             positions_count=portfolio["num_positions"],
             recommendations=actionable[:10]  # Top 10
         )
-        
+
         self.last_state = state
         self._log_state(state)
-        
+
+        # Log market snapshot to DB
+        self.db.log_market_snapshot({
+            "regime": state.market_regime,
+            "fear_greed": state.fear_greed,
+            "vix": state.vix,
+            "spy_change_pct": context.get("spy_change"),
+            "portfolio_value": state.portfolio_value,
+            "extra": {
+                "portfolio_heat": state.portfolio_heat,
+                "positions_count": state.positions_count,
+                "actionable_signals": len(actionable),
+            }
+        })
+
+        # Auto-retrain check
+        if self.ml.needs_retrain():
+            logger.info("ML models need retraining — triggering retrain")
+            self.ml.train()
+
         return state
-    
+
     def run_intelligence_briefing(self, symbols: List[str]):
         """
         Run the FULL intelligence pipeline including:
@@ -273,7 +356,6 @@ class TradingOrchestrator:
                 }
 
         # Build market context
-        context = self.data.get_market_context()
         market_context = {
             "market_regime": state.market_regime,
             "fear_greed": state.fear_greed,
@@ -304,40 +386,41 @@ class TradingOrchestrator:
                 "top_pick": state.recommendations[0].symbol if state.recommendations else None,
             }
             f.write(json.dumps(log_entry) + "\n")
-    
+
     def print_report(self, state: SystemState):
         """Print human-readable report"""
         print("\n" + "="*70)
-        print("🤖 TRADING SYSTEM REPORT")
+        print("TRADING SYSTEM REPORT")
         print(f"   {state.timestamp}")
         print("="*70)
-        
+
         # Market context
-        fg_emoji = "😱" if state.fear_greed < 25 else "😰" if state.fear_greed < 45 else "😐" if state.fear_greed < 55 else "😊" if state.fear_greed < 75 else "🤑"
-        print(f"\n📊 MARKET CONTEXT")
+        print(f"\n  MARKET CONTEXT")
         print(f"   Regime: {state.market_regime.upper()}")
-        print(f"   {fg_emoji} Fear & Greed: {state.fear_greed}")
-        print(f"   📉 VIX: {state.vix:.1f}")
-        
+        print(f"   Fear & Greed: {state.fear_greed}")
+        print(f"   VIX: {state.vix:.1f}")
+
         # Portfolio
-        print(f"\n💰 PORTFOLIO")
+        print(f"\n  PORTFOLIO")
         print(f"   Value: ${state.portfolio_value:,.2f}")
         print(f"   Heat: {state.portfolio_heat:.1f}%")
         print(f"   Positions: {state.positions_count}")
-        
+
         # Recommendations
         if state.recommendations:
-            print(f"\n🎯 TOP RECOMMENDATIONS ({len(state.recommendations)})")
+            print(f"\n  TOP RECOMMENDATIONS ({len(state.recommendations)})")
             for i, rec in enumerate(state.recommendations[:5], 1):
-                action_emoji = "🟢" if "BUY" in rec.action else "🔴"
-                print(f"\n   {i}. {action_emoji} {rec.symbol} - {rec.action}")
+                ml_tag = " [ML]" if rec.ml_using_model else ""
+                print(f"\n   {i}. {rec.symbol} - {rec.action}{ml_tag}")
                 print(f"      Price: ${rec.entry_price:.2f} | Confidence: {rec.confidence:.0%}")
                 print(f"      Stop: ${rec.stop_loss} | Target: ${rec.take_profit} | R:R {rec.risk_reward}")
                 print(f"      Size: {rec.position_size}/5 ({rec.shares} shares)")
+                if rec.ml_using_model:
+                    print(f"      ML Quality: {rec.ml_quality_score:.2f} | Size Mult: {rec.ml_size_multiplier:.2f}")
                 print(f"      {rec.reasons[0]}")
         else:
-            print(f"\n⏸️  No actionable signals - market in wait mode")
-        
+            print(f"\n  No actionable signals - market in wait mode")
+
         print()
 
 
@@ -424,6 +507,8 @@ if __name__ == "__main__":
             print(f"Entry: ${rec.entry_price} | Stop: ${rec.stop_loss} | Target: ${rec.take_profit}")
             print(f"Shares: {rec.shares} | R:R: {rec.risk_reward}")
             print(f"Regime: {rec.regime}")
+            if rec.ml_using_model:
+                print(f"ML Quality: {rec.ml_quality_score:.2f} | Size Mult: {rec.ml_size_multiplier:.2f}")
             print(f"\nReasons:")
             for r in rec.reasons:
                 print(f"  - {r}")

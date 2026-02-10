@@ -4,6 +4,7 @@ pandas
 scikit-learn
 scipy
 yfinance
+joblib
 
 # Trading Platforms
 ccxt
@@ -12,16 +13,22 @@ python-binance
 
 # Data Processing
 requests
+httpx
 matplotlib
 seaborn
+
+# Database
+supabase
+
+# AI APIs
+anthropic
+
+# Logging and Utilities
+python-dotenv
 
 # Optional: Dashboard
 streamlit
 plotly
-
-# Logging and Utilities
-python-dotenv
-logging
 
 # Risk Management
 TA-Lib  # Technical Analysis Library
