@@ -87,7 +87,7 @@ class TechnicalIndicators:
     vwap: float = 0.0
     vwap_score: int = 0
     # Composite
-    composite_score: int  # -100 to +100
+    composite_score: int = 0  # -100 to +100
 
 
 @dataclass
