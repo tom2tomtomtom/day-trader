@@ -156,9 +156,10 @@ export default function CouncilPage() {
   if (error) {
     return (
       <div className="bg-zinc-900 rounded-xl p-8 border border-zinc-800 text-center">
-        <AlertTriangle className="w-12 h-12 text-purple-500 mx-auto mb-4" />
+        <AlertTriangle className="w-12 h-12 text-purple-500/50 mx-auto mb-4" />
         <h2 className="text-xl font-bold mb-2">Phantom Council Not Yet Convened</h2>
-        <p className="text-zinc-400 mb-4">{error}</p>
+        <p className="text-zinc-400 mb-4 max-w-md mx-auto">{error}</p>
+        <p className="text-zinc-500 text-sm mb-4">AI investor personas debate trade ideas during intel briefings (9 AM and 4:30 PM ET):</p>
         <code className="bg-zinc-800 px-4 py-2 rounded text-sm">
           python3 -m core.orchestrator --intel
         </code>

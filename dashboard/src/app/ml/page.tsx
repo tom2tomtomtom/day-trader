@@ -168,9 +168,10 @@ function PageHeader() {
 function EmptyState({ message }: { message: string }) {
   return (
     <div className="bg-zinc-900 rounded-xl p-8 border border-zinc-800 text-center">
-      <AlertTriangle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
-      <h2 className="text-xl font-bold mb-2">No ML Data Available</h2>
-      <p className="text-zinc-400 mb-4">{message}</p>
+      <Cpu className="w-12 h-12 text-emerald-500/50 mx-auto mb-4" />
+      <h2 className="text-xl font-bold mb-2">ML Models Training</h2>
+      <p className="text-zinc-400 mb-4 max-w-md mx-auto">{message}</p>
+      <p className="text-zinc-500 text-sm mb-4">Models auto-train nightly once you have 30+ trades. You can also trigger training manually:</p>
       <code className="bg-zinc-800 px-4 py-2 rounded text-sm">
         python3 -m core.orchestrator --train-ml
       </code>
@@ -254,8 +255,8 @@ function FeatureImportanceChart({
           <Layers className="w-4 h-4 text-emerald-400" />
           Feature Importance
         </h3>
-        <p className="text-zinc-500 text-center py-8">
-          No feature importance data available
+        <p className="text-zinc-500 text-center py-8 text-sm">
+          Feature importance is calculated after model training. It shows which indicators drive predictions most.
         </p>
       </div>
     );
@@ -324,8 +325,8 @@ function SignalQualityDistribution({
           <BarChart3 className="w-4 h-4 text-emerald-400" />
           Signal Quality Distribution
         </h3>
-        <p className="text-zinc-500 text-center py-8">
-          No recent predictions to analyze
+        <p className="text-zinc-500 text-center py-8 text-sm">
+          Signal quality distribution appears after the ML model has made predictions on live signals.
         </p>
       </div>
     );

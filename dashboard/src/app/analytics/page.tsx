@@ -318,9 +318,10 @@ function PageHeader() {
 function EmptyState({ message }: { message: string }) {
   return (
     <div className="bg-zinc-900 rounded-xl p-8 border border-zinc-800 text-center">
-      <AlertTriangle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
-      <h2 className="text-xl font-bold mb-2">No Analytics Data</h2>
-      <p className="text-zinc-400 mb-4">{message}</p>
+      <BarChart3 className="w-12 h-12 text-emerald-500/50 mx-auto mb-4" />
+      <h2 className="text-xl font-bold mb-2">Analytics Building Up</h2>
+      <p className="text-zinc-400 mb-4 max-w-md mx-auto">{message}</p>
+      <p className="text-zinc-500 text-sm mb-4">Charts populate automatically as the system trades. You can also seed data with a backtest:</p>
       <code className="bg-zinc-800 px-4 py-2 rounded text-sm">
         python3 -m core.orchestrator --paper
       </code>
@@ -336,7 +337,7 @@ function WinRateByRegimeChart({ data }: { data: WinRateByRegime[] }) {
         icon={<BarChart3 className="w-4 h-4 text-emerald-400" />}
       >
         <p className="text-zinc-500 text-center py-8">
-          No regime data available
+          Regime data appears after trades across different market conditions (trending, ranging, crisis).
         </p>
       </ChartCard>
     );
@@ -400,7 +401,7 @@ function PnlByExitReasonChart({ data }: { data: PnlByExitReason[] }) {
         icon={<Activity className="w-4 h-4 text-emerald-400" />}
       >
         <p className="text-zinc-500 text-center py-8">
-          No exit reason data available
+          Exit reason breakdown appears after closed trades (stop-loss, take-profit, trailing stop).
         </p>
       </ChartCard>
     );
@@ -511,7 +512,7 @@ function SignalAccuracyChart({ data }: { data: SignalAccuracyPoint[] }) {
         icon={<Target className="w-4 h-4 text-emerald-400" />}
       >
         <p className="text-zinc-500 text-center py-8">
-          No signal evaluation data available
+          Signal accuracy tracking starts after the nightly evaluation cycle matches signals to trade outcomes.
         </p>
       </ChartCard>
     );
@@ -580,7 +581,7 @@ function DrawdownChart({ data }: { data: DrawdownPoint[] }) {
         icon={<TrendingDown className="w-4 h-4 text-red-400" />}
       >
         <p className="text-zinc-500 text-center py-8">
-          No drawdown data available
+          Drawdown chart builds as the equity curve develops over multiple trading sessions.
         </p>
       </ChartCard>
     );

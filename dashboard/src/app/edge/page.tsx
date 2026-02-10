@@ -96,9 +96,10 @@ export default function EdgePage() {
   if (error) {
     return (
       <div className="bg-zinc-900 rounded-xl p-8 border border-zinc-800 text-center">
-        <AlertTriangle className="w-12 h-12 text-yellow-500 mx-auto mb-4" />
+        <AlertTriangle className="w-12 h-12 text-yellow-500/50 mx-auto mb-4" />
         <h2 className="text-xl font-bold mb-2">Edge Scanner Not Run</h2>
-        <p className="text-zinc-400 mb-4">{error}</p>
+        <p className="text-zinc-400 mb-4 max-w-md mx-auto">{error}</p>
+        <p className="text-zinc-500 text-sm mb-4">The edge scanner finds statistical advantages across your watchlist. Run it manually:</p>
         <code className="bg-zinc-800 px-4 py-2 rounded text-sm">
           python3 edge_scanner.py
         </code>

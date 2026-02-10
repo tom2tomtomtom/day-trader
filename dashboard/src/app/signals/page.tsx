@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle2, XCircle } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, AlertTriangle, CheckCircle2, XCircle, Zap } from "lucide-react";
 import { FearGreedGauge } from "@/components/FearGreedGauge";
 import { useTableSubscription } from "@/hooks/useRealtimeSubscription";
 
@@ -68,8 +68,13 @@ export default function SignalsPage() {
 
   if (!data) {
     return (
-      <div className="text-center py-12 text-zinc-500">
-        No signal data available
+      <div className="text-center py-16">
+        <Zap className="w-12 h-12 text-zinc-600 mx-auto mb-4" />
+        <h2 className="text-lg font-semibold mb-2">No Signal Data Yet</h2>
+        <p className="text-zinc-500 mb-4 max-w-sm mx-auto">
+          The scheduler generates signals every 5 minutes during market hours and every 15 minutes for crypto.
+        </p>
+        <p className="text-zinc-600 text-sm">Signals will appear here automatically once the next scan completes.</p>
       </div>
     );
   }
@@ -171,7 +176,7 @@ export default function SignalsPage() {
             {buys.length > 0 ? buys.map((signal) => (
               <SignalCard key={signal.symbol} signal={signal} />
             )) : (
-              <p className="text-zinc-500 text-center py-4">No buy signals</p>
+              <p className="text-zinc-500 text-center py-6 text-sm">No buy signals right now. The market may be bearish or between scan cycles.</p>
             )}
           </div>
         </div>
@@ -186,7 +191,7 @@ export default function SignalsPage() {
             {sells.length > 0 ? sells.map((signal) => (
               <SignalCard key={signal.symbol} signal={signal} />
             )) : (
-              <p className="text-zinc-500 text-center py-4">No sell signals</p>
+              <p className="text-zinc-500 text-center py-6 text-sm">No sell signals right now. The market may be bullish or between scan cycles.</p>
             )}
           </div>
         </div>

@@ -117,8 +117,10 @@ export default function PositionsPage() {
             ))}
           </div>
         ) : (
-          <div className="p-8 text-center text-zinc-500">
-            No open positions
+          <div className="p-8 text-center">
+            <TrendingUp className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
+            <p className="text-zinc-400 font-medium mb-1">No open positions</p>
+            <p className="text-zinc-600 text-sm">Positions open automatically when the system detects strong signals with high confidence.</p>
           </div>
         )}
       </div>
@@ -139,8 +141,10 @@ export default function PositionsPage() {
             ))}
           </div>
         ) : (
-          <div className="p-8 text-center text-zinc-500">
-            No closed trades today
+          <div className="p-8 text-center">
+            <DollarSign className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
+            <p className="text-zinc-400 font-medium mb-1">No closed trades today</p>
+            <p className="text-zinc-600 text-sm">Trades close when stop-loss, take-profit, or trailing stop conditions are met.</p>
           </div>
         )}
       </div>
