@@ -59,7 +59,7 @@ export function TimeAgo({
 
   return (
     <span
-      className={`text-xs ${stale ? "text-amber-500" : "text-zinc-500"} ${className}`}
+      className={`text-xs ${stale ? "text-orange-accent" : "text-white-dim"} ${className}`}
       title={new Date(timestamp).toLocaleString()}
     >
       {prefix} {relativeTime}

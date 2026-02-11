@@ -29,12 +29,10 @@ export function Navigation() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // Close drawer on route change
   useEffect(() => {
     setMobileOpen(false);
   }, [pathname]);
 
-  // Prevent body scroll when drawer is open
   useEffect(() => {
     document.body.style.overflow = mobileOpen ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
@@ -42,13 +40,14 @@ export function Navigation() {
 
   return (
     <>
-      <header className="bg-zinc-900 border-b border-zinc-800 sticky top-0 z-50">
+      <header className="bg-black-deep border-b-2 border-red-hot sticky top-0 z-50">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center gap-8">
               <Link href="/" className="flex items-center gap-2">
-                <span className="text-2xl">📈</span>
-                <span className="font-bold text-xl">Apex Trader</span>
+                <span className="text-xl font-bold text-red-hot uppercase tracking-tight">
+                  APEX // TRADER
+                </span>
               </Link>
               <nav className="hidden lg:flex items-center gap-1">
                 {navItems.map((item) => {
@@ -58,10 +57,10 @@ export function Navigation() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold uppercase tracking-wide transition-all ${
                         isActive
-                          ? "bg-emerald-600 text-white"
-                          : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                          ? "bg-red-hot text-white border border-red-hot"
+                          : "text-white-muted hover:text-orange-accent hover:bg-black-card border border-transparent"
                       }`}
                     >
                       <Icon className="w-3.5 h-3.5" />
@@ -71,10 +70,9 @@ export function Navigation() {
                 })}
               </nav>
             </div>
-            {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
-              className="lg:hidden p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+              className="lg:hidden p-2 text-white-muted hover:text-red-hot transition-colors"
               aria-label={mobileOpen ? "Close menu" : "Open menu"}
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -83,7 +81,6 @@ export function Navigation() {
         </div>
       </header>
 
-      {/* Mobile drawer overlay */}
       {mobileOpen && (
         <div
           className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
@@ -91,9 +88,8 @@ export function Navigation() {
         />
       )}
 
-      {/* Mobile drawer */}
       <nav
-        className={`fixed top-14 right-0 bottom-0 z-50 w-64 bg-zinc-900 border-l border-zinc-800 overflow-y-auto transition-transform duration-200 ease-out lg:hidden ${
+        className={`fixed top-14 right-0 bottom-0 z-50 w-64 bg-black-deep border-l-2 border-red-hot overflow-y-auto transition-transform duration-200 ease-out lg:hidden ${
           mobileOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
@@ -105,14 +101,14 @@ export function Navigation() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                className={`flex items-center gap-3 px-4 py-3 text-xs font-bold uppercase tracking-wide transition-all ${
                   isActive
-                    ? "bg-emerald-600 text-white"
-                    : "text-zinc-400 hover:text-white hover:bg-zinc-800"
+                    ? "bg-red-hot text-white"
+                    : "text-white-muted hover:text-orange-accent hover:bg-black-card"
                 }`}
               >
                 <Icon className="w-4 h-4" />
-                <span className="text-sm font-medium">{item.label}</span>
+                <span>{item.label}</span>
               </Link>
             );
           })}

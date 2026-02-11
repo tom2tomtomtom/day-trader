@@ -131,7 +131,7 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-hot"></div>
       </div>
     );
   }
@@ -159,7 +159,7 @@ export default function Dashboard() {
       {/* Fear & Greed + Top Picks Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Fear & Greed */}
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+        <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
           <h2 className="text-lg font-semibold mb-2 text-center">Market Sentiment</h2>
           {signals?.market_context ? (
             <FearGreedGauge
@@ -167,20 +167,20 @@ export default function Dashboard() {
               label={signals.market_context.fear_greed_label}
             />
           ) : (
-            <div className="flex items-center justify-center h-40 text-zinc-500">
+            <div className="flex items-center justify-center h-40 text-white-dim">
               Loading...
             </div>
           )}
         </div>
 
         {/* Top Picks */}
-        <div className="lg:col-span-2 bg-gradient-to-r from-emerald-900/20 to-zinc-900 rounded-xl p-6 border border-emerald-800/30">
+        <div className="lg:col-span-2 bg-gradient-to-r from-red-hot/20 to-black-card rounded-xl p-6 border border-red-hot/30">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Zap className="w-5 h-5 text-yellow-500" />
+              <Zap className="w-5 h-5 text-yellow-electric" />
               Top Picks
             </h2>
-            <Link href="/signals" className="text-sm text-emerald-500 hover:text-emerald-400">
+            <Link href="/signals" className="text-sm text-orange-accent hover:text-orange-accent">
               View all →
             </Link>
           </div>
@@ -188,32 +188,32 @@ export default function Dashboard() {
           {topPicks.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {topPicks.map((signal, idx) => (
-                <div key={signal.symbol} className="bg-zinc-800/80 rounded-lg p-4">
+                <div key={signal.symbol} className="bg-black-deep/80 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-bold text-zinc-500">#{idx + 1}</span>
+                      <span className="text-lg font-bold text-white-dim">#{idx + 1}</span>
                       <span className="font-bold">{signal.symbol}</span>
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full ${
                       signal.action === "STRONG_BUY"
-                        ? "bg-emerald-600 text-white"
-                        : "bg-emerald-600/50 text-emerald-300"
+                        ? "bg-red-hot text-white"
+                        : "bg-red-hot/50 text-orange-accent"
                     }`}>
                       {signal.action.replace("_", " ")}
                     </span>
                   </div>
                   <div className="text-xl font-semibold">${signal.price.toFixed(2)}</div>
-                  <div className="text-sm text-zinc-400 mt-1">
+                  <div className="text-sm text-white-muted mt-1">
                     {(signal.signal_score * 100).toFixed(0)}% confidence
                   </div>
-                  <div className="text-xs text-zinc-500 mt-2 line-clamp-1">
+                  <div className="text-xs text-white-dim mt-2 line-clamp-1">
                     {signal.reasons[0]}
                   </div>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-zinc-500 text-center py-8">
+            <div className="text-white-dim text-center py-8">
               {engine?.status === "active"
                 ? "No strong signals in current scan — the engine is actively analyzing"
                 : "Signals will appear as the engine scans markets"}
@@ -224,7 +224,7 @@ export default function Dashboard() {
 
       {/* Live Ticker */}
       {status?.positions && Object.keys(status.positions).length > 0 && (
-        <div className="overflow-hidden bg-zinc-900/50 border border-zinc-800 rounded-lg">
+        <div className="overflow-hidden bg-black-card/50 border border-border-subtle rounded-lg">
           <div className="flex animate-marquee whitespace-nowrap py-2 px-4">
             {Object.entries(status.positions).concat(Object.entries(status.positions)).map(([sym, pos], idx) => {
               const pnl = pos.pnl ?? 0;
@@ -232,9 +232,9 @@ export default function Dashboard() {
               const isUp = pnl >= 0;
               return (
                 <span key={`${sym}-${idx}`} className="inline-flex items-center gap-2 mx-6 text-sm">
-                  <span className="font-bold text-zinc-200">{sym}</span>
-                  <span className="text-zinc-400">${pos.current_price?.toFixed(2) ?? pos.entry_price?.toFixed(2)}</span>
-                  <span className={isUp ? "text-emerald-400" : "text-red-400"}>
+                  <span className="font-bold text-white-full">{sym}</span>
+                  <span className="text-white-muted">${pos.current_price?.toFixed(2) ?? pos.entry_price?.toFixed(2)}</span>
+                  <span className={isUp ? "text-orange-accent" : "text-red-hot"}>
                     {isUp ? "+" : ""}{pnlPct?.toFixed(2)}%
                   </span>
                 </span>
@@ -275,29 +275,29 @@ export default function Dashboard() {
       </div>
 
       {/* Market Status */}
-      <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+      <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
         <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+          <span className="w-2 h-2 bg-red-hot rounded-full animate-pulse"></span>
           Market Status
         </h2>
         <div className="flex flex-wrap gap-4">
           {marketStatus?.active_markets?.length ? (
             <>
-              <span className="text-zinc-400">Open now:</span>
+              <span className="text-white-muted">Open now:</span>
               {marketStatus.active_markets.map((market) => (
                 <span
                   key={market}
-                  className="px-3 py-1 bg-emerald-600/20 text-emerald-400 rounded-full text-sm"
+                  className="px-3 py-1 bg-red-hot/20 text-orange-accent rounded-full text-sm"
                 >
                   {market}
                 </span>
               ))}
             </>
           ) : (
-            <span className="text-zinc-400">All markets closed</span>
+            <span className="text-white-muted">All markets closed</span>
           )}
           {marketStatus?.global_regime && (
-            <span className="ml-auto text-zinc-400">
+            <span className="ml-auto text-white-muted">
               Global: <span className="text-white">{marketStatus.global_regime}</span>
             </span>
           )}
@@ -306,14 +306,14 @@ export default function Dashboard() {
 
       {/* Chart and Positions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+        <div className="lg:col-span-2 bg-black-card rounded-xl p-6 border border-border-subtle">
           <h2 className="text-lg font-semibold mb-4">SPY Chart</h2>
           <div className="h-80">
             <PriceChart symbol="SPY" />
           </div>
         </div>
 
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+        <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
           <h2 className="text-lg font-semibold mb-4">Open Positions</h2>
           {status?.positions && Object.keys(status.positions).length > 0 ? (
             <div className="space-y-3">
@@ -323,9 +323,9 @@ export default function Dashboard() {
             </div>
           ) : (
             <div className="text-center py-8">
-              <p className="text-zinc-500">No open positions</p>
+              <p className="text-white-dim">No open positions</p>
               {engine?.status === "active" && (
-                <p className="text-zinc-500 text-xs mt-2">
+                <p className="text-white-dim text-xs mt-2">
                   Engine scanning — positions open when signals hit
                 </p>
               )}
@@ -350,8 +350,8 @@ function EngineStatusBanner({
 
   const statusConfig = {
     active: {
-      color: "border-emerald-700 bg-emerald-900/20",
-      dot: "bg-emerald-500",
+      color: "border-red-hot bg-red-dim/20",
+      dot: "bg-red-hot",
       label: "Engine Active",
       desc: "Scanning markets and executing trades",
     },
@@ -362,14 +362,14 @@ function EngineStatusBanner({
       desc: "Last scan was a while ago — may be between cycles",
     },
     stale: {
-      color: "border-red-700 bg-red-900/20",
-      dot: "bg-red-500",
+      color: "border-red-700 bg-red-hot/20",
+      dot: "bg-red-hot",
       label: "Engine Stale",
       desc: "No recent scans detected — check Railway deployment",
     },
     disconnected: {
-      color: "border-zinc-700 bg-zinc-900",
-      dot: "bg-zinc-500",
+      color: "border-border-subtle bg-black-card",
+      dot: "bg-white-dim",
       label: "Not Connected",
       desc: "Supabase not configured — running in offline mode",
     },
@@ -380,17 +380,17 @@ function EngineStatusBanner({
   return (
     <div className={`rounded-lg border px-4 py-3 flex items-center justify-between ${cfg.color}`}>
       <div className="flex items-center gap-3">
-        <Radio className="w-4 h-4 text-zinc-400" />
+        <Radio className="w-4 h-4 text-white-muted" />
         <span className={`w-2 h-2 rounded-full ${cfg.dot} ${engine.status === "active" ? "animate-pulse" : ""}`} />
         <span className="font-medium text-sm">{cfg.label}</span>
-        <span className="text-zinc-500 text-xs hidden sm:inline">{cfg.desc}</span>
+        <span className="text-white-dim text-xs hidden sm:inline">{cfg.desc}</span>
       </div>
-      <div className="flex items-center gap-4 text-xs text-zinc-500">
+      <div className="flex items-center gap-4 text-xs text-white-dim">
         {engine.last_scan && (
           <span>Last scan: {timeAgo(engine.last_scan)}</span>
         )}
         {lastUpdated && source === "supabase" && (
-          <span className="text-zinc-500">via Supabase</span>
+          <span className="text-white-dim">via Supabase</span>
         )}
       </div>
     </div>
@@ -417,14 +417,14 @@ function StatCard({
   const isPositive = positive ?? (trend ? trend >= 0 : true);
 
   return (
-    <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+    <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-zinc-400 text-sm">{title}</span>
-        <Icon className={`w-5 h-5 ${isPositive ? "text-emerald-500" : "text-red-500"}`} />
+        <span className="text-white-muted text-sm">{title}</span>
+        <Icon className={`w-5 h-5 ${isPositive ? "text-orange-accent" : "text-red-hot"}`} />
       </div>
       <div className="text-2xl font-bold">{value}</div>
       {(trendLabel || subtitle) && (
-        <div className={`text-sm mt-1 ${isPositive ? "text-emerald-500" : "text-red-500"}`}>
+        <div className={`text-sm mt-1 ${isPositive ? "text-orange-accent" : "text-red-hot"}`}>
           {trendLabel || subtitle}
         </div>
       )}
@@ -437,22 +437,22 @@ function PositionCard({ position }: { position: Position }) {
   const isProfitable = (position.pnl ?? 0) >= 0;
 
   return (
-    <div className="bg-zinc-800 rounded-lg p-4">
+    <div className="bg-black-deep rounded-lg p-4">
       <div className="flex items-center justify-between mb-2">
         <span className="font-semibold">{position.symbol}</span>
         <span
           className={`text-xs px-2 py-1 rounded ${
-            isLong ? "bg-emerald-600/20 text-emerald-400" : "bg-red-600/20 text-red-400"
+            isLong ? "bg-red-hot/20 text-orange-accent" : "bg-red-hot/20 text-red-hot"
           }`}
         >
           {position.direction}
         </span>
       </div>
-      <div className="text-sm text-zinc-400">
+      <div className="text-sm text-white-muted">
         {position.shares} shares @ ${position.entry_price?.toFixed(2)}
       </div>
       {position.pnl !== undefined && (
-        <div className={`text-sm mt-1 ${isProfitable ? "text-emerald-500" : "text-red-500"}`}>
+        <div className={`text-sm mt-1 ${isProfitable ? "text-orange-accent" : "text-red-hot"}`}>
           {isProfitable ? "+" : ""}${position.pnl?.toFixed(2)} ({position.pnl_pct?.toFixed(2)}%)
         </div>
       )}

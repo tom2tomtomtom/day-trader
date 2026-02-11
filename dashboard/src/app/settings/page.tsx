@@ -137,7 +137,7 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20 gap-3 text-zinc-400">
+      <div className="flex items-center justify-center py-20 gap-3 text-white-muted">
         <Loader2 className="w-5 h-5 animate-spin" />
         Loading system status...
       </div>
@@ -146,7 +146,7 @@ export default function SettingsPage() {
 
   if (!data) {
     return (
-      <div className="flex items-center justify-center py-20 gap-3 text-red-400">
+      <div className="flex items-center justify-center py-20 gap-3 text-red-hot">
         <XCircle className="w-5 h-5" />
         Failed to load settings
       </div>
@@ -159,7 +159,7 @@ export default function SettingsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Settings</h1>
-          <p className="text-zinc-400 mt-1">
+          <p className="text-white-muted mt-1">
             System configuration and service status
           </p>
         </div>
@@ -168,7 +168,7 @@ export default function SettingsPage() {
             setLoading(true);
             fetchSettings();
           }}
-          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-sm transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-black-deep hover:bg-black-card text-white-muted text-sm transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           Refresh
@@ -178,10 +178,10 @@ export default function SettingsPage() {
       {/* ── 1. Service Connections ───────────────────────────────── */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <Zap className="w-5 h-5 text-emerald-400" />
+          <Zap className="w-5 h-5 text-orange-accent" />
           <h2 className="text-lg font-semibold">Service Connections</h2>
         </div>
-        <div className="bg-zinc-900 rounded-xl border border-zinc-800 divide-y divide-zinc-800">
+        <div className="bg-black-card rounded-xl border border-border-subtle divide-y divide-border-subtle">
           {data.services.map((svc) => {
             const result = testResults[svc.id];
             const isTesting = testingService === svc.id;
@@ -190,7 +190,7 @@ export default function SettingsPage() {
               <div key={svc.id} className="p-5">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <span className="text-zinc-400">
+                    <span className="text-white-muted">
                       {serviceIcons[svc.id] || (
                         <Server className="w-5 h-5" />
                       )}
@@ -199,12 +199,12 @@ export default function SettingsPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     {svc.configured ? (
-                      <span className="flex items-center gap-1.5 text-emerald-400 text-sm">
+                      <span className="flex items-center gap-1.5 text-orange-accent text-sm">
                         <Check className="w-4 h-4" />
                         Connected
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1.5 text-red-400 text-sm">
+                      <span className="flex items-center gap-1.5 text-red-hot text-sm">
                         <X className="w-4 h-4" />
                         Not configured
                       </span>
@@ -212,7 +212,7 @@ export default function SettingsPage() {
                     <button
                       disabled={!svc.configured || isTesting}
                       onClick={() => testConnection(svc.id)}
-                      className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-md text-xs font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed bg-black-deep hover:bg-black-card text-white-muted"
                     >
                       {isTesting ? (
                         <Loader2 className="w-3 h-3 animate-spin" />
@@ -229,7 +229,7 @@ export default function SettingsPage() {
                   <div
                     className={`mt-3 flex items-start gap-2 text-sm rounded-lg px-3 py-2 ${
                       result.ok
-                        ? "bg-emerald-950/40 text-emerald-300 border border-emerald-900/50"
+                        ? "bg-red-hot/20 text-orange-accent border border-red-hot/30"
                         : "bg-red-950/40 text-red-300 border border-red-900/50"
                     }`}
                   >
@@ -252,7 +252,7 @@ export default function SettingsPage() {
             );
           })}
         </div>
-        <p className="mt-2 text-xs text-zinc-500">
+        <p className="mt-2 text-xs text-white-dim">
           API keys are managed via Railway environment variables. The worker
           service reads them automatically.
         </p>
@@ -261,23 +261,23 @@ export default function SettingsPage() {
       {/* ── 2. Feature Flags ────────────────────────────────────── */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <ToggleLeft className="w-5 h-5 text-amber-400" />
+          <ToggleLeft className="w-5 h-5 text-orange-accent" />
           <h2 className="text-lg font-semibold">Feature Flags</h2>
         </div>
-        <div className="bg-zinc-900 rounded-xl border border-zinc-800 divide-y divide-zinc-800">
+        <div className="bg-black-card rounded-xl border border-border-subtle divide-y divide-border-subtle">
           {data.featureFlags.map((flag) => (
             <div key={flag.id} className="flex items-center justify-between p-5">
               <div className="flex items-start gap-3">
                 <Circle
                   className={`w-3 h-3 mt-1.5 shrink-0 ${
                     flag.enabled
-                      ? "fill-emerald-400 text-emerald-400"
-                      : "fill-zinc-600 text-zinc-600"
+                      ? "fill-orange-accent text-orange-accent"
+                      : "fill-white-dim text-white-dim"
                   }`}
                 />
                 <div>
                   <div className="font-medium">{flag.label}</div>
-                  <div className="text-sm text-zinc-400">
+                  <div className="text-sm text-white-muted">
                     {flag.description}
                   </div>
                 </div>
@@ -285,8 +285,8 @@ export default function SettingsPage() {
               <span
                 className={`text-xs font-mono px-2 py-1 rounded ${
                   flag.enabled
-                    ? "bg-emerald-950/60 text-emerald-400 border border-emerald-900/50"
-                    : "bg-zinc-800 text-zinc-500"
+                    ? "bg-red-hot/30 text-orange-accent border border-red-hot/30"
+                    : "bg-black-deep text-white-dim"
                 }`}
               >
                 {flag.id}
@@ -294,7 +294,7 @@ export default function SettingsPage() {
             </div>
           ))}
         </div>
-        <div className="mt-2 flex items-start gap-1.5 text-xs text-zinc-500">
+        <div className="mt-2 flex items-start gap-1.5 text-xs text-white-dim">
           <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
           <span>
             Feature flags are configured via Railway environment variables.
@@ -306,18 +306,18 @@ export default function SettingsPage() {
       {/* ── 3. Trading Universe ─────────────────────────────────── */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <TrendingUp className="w-5 h-5 text-blue-400" />
+          <TrendingUp className="w-5 h-5 text-orange-accent" />
           <h2 className="text-lg font-semibold">Trading Universe</h2>
         </div>
-        <div className="bg-zinc-900 rounded-xl border border-zinc-800 p-5 space-y-5">
+        <div className="bg-black-card rounded-xl border border-border-subtle p-5 space-y-5">
           {/* Stocks */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <BarChart3 className="w-4 h-4 text-zinc-400" />
-              <span className="text-sm font-medium text-zinc-300">
+              <BarChart3 className="w-4 h-4 text-white-muted" />
+              <span className="text-sm font-medium text-white-muted">
                 Stocks
               </span>
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-white-dim">
                 ({data.tradingUniverse.stocks.length})
               </span>
             </div>
@@ -325,7 +325,7 @@ export default function SettingsPage() {
               {data.tradingUniverse.stocks.map((sym) => (
                 <span
                   key={sym}
-                  className="px-2.5 py-1 rounded-md bg-zinc-800 text-zinc-200 text-sm font-mono border border-zinc-700/50 hover:border-zinc-600 transition-colors"
+                  className="px-2.5 py-1 rounded-md bg-black-deep text-white-full text-sm font-mono border border-border-subtle/50 hover:border-border-strong transition-colors"
                 >
                   {sym}
                 </span>
@@ -333,16 +333,16 @@ export default function SettingsPage() {
             </div>
           </div>
 
-          <div className="border-t border-zinc-800" />
+          <div className="border-t border-border-subtle" />
 
           {/* Crypto */}
           <div>
             <div className="flex items-center gap-2 mb-3">
-              <Bitcoin className="w-4 h-4 text-amber-400" />
-              <span className="text-sm font-medium text-zinc-300">
+              <Bitcoin className="w-4 h-4 text-orange-accent" />
+              <span className="text-sm font-medium text-white-muted">
                 Crypto
               </span>
-              <span className="text-xs text-zinc-500">
+              <span className="text-xs text-white-dim">
                 ({data.tradingUniverse.crypto.length})
               </span>
             </div>
@@ -350,7 +350,7 @@ export default function SettingsPage() {
               {data.tradingUniverse.crypto.map((sym) => (
                 <span
                   key={sym}
-                  className="px-2.5 py-1 rounded-md bg-amber-950/30 text-amber-200 text-sm font-mono border border-amber-900/30 hover:border-amber-700/50 transition-colors"
+                  className="px-2.5 py-1 rounded-md bg-orange-accent/20 text-orange-accent text-sm font-mono border border-orange-accent/30 hover:border-orange-accent/50 transition-colors"
                 >
                   {sym}
                 </span>
@@ -358,7 +358,7 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
-        <p className="mt-2 text-xs text-zinc-500">
+        <p className="mt-2 text-xs text-white-dim">
           Sourced from the watchlist table in Supabase. Falls back to defaults
           if unavailable.
         </p>
@@ -367,10 +367,10 @@ export default function SettingsPage() {
       {/* ── 4. System Info ──────────────────────────────────────── */}
       <section>
         <div className="flex items-center gap-2 mb-3">
-          <Cpu className="w-5 h-5 text-purple-400" />
+          <Cpu className="w-5 h-5 text-red-hot" />
           <h2 className="text-lg font-semibold">System Info</h2>
         </div>
-        <div className="bg-zinc-900 rounded-xl border border-zinc-800 divide-y divide-zinc-800">
+        <div className="bg-black-card rounded-xl border border-border-subtle divide-y divide-border-subtle">
           <InfoRow
             icon={<Server className="w-4 h-4" />}
             label="Railway Project"
@@ -420,11 +420,11 @@ function InfoRow({
 }) {
   return (
     <div className="flex items-center justify-between px-5 py-3.5">
-      <div className="flex items-center gap-3 text-zinc-400">
+      <div className="flex items-center gap-3 text-white-muted">
         {icon}
         <span className="text-sm">{label}</span>
       </div>
-      <span className="font-mono text-sm text-zinc-200">{value}</span>
+      <span className="font-mono text-sm text-white-full">{value}</span>
     </div>
   );
 }

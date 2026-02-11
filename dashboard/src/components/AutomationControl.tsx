@@ -31,29 +31,37 @@ interface AutomationStatus {
 }
 
 const MODE_CONFIG = {
-  FULL_AUTO: { 
-    icon: Zap, 
-    color: "emerald", 
+  FULL_AUTO: {
+    icon: Zap,
     label: "Full Auto",
-    description: "Scanning and trading automatically"
+    description: "Scanning and trading automatically",
+    activeClass: "bg-red-hot text-white",
+    iconClass: "text-red-hot",
+    bgClass: "bg-red-hot/20",
   },
-  APPROVAL: { 
-    icon: ShieldCheck, 
-    color: "yellow", 
+  APPROVAL: {
+    icon: ShieldCheck,
     label: "Approval Mode",
-    description: "Trades queued for your approval"
+    description: "Trades queued for your approval",
+    activeClass: "bg-orange-accent text-white",
+    iconClass: "text-orange-accent",
+    bgClass: "bg-orange-accent/20",
   },
-  PAUSED: { 
-    icon: Pause, 
-    color: "zinc", 
+  PAUSED: {
+    icon: Pause,
     label: "Paused",
-    description: "Managing existing positions only"
+    description: "Managing existing positions only",
+    activeClass: "bg-white-dim text-white",
+    iconClass: "text-white-dim",
+    bgClass: "bg-white-faint",
   },
-  STOPPED: { 
-    icon: Square, 
-    color: "red", 
+  STOPPED: {
+    icon: Square,
     label: "Stopped",
-    description: "All automation disabled"
+    description: "All automation disabled",
+    activeClass: "bg-red-dim text-white",
+    iconClass: "text-red-dim",
+    bgClass: "bg-red-dim/20",
   },
 };
 
@@ -163,9 +171,9 @@ export function AutomationControl() {
 
   if (loading || !status) {
     return (
-      <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800 animate-pulse">
-        <div className="h-6 bg-zinc-800 rounded w-1/3 mb-4"></div>
-        <div className="h-10 bg-zinc-800 rounded"></div>
+      <div className="bg-black-card p-6 border border-border-subtle animate-pulse">
+        <div className="h-6 bg-black-deep w-1/3 mb-4"></div>
+        <div className="h-10 bg-black-deep"></div>
       </div>
     );
   }
@@ -176,22 +184,22 @@ export function AutomationControl() {
   return (
     <div className="space-y-4">
       {/* Main Control Panel */}
-      <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+      <div className="bg-black-card p-6 border border-border-subtle">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className={`p-2 rounded-lg bg-${currentMode.color}-600/20`}>
-              <ModeIcon className={`w-6 h-6 text-${currentMode.color}-500`} />
+            <div className={`p-2 ${currentMode.bgClass}`}>
+              <ModeIcon className={`w-6 h-6 ${currentMode.iconClass}`} />
             </div>
             <div>
               <h2 className="font-semibold text-lg">{currentMode.label}</h2>
-              <p className="text-sm text-zinc-400">{currentMode.description}</p>
+              <p className="text-sm text-white-muted">{currentMode.description}</p>
             </div>
           </div>
-          
+
           {status.active_markets.length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-              <span className="text-sm text-zinc-400">
+              <span className="w-2 h-2 bg-red-hot animate-pulse"></span>
+              <span className="text-sm text-white-muted">
                 {status.active_markets.join(", ")} open
               </span>
             </div>
@@ -203,49 +211,49 @@ export function AutomationControl() {
           <button
             onClick={() => setMode("FULL_AUTO")}
             disabled={actionLoading !== null}
-            className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+            className={`flex items-center justify-center gap-2 px-3 py-2 transition-colors ${
               status.mode === "FULL_AUTO"
-                ? "bg-emerald-600 text-white"
-                : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
+                ? "bg-red-hot text-white"
+                : "bg-black-deep hover:bg-black-card text-white-muted"
             }`}
           >
             <Zap className="w-4 h-4" />
             <span className="text-sm">Auto</span>
           </button>
-          
+
           <button
             onClick={() => setMode("APPROVAL")}
             disabled={actionLoading !== null}
-            className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+            className={`flex items-center justify-center gap-2 px-3 py-2 transition-colors ${
               status.mode === "APPROVAL"
-                ? "bg-yellow-600 text-white"
-                : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
+                ? "bg-orange-accent text-white"
+                : "bg-black-deep hover:bg-black-card text-white-muted"
             }`}
           >
             <ShieldCheck className="w-4 h-4" />
             <span className="text-sm">Approve</span>
           </button>
-          
+
           <button
             onClick={() => setMode("PAUSED")}
             disabled={actionLoading !== null}
-            className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+            className={`flex items-center justify-center gap-2 px-3 py-2 transition-colors ${
               status.mode === "PAUSED"
-                ? "bg-zinc-600 text-white"
-                : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
+                ? "bg-white-dim text-white"
+                : "bg-black-deep hover:bg-black-card text-white-muted"
             }`}
           >
             <Pause className="w-4 h-4" />
             <span className="text-sm">Pause</span>
           </button>
-          
+
           <button
             onClick={() => setMode("STOPPED")}
             disabled={actionLoading !== null}
-            className={`flex items-center justify-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+            className={`flex items-center justify-center gap-2 px-3 py-2 transition-colors ${
               status.mode === "STOPPED"
-                ? "bg-red-600 text-white"
-                : "bg-zinc-800 hover:bg-zinc-700 text-zinc-300"
+                ? "bg-red-dim text-white"
+                : "bg-black-deep hover:bg-black-card text-white-muted"
             }`}
           >
             <Square className="w-4 h-4" />
@@ -258,16 +266,16 @@ export function AutomationControl() {
           <button
             onClick={runScan}
             disabled={actionLoading !== null}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-black-deep hover:bg-black-card transition-colors"
           >
             <RefreshCw className={`w-4 h-4 ${actionLoading === "scan" ? "animate-spin" : ""}`} />
             <span>Run Scan</span>
           </button>
-          
+
           <button
             onClick={runTradeCycle}
             disabled={actionLoading !== null || status.mode === "STOPPED"}
-            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-zinc-800 hover:bg-zinc-700 disabled:opacity-50 rounded-lg transition-colors"
+            className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-black-deep hover:bg-black-card disabled:opacity-50 transition-colors"
           >
             <Play className={`w-4 h-4 ${actionLoading === "trade" ? "animate-pulse" : ""}`} />
             <span>Run Trade Cycle</span>
@@ -275,51 +283,51 @@ export function AutomationControl() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-zinc-800">
+        <div className="grid grid-cols-3 gap-4 mt-6 pt-4 border-t border-border-subtle">
           <div className="text-center">
             <div className="text-2xl font-bold">{status.trades_today}</div>
-            <div className="text-xs text-zinc-400">
+            <div className="text-xs text-white-muted">
               Trades Today / {status.config.max_daily_trades}
             </div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold">{status.open_positions}</div>
-            <div className="text-xs text-zinc-400">Open Positions</div>
+            <div className="text-xs text-white-muted">Open Positions</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-yellow-500">{status.pending_count}</div>
-            <div className="text-xs text-zinc-400">Pending Approval</div>
+            <div className="text-2xl font-bold text-orange-accent">{status.pending_count}</div>
+            <div className="text-xs text-white-muted">Pending Approval</div>
           </div>
         </div>
       </div>
 
       {/* Pending Trades */}
       {status.pending_trades.length > 0 && (
-        <div className="bg-zinc-900 rounded-xl border border-yellow-600/50">
-          <div className="p-4 border-b border-zinc-800 flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-yellow-500" />
+        <div className="bg-black-card border border-orange-accent/50">
+          <div className="p-4 border-b border-border-subtle flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-orange-accent" />
             <h3 className="font-semibold">Pending Approval ({status.pending_trades.length})</h3>
           </div>
-          <div className="divide-y divide-zinc-800">
+          <div className="divide-y divide-border-subtle">
             {status.pending_trades.map((trade) => (
               <div key={trade.id} className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div>
                     <span className={`font-bold ${
-                      trade.action === "LONG" || trade.action === "BUY" 
-                        ? "text-emerald-500" 
-                        : "text-red-500"
+                      trade.action === "LONG" || trade.action === "BUY"
+                        ? "text-orange-accent"
+                        : "text-red-hot"
                     }`}>
                       {trade.action}
                     </span>
                     <span className="ml-2 font-semibold">{trade.symbol}</span>
-                    <span className="ml-2 text-zinc-400">@ ${trade.price.toFixed(2)}</span>
+                    <span className="ml-2 text-white-muted">@ ${trade.price.toFixed(2)}</span>
                   </div>
                   <div className="flex gap-2">
                     <button
                       onClick={() => approveTrade(trade.id)}
                       disabled={actionLoading !== null}
-                      className="flex items-center gap-1 px-3 py-1 bg-emerald-600 hover:bg-emerald-700 rounded text-sm"
+                      className="flex items-center gap-1 px-3 py-1 bg-red-hot hover:bg-red-dim text-sm"
                     >
                       <CheckCircle className="w-4 h-4" />
                       Approve
@@ -327,14 +335,14 @@ export function AutomationControl() {
                     <button
                       onClick={() => rejectTrade(trade.id)}
                       disabled={actionLoading !== null}
-                      className="flex items-center gap-1 px-3 py-1 bg-red-600 hover:bg-red-700 rounded text-sm"
+                      className="flex items-center gap-1 px-3 py-1 bg-red-dim hover:bg-red-hot text-sm"
                     >
                       <XCircle className="w-4 h-4" />
                       Reject
                     </button>
                   </div>
                 </div>
-                <div className="text-sm text-zinc-400">{trade.reason}</div>
+                <div className="text-sm text-white-muted">{trade.reason}</div>
               </div>
             ))}
           </div>

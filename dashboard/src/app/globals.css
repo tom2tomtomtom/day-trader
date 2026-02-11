@@ -1,39 +1,67 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* AIDEN Design System Colors */
+  --color-black-ink: #050505;
+  --color-black-deep: #0a0a0a;
+  --color-black-card: #0f0f0f;
+  --color-red-hot: #ff2e2e;
+  --color-red-dim: #cc2525;
+  --color-orange-accent: #ff6b00;
+  --color-yellow-electric: #ffeb3b;
+  --color-white-full: #ffffff;
+  --color-white-muted: rgba(255, 255, 255, 0.6);
+  --color-white-dim: rgba(255, 255, 255, 0.4);
+  --color-white-faint: rgba(255, 255, 255, 0.1);
+  --color-grid-lines: rgba(255, 255, 255, 0.02);
+  --color-border-subtle: rgba(255, 255, 255, 0.1);
+  --color-border-strong: rgba(255, 46, 46, 0.3);
+
+  /* Fonts */
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* AIDEN Global Styles */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: #050505;
+  color: #ffffff;
+  font-family: var(--font-geist-sans, ui-sans-serif, system-ui, sans-serif);
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 20px 20px;
 }
 
+/* CRITICAL: Sharp corners everywhere */
+* {
+  border-radius: 0 !important;
+}
+
+/* Focus states */
+:where(button, [role="button"], a, input, select, textarea):focus-visible {
+  box-shadow: 0 0 0 2px #ff2e2e;
+  outline: 2px solid #ff2e2e;
+  outline-offset: 2px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: #0a0a0a; }
+::-webkit-scrollbar-thumb { background: #ff2e2e; }
+::-webkit-scrollbar-thumb:hover { background: #cc2525; }
+
+/* Selection */
+::selection { background: #ff2e2e; color: #ffffff; }
+
+/* Marquee ticker animation */
 @keyframes marquee {
   0% { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
-
 .animate-marquee {
   animation: marquee 20s linear infinite;
 }
-
 .animate-marquee:hover {
   animation-play-state: paused;
 }

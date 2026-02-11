@@ -86,37 +86,37 @@ interface IntelData {
 }
 
 function severityColor(severity: string): string {
-  if (severity === "critical") return "bg-red-600/20 text-red-400 border-red-500/30";
-  if (severity === "high") return "bg-orange-600/20 text-orange-400 border-orange-500/30";
-  if (severity === "medium") return "bg-yellow-600/20 text-yellow-400 border-yellow-500/30";
-  return "bg-zinc-700/50 text-zinc-400 border-zinc-600/30";
+  if (severity === "critical") return "bg-red-hot/20 text-red-hot border-red-hot/30";
+  if (severity === "high") return "bg-orange-accent/20 text-orange-accent border-orange-500/30";
+  if (severity === "medium") return "bg-yellow-600/20 text-yellow-electric border-yellow-500/30";
+  return "bg-black-card/50 text-white-muted border-border-subtle";
 }
 
 function scoreColor(score: number): string {
-  if (score >= 80) return "text-emerald-400";
-  if (score >= 60) return "text-blue-400";
-  if (score >= 40) return "text-yellow-400";
-  if (score >= 20) return "text-orange-400";
-  return "text-red-400";
+  if (score >= 80) return "text-orange-accent";
+  if (score >= 60) return "text-orange-accent";
+  if (score >= 40) return "text-yellow-electric";
+  if (score >= 20) return "text-orange-accent";
+  return "text-red-hot";
 }
 
 function convictionBadge(label: string): string {
   const styles: Record<string, string> = {
-    Maximum: "bg-emerald-600/20 text-emerald-400",
-    High: "bg-blue-600/20 text-blue-400",
-    Moderate: "bg-yellow-600/20 text-yellow-400",
-    Low: "bg-orange-600/20 text-orange-400",
-    "No Trade": "bg-red-600/20 text-red-400",
+    Maximum: "bg-red-hot/20 text-orange-accent",
+    High: "bg-orange-accent/20 text-orange-accent",
+    Moderate: "bg-yellow-600/20 text-yellow-electric",
+    Low: "bg-orange-accent/20 text-orange-accent",
+    "No Trade": "bg-red-hot/20 text-red-hot",
   };
-  return styles[label] || "bg-zinc-700 text-zinc-400";
+  return styles[label] || "bg-black-card text-white-muted";
 }
 
 const SCORE_LABELS: Record<string, { label: string; color: string }> = {
-  technical: { label: "Technical", color: "bg-blue-500" },
-  sentiment: { label: "Sentiment", color: "bg-purple-500" },
-  smart_money: { label: "Smart $", color: "bg-green-500" },
+  technical: { label: "Technical", color: "bg-orange-accent" },
+  sentiment: { label: "Sentiment", color: "bg-red-hot" },
+  smart_money: { label: "Smart $", color: "bg-orange-accent" },
   council: { label: "Council", color: "bg-yellow-500" },
-  macro: { label: "Macro", color: "bg-cyan-500" },
+  macro: { label: "Macro", color: "bg-orange-accent" },
   quality: { label: "Quality", color: "bg-pink-500" },
 };
 
@@ -149,19 +149,19 @@ export default function IntelPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-orange-accent"></div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-zinc-900 rounded-xl p-8 border border-zinc-800 text-center">
-        <AlertTriangle className="w-12 h-12 text-cyan-500/50 mx-auto mb-4" />
+      <div className="bg-black-card rounded-xl p-8 border border-border-subtle text-center">
+        <AlertTriangle className="w-12 h-12 text-orange-accent/50 mx-auto mb-4" />
         <h2 className="text-xl font-bold mb-2">Intelligence Briefing Not Available</h2>
-        <p className="text-zinc-400 mb-4 max-w-md mx-auto">{error}</p>
-        <p className="text-zinc-500 text-sm mb-4">Briefings run automatically at 9:00 AM and 4:30 PM ET. You can also trigger one manually:</p>
-        <code className="bg-zinc-800 px-4 py-2 rounded text-sm">
+        <p className="text-white-muted mb-4 max-w-md mx-auto">{error}</p>
+        <p className="text-white-dim text-sm mb-4">Briefings run automatically at 9:00 AM and 4:30 PM ET. You can also trigger one manually:</p>
+        <code className="bg-black-deep px-4 py-2 rounded text-sm">
           python3 -m core.orchestrator --intel
         </code>
       </div>
@@ -173,51 +173,51 @@ export default function IntelPage() {
   return (
     <div className="space-y-6">
       {/* Hero Header */}
-      <div className="bg-gradient-to-r from-cyan-900/30 via-purple-900/20 to-zinc-900 rounded-xl p-6 border border-cyan-800/30">
+      <div className="bg-gradient-to-r from-red-hot/30 via-red-hot/20 to-black-card rounded-xl p-6 border border-red-hot/30">
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-bold flex items-center gap-2 mb-2">
-              <Brain className="w-7 h-7 text-cyan-500" />
+              <Brain className="w-7 h-7 text-orange-accent" />
               Intelligence Briefing
             </h1>
-            <p className="text-xl font-semibold text-zinc-200 mb-2">
+            <p className="text-xl font-semibold text-white-full mb-2">
               {data.digest.headline}
             </p>
-            <p className="text-sm text-zinc-400 max-w-2xl">{data.digest.mood}</p>
+            <p className="text-sm text-white-muted max-w-2xl">{data.digest.mood}</p>
             <TimeAgo timestamp={data.timestamp} staleAfterMs={3600000} className="mt-2 inline-block" />
           </div>
           <div className="text-right space-y-2">
             <div className="flex gap-4">
               <div className="text-center">
-                <div className="text-xs text-zinc-500 mb-1">Risk</div>
+                <div className="text-xs text-white-dim mb-1">Risk</div>
                 <div
                   className={`text-2xl font-bold ${
                     data.market.risk_score > 60
-                      ? "text-red-400"
+                      ? "text-red-hot"
                       : data.market.risk_score > 40
-                        ? "text-yellow-400"
-                        : "text-emerald-400"
+                        ? "text-yellow-electric"
+                        : "text-orange-accent"
                   }`}
                 >
                   {data.market.risk_score.toFixed(0)}
                 </div>
               </div>
               <div className="text-center">
-                <div className="text-xs text-zinc-500 mb-1">Opportunity</div>
+                <div className="text-xs text-white-dim mb-1">Opportunity</div>
                 <div
                   className={`text-2xl font-bold ${
                     data.market.opportunity_score > 60
-                      ? "text-emerald-400"
+                      ? "text-orange-accent"
                       : data.market.opportunity_score > 40
-                        ? "text-yellow-400"
-                        : "text-red-400"
+                        ? "text-yellow-electric"
+                        : "text-red-hot"
                   }`}
                 >
                   {data.market.opportunity_score.toFixed(0)}
                 </div>
               </div>
             </div>
-            <div className="text-xs text-zinc-500">
+            <div className="text-xs text-white-dim">
               {data.stats.actionable_signals} actionable / {data.stats.symbols_analyzed} analyzed
             </div>
           </div>
@@ -226,55 +226,55 @@ export default function IntelPage() {
 
       {/* Market Context Row */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-          <div className="text-xs text-zinc-500 mb-1">Regime</div>
+        <div className="bg-black-card rounded-xl p-4 border border-border-subtle">
+          <div className="text-xs text-white-dim mb-1">Regime</div>
           <div className="font-semibold text-sm capitalize">
             {data.market.regime.replace(/_/g, " ")}
           </div>
-          <div className="text-xs text-zinc-500">Score: {data.market.regime_score}</div>
+          <div className="text-xs text-white-dim">Score: {data.market.regime_score}</div>
         </div>
-        <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-          <div className="text-xs text-zinc-500 mb-1">Fear & Greed</div>
+        <div className="bg-black-card rounded-xl p-4 border border-border-subtle">
+          <div className="text-xs text-white-dim mb-1">Fear & Greed</div>
           <div
             className={`font-semibold text-lg ${
               data.market.fear_greed < 25
-                ? "text-red-400"
+                ? "text-red-hot"
                 : data.market.fear_greed > 75
-                  ? "text-emerald-400"
-                  : "text-yellow-400"
+                  ? "text-orange-accent"
+                  : "text-yellow-electric"
             }`}
           >
             {data.market.fear_greed}
           </div>
         </div>
-        <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-          <div className="text-xs text-zinc-500 mb-1">VIX</div>
+        <div className="bg-black-card rounded-xl p-4 border border-border-subtle">
+          <div className="text-xs text-white-dim mb-1">VIX</div>
           <div
             className={`font-semibold text-lg ${
               data.market.vix > 30
-                ? "text-red-400"
+                ? "text-red-hot"
                 : data.market.vix > 20
-                  ? "text-yellow-400"
-                  : "text-emerald-400"
+                  ? "text-yellow-electric"
+                  : "text-orange-accent"
             }`}
           >
             {data.market.vix.toFixed(1)}
           </div>
         </div>
-        <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-          <div className="text-xs text-zinc-500 mb-1">Triggers</div>
+        <div className="bg-black-card rounded-xl p-4 border border-border-subtle">
+          <div className="text-xs text-white-dim mb-1">Triggers</div>
           <div className="font-semibold text-lg">
             {data.triggers.length}
             {data.critical_triggers > 0 && (
-              <span className="text-red-400 text-sm ml-1">
+              <span className="text-red-hot text-sm ml-1">
                 ({data.critical_triggers} critical)
               </span>
             )}
           </div>
         </div>
-        <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-          <div className="text-xs text-zinc-500 mb-1">Congress Signals</div>
-          <div className="font-semibold text-lg text-amber-400">
+        <div className="bg-black-card rounded-xl p-4 border border-border-subtle">
+          <div className="text-xs text-white-dim mb-1">Congress Signals</div>
+          <div className="font-semibold text-lg text-orange-accent">
             {data.congress?.signals || 0}
           </div>
         </div>
@@ -282,9 +282,9 @@ export default function IntelPage() {
 
       {/* Triggers */}
       {data.triggers.length > 0 && (
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+        <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-orange-400" />
+            <AlertTriangle className="w-5 h-5 text-orange-accent" />
             Active Macro Triggers
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -295,7 +295,7 @@ export default function IntelPage() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-semibold text-sm">{trigger.title}</span>
-                  <span className="text-xs uppercase px-2 py-0.5 rounded bg-zinc-800/50">
+                  <span className="text-xs uppercase px-2 py-0.5 rounded bg-black-deep/50">
                     {trigger.severity}
                   </span>
                 </div>
@@ -308,22 +308,22 @@ export default function IntelPage() {
 
       {/* Risk Warnings + Regime */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+        <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
           <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-cyan-400" />
+            <Activity className="w-5 h-5 text-orange-accent" />
             Regime Analysis
           </h2>
-          <p className="text-sm text-zinc-300">{data.digest.regime_narrative}</p>
+          <p className="text-sm text-white-muted">{data.digest.regime_narrative}</p>
         </div>
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+        <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
           <h2 className="text-lg font-semibold mb-3 flex items-center gap-2">
-            <Shield className="w-5 h-5 text-red-400" />
+            <Shield className="w-5 h-5 text-red-hot" />
             Risk Warnings
           </h2>
           <div className="space-y-2">
             {data.digest.risk_warnings.map((w, i) => (
-              <div key={i} className="text-sm text-zinc-300 flex gap-2">
-                <span className="text-red-500 mt-0.5">!</span>
+              <div key={i} className="text-sm text-white-muted flex gap-2">
+                <span className="text-red-hot mt-0.5">!</span>
                 <span>{w}</span>
               </div>
             ))}
@@ -332,21 +332,21 @@ export default function IntelPage() {
       </div>
 
       {/* Top Opportunities */}
-      <div className="bg-gradient-to-r from-emerald-900/20 to-zinc-900 rounded-xl p-6 border border-emerald-800/30">
+      <div className="bg-gradient-to-r from-red-hot/20 to-black-card rounded-xl p-6 border border-red-hot/30">
         <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <Target className="w-6 h-6 text-emerald-400" />
+          <Target className="w-6 h-6 text-orange-accent" />
           Top Opportunities
         </h2>
 
         <div className="space-y-4">
           {data.opportunities.slice(0, 8).map((opp) => (
-            <div key={opp.symbol} className="bg-zinc-800/50 rounded-xl overflow-hidden">
+            <div key={opp.symbol} className="bg-black-deep/50 rounded-xl overflow-hidden">
               {/* Summary Row */}
               <button
                 onClick={() =>
                   setExpandedOpp(expandedOpp === opp.symbol ? null : opp.symbol)
                 }
-                className="w-full text-left p-4 hover:bg-zinc-700/30 transition-colors"
+                className="w-full text-left p-4 hover:bg-black-card/30 transition-colors"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
@@ -355,10 +355,10 @@ export default function IntelPage() {
                       <span
                         className={`ml-2 text-sm ${
                           opp.action.includes("BUY")
-                            ? "text-emerald-400"
+                            ? "text-orange-accent"
                             : opp.action.includes("SELL")
-                              ? "text-red-400"
-                              : "text-zinc-400"
+                              ? "text-red-hot"
+                              : "text-white-muted"
                         }`}
                       >
                         {opp.action}
@@ -368,7 +368,7 @@ export default function IntelPage() {
                       {opp.conviction_label}
                     </div>
                     {opp.congress_buying > 0 && (
-                      <div className="text-xs bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded border border-amber-500/20">
+                      <div className="text-xs bg-orange-accent/10 text-orange-accent px-2 py-0.5 rounded border border-orange-accent/20">
                         Congress: {opp.congress_buying}B
                       </div>
                     )}
@@ -385,13 +385,13 @@ export default function IntelPage() {
                             className="flex flex-col items-center"
                             title={`${config?.label}: ${val.toFixed(1)}`}
                           >
-                            <div className="w-8 h-1.5 bg-zinc-700 rounded-full overflow-hidden">
+                            <div className="w-8 h-1.5 bg-black-card rounded-full overflow-hidden">
                               <div
-                                className={`h-full rounded-full ${config?.color || "bg-zinc-500"}`}
+                                className={`h-full rounded-full ${config?.color || "bg-white-dim"}`}
                                 style={{ width: `${Math.min(100, val * 4)}%` }}
                               />
                             </div>
-                            <span className="text-[10px] text-zinc-500 mt-0.5">
+                            <span className="text-[10px] text-white-dim mt-0.5">
                               {config?.label?.substring(0, 3)}
                             </span>
                           </div>
@@ -404,19 +404,19 @@ export default function IntelPage() {
                       <div className={`text-2xl font-bold ${scoreColor(opp.opportunity_score)}`}>
                         {opp.opportunity_score.toFixed(0)}
                       </div>
-                      <div className="text-[10px] text-zinc-500">/ 100</div>
+                      <div className="text-[10px] text-white-dim">/ 100</div>
                     </div>
                   </div>
                 </div>
 
-                <div className="text-sm text-zinc-400 mt-2">{opp.headline}</div>
+                <div className="text-sm text-white-muted mt-2">{opp.headline}</div>
 
                 {/* Tags */}
                 <div className="flex gap-1.5 mt-2">
                   {opp.tags.map((tag) => (
                     <span
                       key={tag}
-                      className="text-[10px] bg-zinc-700/50 text-zinc-500 px-1.5 py-0.5 rounded"
+                      className="text-[10px] bg-black-card/50 text-white-dim px-1.5 py-0.5 rounded"
                     >
                       {tag}
                     </span>
@@ -426,62 +426,62 @@ export default function IntelPage() {
 
               {/* Expanded Detail */}
               {expandedOpp === opp.symbol && (
-                <div className="border-t border-zinc-700/50 p-4 space-y-4">
+                <div className="border-t border-border-subtle/50 p-4 space-y-4">
                   {/* Thesis */}
                   <div>
-                    <h4 className="text-sm font-semibold text-zinc-400 mb-1">Trade Thesis</h4>
-                    <p className="text-sm text-zinc-300">{opp.thesis}</p>
+                    <h4 className="text-sm font-semibold text-white-muted mb-1">Trade Thesis</h4>
+                    <p className="text-sm text-white-muted">{opp.thesis}</p>
                   </div>
 
                   {/* Bull / Bear / Risk */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    <div className="bg-emerald-500/5 rounded-lg p-3 border border-emerald-500/10">
-                      <h5 className="text-xs font-semibold text-emerald-400 mb-1 flex items-center gap-1">
+                    <div className="bg-red-hot/5 rounded-lg p-3 border border-red-hot/10">
+                      <h5 className="text-xs font-semibold text-orange-accent mb-1 flex items-center gap-1">
                         <TrendingUp className="w-3 h-3" /> Bull Case
                       </h5>
-                      <p className="text-xs text-zinc-300">{opp.bull_case}</p>
+                      <p className="text-xs text-white-muted">{opp.bull_case}</p>
                     </div>
-                    <div className="bg-red-500/5 rounded-lg p-3 border border-red-500/10">
-                      <h5 className="text-xs font-semibold text-red-400 mb-1 flex items-center gap-1">
+                    <div className="bg-red-hot/5 rounded-lg p-3 border border-red-500/10">
+                      <h5 className="text-xs font-semibold text-red-hot mb-1 flex items-center gap-1">
                         <TrendingDown className="w-3 h-3" /> Bear Case
                       </h5>
-                      <p className="text-xs text-zinc-300">{opp.bear_case}</p>
+                      <p className="text-xs text-white-muted">{opp.bear_case}</p>
                     </div>
                     <div className="bg-orange-500/5 rounded-lg p-3 border border-orange-500/10">
-                      <h5 className="text-xs font-semibold text-orange-400 mb-1 flex items-center gap-1">
+                      <h5 className="text-xs font-semibold text-orange-accent mb-1 flex items-center gap-1">
                         <Shield className="w-3 h-3" /> Risk Briefing
                       </h5>
-                      <p className="text-xs text-zinc-300">{opp.risk_briefing}</p>
+                      <p className="text-xs text-white-muted">{opp.risk_briefing}</p>
                     </div>
                   </div>
 
                   {/* Smart Money & Timing */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     <div className="text-sm">
-                      <span className="text-zinc-500">Smart Money: </span>
-                      <span className="text-zinc-300">{opp.smart_money_note}</span>
+                      <span className="text-white-dim">Smart Money: </span>
+                      <span className="text-white-muted">{opp.smart_money_note}</span>
                     </div>
                     <div className="text-sm">
-                      <span className="text-zinc-500">Timing: </span>
-                      <span className="text-zinc-300">{opp.timing_note}</span>
+                      <span className="text-white-dim">Timing: </span>
+                      <span className="text-white-muted">{opp.timing_note}</span>
                     </div>
                   </div>
 
                   {/* Score Breakdown Full */}
                   <div>
-                    <h4 className="text-sm font-semibold text-zinc-400 mb-2">Score Breakdown</h4>
+                    <h4 className="text-sm font-semibold text-white-muted mb-2">Score Breakdown</h4>
                     <div className="grid grid-cols-2 md:grid-cols-6 gap-2">
                       {Object.entries(opp.score_breakdown).map(([key, val]) => {
                         const config = SCORE_LABELS[key];
                         return (
-                          <div key={key} className="bg-zinc-800 rounded-lg p-2 text-center">
-                            <div className="text-xs text-zinc-500">{config?.label || key}</div>
+                          <div key={key} className="bg-black-deep rounded-lg p-2 text-center">
+                            <div className="text-xs text-white-dim">{config?.label || key}</div>
                             <div className={`text-lg font-bold ${scoreColor(val * 4)}`}>
                               {val.toFixed(1)}
                             </div>
-                            <div className="h-1 bg-zinc-700 rounded-full mt-1 overflow-hidden">
+                            <div className="h-1 bg-black-card rounded-full mt-1 overflow-hidden">
                               <div
-                                className={`h-full rounded-full ${config?.color || "bg-zinc-500"}`}
+                                className={`h-full rounded-full ${config?.color || "bg-white-dim"}`}
                                 style={{ width: `${Math.min(100, val * 4)}%` }}
                               />
                             </div>
@@ -493,15 +493,15 @@ export default function IntelPage() {
 
                   {/* Position Size */}
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="text-zinc-500">Suggested Position:</span>
-                    <span className="font-semibold text-zinc-200">
+                    <span className="text-white-dim">Suggested Position:</span>
+                    <span className="font-semibold text-white-full">
                       {opp.position_size_pct}% of portfolio
                     </span>
                     {opp.council_conviction && (
                       <>
-                        <span className="text-zinc-600">|</span>
-                        <span className="text-zinc-500">Council:</span>
-                        <span className="text-zinc-200">
+                        <span className="text-white-dim">|</span>
+                        <span className="text-white-dim">Council:</span>
+                        <span className="text-white-full">
                           {opp.council_conviction} ({opp.council_bulls}B/{opp.council_bears}S)
                         </span>
                       </>
@@ -515,8 +515,8 @@ export default function IntelPage() {
       </div>
 
       {/* Closing Thought */}
-      <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800 text-center">
-        <p className="text-zinc-300 italic">{data.digest.closing_thought}</p>
+      <div className="bg-black-card rounded-xl p-6 border border-border-subtle text-center">
+        <p className="text-white-muted italic">{data.digest.closing_thought}</p>
         <p className="text-xs mt-2">
           <TimeAgo timestamp={data.timestamp} staleAfterMs={3600000} prefix="Analysis generated" />
         </p>

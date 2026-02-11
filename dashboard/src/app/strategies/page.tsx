@@ -44,27 +44,27 @@ const STRATEGY_META: Record<
     description:
       "Follows strong price trends using moving average crossovers. Buys when the fast MA crosses above the slow MA and rides the trend with trailing stops.",
     regime: "Trending",
-    regimeColor: "text-emerald-400 bg-emerald-600/20",
+    regimeColor: "text-orange-accent bg-red-hot/20",
     icon: <TrendingUp className="w-5 h-5" />,
-    gradient: "from-emerald-900/30 to-zinc-900",
+    gradient: "from-red-hot/30 to-black-card",
   },
   mean_reversion: {
     label: "Mean Reversion",
     description:
       "Bets on price returning to the mean when it moves too far from Bollinger Bands. Buys at the lower band and sells at the upper band.",
     regime: "Ranging",
-    regimeColor: "text-blue-400 bg-blue-600/20",
+    regimeColor: "text-orange-accent bg-orange-accent/20",
     icon: <BarChart3 className="w-5 h-5" />,
-    gradient: "from-blue-900/30 to-zinc-900",
+    gradient: "from-red-hot/30 to-black-card",
   },
   breakout: {
     label: "Breakout",
     description:
       "Detects when price breaks above resistance levels after consolidation. Enters on confirmed breakouts with volume confirmation.",
     regime: "Breakout",
-    regimeColor: "text-yellow-400 bg-yellow-600/20",
+    regimeColor: "text-yellow-electric bg-yellow-600/20",
     icon: <Zap className="w-5 h-5" />,
-    gradient: "from-yellow-900/30 to-zinc-900",
+    gradient: "from-orange-accent/30 to-black-card",
   },
 };
 
@@ -256,7 +256,7 @@ export default function StrategiesPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-hot"></div>
       </div>
     );
   }
@@ -267,24 +267,24 @@ export default function StrategiesPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Settings2 className="w-7 h-7 text-emerald-500" />
+            <Settings2 className="w-7 h-7 text-orange-accent" />
             Strategy Configuration
           </h1>
-          <p className="text-zinc-400 text-sm mt-1">
+          <p className="text-white-muted text-sm mt-1">
             Configure trading strategy parameters and enable/disable strategies
           </p>
         </div>
         <div className="flex gap-3 text-sm">
-          <div className="bg-zinc-800 px-3 py-2 rounded-lg">
-            <span className="text-zinc-400">Source:</span>{" "}
-            <span className="text-emerald-400 font-medium">{source}</span>
+          <div className="bg-black-deep px-3 py-2 rounded-lg">
+            <span className="text-white-muted">Source:</span>{" "}
+            <span className="text-orange-accent font-medium">{source}</span>
           </div>
-          <div className="bg-zinc-800 px-3 py-2 rounded-lg">
-            <span className="text-zinc-400">Active:</span>{" "}
-            <span className="text-emerald-400 font-bold">
+          <div className="bg-black-deep px-3 py-2 rounded-lg">
+            <span className="text-white-muted">Active:</span>{" "}
+            <span className="text-orange-accent font-bold">
               {strategies.filter((s) => s.enabled).length}
             </span>
-            <span className="text-zinc-500">/{strategies.length}</span>
+            <span className="text-white-dim">/{strategies.length}</span>
           </div>
         </div>
       </div>
@@ -296,9 +296,9 @@ export default function StrategiesPage() {
             label: strategy.name,
             description: "",
             regime: "Unknown",
-            regimeColor: "text-zinc-400 bg-zinc-600/20",
+            regimeColor: "text-white-muted bg-white-dim/20",
             icon: <Settings2 className="w-5 h-5" />,
-            gradient: "from-zinc-800 to-zinc-900",
+            gradient: "from-black-deep to-black-card",
           };
           const paramInfo = PARAMETER_INFO[strategy.name] || {};
           const isSaving = savingMap[strategy.name] || false;
@@ -309,17 +309,17 @@ export default function StrategiesPage() {
               key={strategy.name}
               className={`bg-gradient-to-br ${meta.gradient} rounded-xl border ${
                 strategy.enabled
-                  ? "border-zinc-700"
-                  : "border-zinc-800 opacity-60"
+                  ? "border-border-subtle"
+                  : "border-border-subtle opacity-60"
               } transition-all`}
             >
               {/* Card Header */}
-              <div className="p-5 border-b border-zinc-800">
+              <div className="p-5 border-b border-border-subtle">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <span
                       className={
-                        strategy.enabled ? "text-zinc-200" : "text-zinc-500"
+                        strategy.enabled ? "text-white-full" : "text-white-dim"
                       }
                     >
                       {meta.icon}
@@ -338,7 +338,7 @@ export default function StrategiesPage() {
                   <button
                     onClick={() => handleToggle(strategy.name)}
                     className={`relative w-12 h-6 rounded-full transition-colors ${
-                      strategy.enabled ? "bg-emerald-600" : "bg-zinc-700"
+                      strategy.enabled ? "bg-red-hot" : "bg-black-card"
                     }`}
                     aria-label={`Toggle ${meta.label} strategy`}
                   >
@@ -350,7 +350,7 @@ export default function StrategiesPage() {
                   </button>
                 </div>
 
-                <p className="text-sm text-zinc-400 leading-relaxed">
+                <p className="text-sm text-white-muted leading-relaxed">
                   {meta.description}
                 </p>
               </div>
@@ -371,18 +371,18 @@ export default function StrategiesPage() {
                   return (
                     <div key={key}>
                       <div className="flex items-center justify-between mb-1.5">
-                        <label className="text-sm font-medium text-zinc-300 flex items-center gap-1.5">
+                        <label className="text-sm font-medium text-white-muted flex items-center gap-1.5">
                           {info.label}
                           {info.tooltip && (
                             <span className="group relative">
-                              <Info className="w-3.5 h-3.5 text-zinc-500 cursor-help" />
-                              <span className="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 p-2 text-xs bg-zinc-800 border border-zinc-700 rounded-lg text-zinc-300 z-10 shadow-xl">
+                              <Info className="w-3.5 h-3.5 text-white-dim cursor-help" />
+                              <span className="invisible group-hover:visible absolute left-1/2 -translate-x-1/2 bottom-full mb-2 w-48 p-2 text-xs bg-black-deep border border-border-subtle rounded-lg text-white-muted z-10 shadow-xl">
                                 {info.tooltip}
                               </span>
                             </span>
                           )}
                         </label>
-                        <span className="text-sm font-mono text-zinc-400">
+                        <span className="text-sm font-mono text-white-muted">
                           {isPercentage
                             ? `${(value * 100).toFixed(0)}%`
                             : value}
@@ -402,9 +402,9 @@ export default function StrategiesPage() {
                               parseFloat(e.target.value)
                             )
                           }
-                          className="flex-1 h-1.5 bg-zinc-700 rounded-full appearance-none cursor-pointer accent-emerald-500
+                          className="flex-1 h-1.5 bg-black-card rounded-full appearance-none cursor-pointer accent-red-hot
                             [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-4 [&::-webkit-slider-thumb]:h-4
-                            [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-emerald-500 [&::-webkit-slider-thumb]:cursor-pointer
+                            [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-red-hot [&::-webkit-slider-thumb]:cursor-pointer
                             [&::-webkit-slider-thumb]:shadow-lg"
                         />
                         <input
@@ -420,8 +420,8 @@ export default function StrategiesPage() {
                               parseFloat(e.target.value) || 0
                             )
                           }
-                          className="w-20 bg-zinc-800 border border-zinc-700 rounded-lg px-2 py-1 text-sm font-mono text-zinc-200 text-right
-                            focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/30"
+                          className="w-20 bg-black-deep border border-border-subtle rounded-lg px-2 py-1 text-sm font-mono text-white-full text-right
+                            focus:outline-none focus:border-red-hot focus:ring-1 focus:ring-red-hot/30"
                         />
                       </div>
                     </div>
@@ -434,8 +434,8 @@ export default function StrategiesPage() {
                 <button
                   onClick={() => handleSave(strategy)}
                   disabled={isSaving}
-                  className="w-full flex items-center justify-center gap-2 bg-zinc-800 hover:bg-zinc-700
-                    border border-zinc-700 rounded-lg px-4 py-2.5 text-sm font-medium transition-colors
+                  className="w-full flex items-center justify-center gap-2 bg-black-deep hover:bg-black-card
+                    border border-border-subtle rounded-lg px-4 py-2.5 text-sm font-medium transition-colors
                     disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isSaving ? (
@@ -455,8 +455,8 @@ export default function StrategiesPage() {
                   <div
                     className={`mt-3 flex items-center gap-2 text-sm rounded-lg px-3 py-2 ${
                       feedback.type === "success"
-                        ? "bg-emerald-600/10 text-emerald-400 border border-emerald-600/20"
-                        : "bg-red-600/10 text-red-400 border border-red-600/20"
+                        ? "bg-red-hot/10 text-orange-accent border border-red-hot/20"
+                        : "bg-red-hot/10 text-red-hot border border-red-hot/20"
                     }`}
                   >
                     {feedback.type === "success" ? (
@@ -474,11 +474,11 @@ export default function StrategiesPage() {
       </div>
 
       {/* Info Footer */}
-      <div className="bg-zinc-900/50 rounded-xl border border-zinc-800 p-5 text-sm text-zinc-500">
+      <div className="bg-black-card/50 rounded-xl border border-border-subtle p-5 text-sm text-white-dim">
         <div className="flex items-start gap-3">
           <Info className="w-5 h-5 flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-medium text-zinc-400 mb-1">
+            <p className="font-medium text-white-muted mb-1">
               How Strategies Map to Market Regimes
             </p>
             <p>

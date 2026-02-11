@@ -96,12 +96,12 @@ export default function EdgePage() {
 
   if (error) {
     return (
-      <div className="bg-zinc-900 rounded-xl p-8 border border-zinc-800 text-center">
-        <AlertTriangle className="w-12 h-12 text-yellow-500/50 mx-auto mb-4" />
+      <div className="bg-black-card rounded-xl p-8 border border-border-subtle text-center">
+        <AlertTriangle className="w-12 h-12 text-yellow-electric/50 mx-auto mb-4" />
         <h2 className="text-xl font-bold mb-2">Edge Scanner Not Run</h2>
-        <p className="text-zinc-400 mb-4 max-w-md mx-auto">{error}</p>
-        <p className="text-zinc-500 text-sm mb-4">The edge scanner finds statistical advantages across your watchlist. Run it manually:</p>
-        <code className="bg-zinc-800 px-4 py-2 rounded text-sm">
+        <p className="text-white-muted mb-4 max-w-md mx-auto">{error}</p>
+        <p className="text-white-dim text-sm mb-4">The edge scanner finds statistical advantages across your watchlist. Run it manually:</p>
+        <code className="bg-black-deep px-4 py-2 rounded text-sm">
           python3 edge_scanner.py
         </code>
       </div>
@@ -116,18 +116,18 @@ export default function EdgePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Target className="w-7 h-7 text-yellow-500" />
+            <Target className="w-7 h-7 text-yellow-electric" />
             Edge Scanner
           </h1>
           <TimeAgo timestamp={data.timestamp} staleAfterMs={3600000} />
         </div>
         <div className="flex gap-4 text-sm">
-          <div className="bg-zinc-800 px-3 py-2 rounded-lg">
-            <span className="text-zinc-400">Opportunities:</span>{" "}
-            <span className="text-yellow-500 font-bold">{data.summary.edge_opportunities}</span>
+          <div className="bg-black-deep px-3 py-2 rounded-lg">
+            <span className="text-white-muted">Opportunities:</span>{" "}
+            <span className="text-yellow-electric font-bold">{data.summary.edge_opportunities}</span>
           </div>
-          <div className="bg-zinc-800 px-3 py-2 rounded-lg">
-            <span className="text-zinc-400">Squeezes:</span>{" "}
+          <div className="bg-black-deep px-3 py-2 rounded-lg">
+            <span className="text-white-muted">Squeezes:</span>{" "}
             <span className="text-orange-500 font-bold">{data.summary.squeeze_setups}</span>
           </div>
         </div>
@@ -136,14 +136,14 @@ export default function EdgePage() {
       {/* Top Row: Sector Rotation + WSB */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Sector Rotation */}
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+        <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-blue-500" />
+            <TrendingUp className="w-5 h-5 text-orange-accent" />
             Sector Rotation
             <span className={`ml-auto text-sm px-2 py-1 rounded ${
-              data.sector_rotation?.rotation_signal === "RISK_ON" ? "bg-emerald-600/20 text-emerald-400" :
-              data.sector_rotation?.rotation_signal === "RISK_OFF" ? "bg-red-600/20 text-red-400" :
-              "bg-zinc-700 text-zinc-400"
+              data.sector_rotation?.rotation_signal === "RISK_ON" ? "bg-red-hot/20 text-orange-accent" :
+              data.sector_rotation?.rotation_signal === "RISK_OFF" ? "bg-red-hot/20 text-red-hot" :
+              "bg-black-card text-white-muted"
             }`}>
               {data.sector_rotation?.rotation_signal || "NEUTRAL"}
             </span>
@@ -153,9 +153,9 @@ export default function EdgePage() {
             {data.sector_rotation?.sectors?.map((sector) => (
               <div key={sector.symbol} className="flex items-center gap-3">
                 <span className="w-12 font-mono text-sm">{sector.symbol}</span>
-                <div className="flex-1 h-2 bg-zinc-800 rounded-full overflow-hidden">
+                <div className="flex-1 h-2 bg-black-deep rounded-full overflow-hidden">
                   <div 
-                    className={`h-full ${sector.pct_5d >= 0 ? "bg-emerald-500" : "bg-red-500"}`}
+                    className={`h-full ${sector.pct_5d >= 0 ? "bg-red-hot" : "bg-red-hot"}`}
                     style={{ 
                       width: `${Math.min(100, Math.abs(sector.pct_5d) * 10)}%`,
                       marginLeft: sector.pct_5d < 0 ? "auto" : 0
@@ -163,7 +163,7 @@ export default function EdgePage() {
                   />
                 </div>
                 <span className={`w-16 text-right text-sm ${
-                  sector.pct_5d >= 0 ? "text-emerald-500" : "text-red-500"
+                  sector.pct_5d >= 0 ? "text-orange-accent" : "text-red-hot"
                 }`}>
                   {sector.pct_5d >= 0 ? "+" : ""}{sector.pct_5d.toFixed(1)}%
                 </span>
@@ -173,7 +173,7 @@ export default function EdgePage() {
         </div>
 
         {/* WSB Momentum */}
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+        <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Users className="w-5 h-5 text-orange-500" />
             🦍 WSB Trending
@@ -183,14 +183,14 @@ export default function EdgePage() {
             {data.wsb_trending?.slice(0, 8).map((stock, idx) => (
               <div key={stock.symbol} className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <span className="text-zinc-500 text-sm w-6">#{idx + 1}</span>
+                  <span className="text-white-dim text-sm w-6">#{idx + 1}</span>
                   <span className="font-semibold">{stock.symbol}</span>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-zinc-400 text-sm">{stock.mentions_24h} mentions</span>
+                  <span className="text-white-muted text-sm">{stock.mentions_24h} mentions</span>
                   <span className={`text-sm font-medium ${
                     stock.mention_change_pct > 50 ? "text-orange-500" :
-                    stock.mention_change_pct > 0 ? "text-emerald-500" : "text-red-500"
+                    stock.mention_change_pct > 0 ? "text-orange-accent" : "text-red-hot"
                   }`}>
                     {stock.mention_change_pct > 0 ? "+" : ""}{stock.mention_change_pct.toFixed(0)}%
                     {stock.mention_change_pct > 100 && " 🔥"}
@@ -203,9 +203,9 @@ export default function EdgePage() {
       </div>
 
       {/* Edge Opportunities */}
-      <div className="bg-gradient-to-r from-yellow-900/20 to-zinc-900 rounded-xl p-6 border border-yellow-800/30">
+      <div className="bg-gradient-to-r from-orange-accent/20 to-black-card rounded-xl p-6 border border-orange-accent/30">
         <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-          <Zap className="w-6 h-6 text-yellow-500" />
+          <Zap className="w-6 h-6 text-yellow-electric" />
           Top Edge Opportunities
         </h2>
         
@@ -218,7 +218,7 @@ export default function EdgePage() {
 
       {/* Squeeze Setups */}
       {data.squeeze_setups && data.squeeze_setups.length > 0 && (
-        <div className="bg-zinc-900 rounded-xl p-6 border border-orange-800/30">
+        <div className="bg-black-card rounded-xl p-6 border border-orange-800/30">
           <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
             <Flame className="w-5 h-5 text-orange-500" />
             🚀 Squeeze Setups
@@ -226,15 +226,15 @@ export default function EdgePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {[...new Map(data.squeeze_setups.map(s => [s.symbol, s])).values()].map((setup) => (
-              <div key={setup.symbol} className="bg-zinc-800 rounded-lg p-4">
+              <div key={setup.symbol} className="bg-black-deep rounded-lg p-4">
                 <div className="text-lg font-bold">{setup.symbol}</div>
-                <div className="text-sm text-orange-400">
+                <div className="text-sm text-orange-accent">
                   {setup.short_percent?.toFixed(1)}% Short Interest
                 </div>
-                <div className="text-sm text-zinc-400">
+                <div className="text-sm text-white-muted">
                   {setup.days_to_cover?.toFixed(1)} Days to Cover
                 </div>
-                <div className="mt-2 h-2 bg-zinc-700 rounded-full overflow-hidden">
+                <div className="mt-2 h-2 bg-black-card rounded-full overflow-hidden">
                   <div 
                     className="h-full bg-gradient-to-r from-yellow-500 to-orange-500"
                     style={{ width: `${Math.min(100, setup.short_percent * 2)}%` }}
@@ -250,14 +250,14 @@ export default function EdgePage() {
 }
 
 function EdgeCard({ opportunity, rank }: { opportunity: EdgeOpportunity; rank: number }) {
-  const scoreColor = opportunity.edge_score >= 4 ? "text-yellow-500" :
-                     opportunity.edge_score >= 3 ? "text-emerald-500" : "text-zinc-400";
+  const scoreColor = opportunity.edge_score >= 4 ? "text-yellow-electric" :
+                     opportunity.edge_score >= 3 ? "text-orange-accent" : "text-white-muted";
   
   return (
-    <div className="bg-zinc-800/80 rounded-lg p-4">
+    <div className="bg-black-deep/80 rounded-lg p-4">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-2">
-          <span className="text-xl font-bold text-zinc-500">#{rank}</span>
+          <span className="text-xl font-bold text-white-dim">#{rank}</span>
           <span className="font-bold text-lg">{opportunity.symbol}</span>
         </div>
         <div className={`text-lg font-bold ${scoreColor}`}>
@@ -269,18 +269,18 @@ function EdgeCard({ opportunity, rank }: { opportunity: EdgeOpportunity; rank: n
       <div className="space-y-2 mb-3">
         {opportunity.short_interest?.short_percent && opportunity.short_interest.short_percent > 15 && (
           <div className="flex justify-between text-sm">
-            <span className="text-zinc-400">Short Interest</span>
-            <span className="text-orange-400 font-medium">
+            <span className="text-white-muted">Short Interest</span>
+            <span className="text-orange-accent font-medium">
               {opportunity.short_interest.short_percent.toFixed(1)}%
             </span>
           </div>
         )}
         {opportunity.options?.put_call_ratio && (
           <div className="flex justify-between text-sm">
-            <span className="text-zinc-400">Put/Call</span>
+            <span className="text-white-muted">Put/Call</span>
             <span className={`font-medium ${
-              opportunity.options.put_call_ratio < 0.7 ? "text-emerald-400" :
-              opportunity.options.put_call_ratio > 1.3 ? "text-red-400" : "text-zinc-300"
+              opportunity.options.put_call_ratio < 0.7 ? "text-orange-accent" :
+              opportunity.options.put_call_ratio > 1.3 ? "text-red-hot" : "text-white-muted"
             }`}>
               {opportunity.options.put_call_ratio.toFixed(2)}
             </span>
@@ -288,8 +288,8 @@ function EdgeCard({ opportunity, rank }: { opportunity: EdgeOpportunity; rank: n
         )}
         {opportunity.earnings?.beat_streak && opportunity.earnings.beat_streak >= 3 && (
           <div className="flex justify-between text-sm">
-            <span className="text-zinc-400">Beat Streak</span>
-            <span className="text-emerald-400 font-medium">
+            <span className="text-white-muted">Beat Streak</span>
+            <span className="text-orange-accent font-medium">
               {opportunity.earnings.beat_streak} quarters
             </span>
           </div>
@@ -297,10 +297,10 @@ function EdgeCard({ opportunity, rank }: { opportunity: EdgeOpportunity; rank: n
       </div>
       
       {/* Reasons */}
-      <div className="text-xs text-zinc-500 space-y-1">
+      <div className="text-xs text-white-dim space-y-1">
         {opportunity.reasons.slice(0, 3).map((reason, i) => (
           <div key={i} className="flex items-start gap-1">
-            <span className="text-yellow-500">•</span>
+            <span className="text-yellow-electric">•</span>
             <span>{reason}</span>
           </div>
         ))}

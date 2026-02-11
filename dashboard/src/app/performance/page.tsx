@@ -115,19 +115,19 @@ function MetricCard({
   positive?: boolean | null;
 }) {
   return (
-    <div className="bg-zinc-800 rounded-lg p-3">
-      <div className="text-xs text-zinc-500 mb-1">{label}</div>
+    <div className="bg-black-deep rounded-lg p-3">
+      <div className="text-xs text-white-dim mb-1">{label}</div>
       <div
         className={`text-lg font-bold ${
           positive === true
-            ? "text-emerald-400"
+            ? "text-orange-accent"
             : positive === false
-              ? "text-red-400"
-              : "text-zinc-200"
+              ? "text-red-hot"
+              : "text-white-full"
         }`}
       >
         {value}
-        {suffix && <span className="text-xs text-zinc-500 ml-1">{suffix}</span>}
+        {suffix && <span className="text-xs text-white-dim ml-1">{suffix}</span>}
       </div>
     </div>
   );
@@ -167,7 +167,7 @@ export default function PerformancePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-hot"></div>
       </div>
     );
   }
@@ -178,10 +178,10 @@ export default function PerformancePage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
-            <Activity className="w-7 h-7 text-emerald-500" />
+            <Activity className="w-7 h-7 text-orange-accent" />
             Performance & Backtesting
           </h1>
-          <p className="text-zinc-400 text-sm">
+          <p className="text-white-muted text-sm">
             Backtest results and paper trading performance
           </p>
         </div>
@@ -190,8 +190,8 @@ export default function PerformancePage() {
             onClick={() => setTab("backtest")}
             className={`px-4 py-2 rounded-lg text-sm ${
               tab === "backtest"
-                ? "bg-emerald-600 text-white"
-                : "bg-zinc-800 text-zinc-400 hover:text-white"
+                ? "bg-red-hot text-white"
+                : "bg-black-deep text-white-muted hover:text-white"
             }`}
           >
             Backtest
@@ -200,8 +200,8 @@ export default function PerformancePage() {
             onClick={() => setTab("paper")}
             className={`px-4 py-2 rounded-lg text-sm ${
               tab === "paper"
-                ? "bg-emerald-600 text-white"
-                : "bg-zinc-800 text-zinc-400 hover:text-white"
+                ? "bg-red-hot text-white"
+                : "bg-black-deep text-white-muted hover:text-white"
             }`}
           >
             Paper Trading
@@ -213,11 +213,11 @@ export default function PerformancePage() {
       {tab === "backtest" && (
         <>
           {btError ? (
-            <div className="bg-zinc-900 rounded-xl p-8 border border-zinc-800 text-center">
-              <AlertTriangle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
+            <div className="bg-black-card rounded-xl p-8 border border-border-subtle text-center">
+              <AlertTriangle className="w-12 h-12 text-orange-accent mx-auto mb-4" />
               <h2 className="text-xl font-bold mb-2">No Backtest Results</h2>
-              <p className="text-zinc-400 mb-4">{btError}</p>
-              <code className="bg-zinc-800 px-4 py-2 rounded text-sm">
+              <p className="text-white-muted mb-4">{btError}</p>
+              <code className="bg-black-deep px-4 py-2 rounded text-sm">
                 python3 -m core.backtester --symbol SPY --period 1y
               </code>
             </div>
@@ -231,11 +231,11 @@ export default function PerformancePage() {
       {tab === "paper" && (
         <>
           {paperError ? (
-            <div className="bg-zinc-900 rounded-xl p-8 border border-zinc-800 text-center">
-              <AlertTriangle className="w-12 h-12 text-emerald-500 mx-auto mb-4" />
+            <div className="bg-black-card rounded-xl p-8 border border-border-subtle text-center">
+              <AlertTriangle className="w-12 h-12 text-orange-accent mx-auto mb-4" />
               <h2 className="text-xl font-bold mb-2">No Paper Trading Data</h2>
-              <p className="text-zinc-400 mb-4">{paperError}</p>
-              <code className="bg-zinc-800 px-4 py-2 rounded text-sm">
+              <p className="text-white-muted mb-4">{paperError}</p>
+              <code className="bg-black-deep px-4 py-2 rounded text-sm">
                 python3 -m core.paper_trader
               </code>
             </div>
@@ -254,22 +254,22 @@ function BacktestView({ data }: { data: BacktestData }) {
   return (
     <div className="space-y-6">
       {/* Summary */}
-      <div className="bg-gradient-to-r from-emerald-900/20 to-zinc-900 rounded-xl p-6 border border-emerald-800/30">
+      <div className="bg-gradient-to-r from-red-hot/20 to-black-card rounded-xl p-6 border border-red-hot/30">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-xl font-bold">
               {data.symbols.join(", ")} Backtest
             </h2>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-white-muted">
               {data.start_date} to {data.end_date} | {data.strategy}
             </p>
           </div>
           <div className="text-right">
-            <div className={`text-3xl font-bold ${m.total_return_pct >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+            <div className={`text-3xl font-bold ${m.total_return_pct >= 0 ? "text-orange-accent" : "text-red-hot"}`}>
               {m.total_return_pct >= 0 ? "+" : ""}
               {m.total_return_pct.toFixed(2)}%
             </div>
-            <div className="text-sm text-zinc-400">
+            <div className="text-sm text-white-muted">
               ${data.initial_capital.toLocaleString()} → ${data.final_value.toLocaleString()}
             </div>
           </div>
@@ -288,8 +288,8 @@ function BacktestView({ data }: { data: BacktestData }) {
                   key={i}
                   className={`flex-1 rounded-t ${
                     pt.portfolio_value >= data.initial_capital
-                      ? "bg-emerald-500/40"
-                      : "bg-red-500/40"
+                      ? "bg-red-hot/40"
+                      : "bg-red-hot/40"
                   }`}
                   style={{ height: `${Math.max(2, height)}%` }}
                   title={`${pt.date}: $${pt.portfolio_value.toLocaleString()}`}
@@ -313,67 +313,67 @@ function BacktestView({ data }: { data: BacktestData }) {
       {/* Detailed Stats */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Risk Metrics */}
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+        <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
-            <Shield className="w-4 h-4 text-red-400" />
+            <Shield className="w-4 h-4 text-red-hot" />
             Risk Metrics
           </h3>
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Max Drawdown</span>
-              <span className="text-red-400">{m.max_drawdown_pct.toFixed(2)}%</span>
+              <span className="text-white-muted">Max Drawdown</span>
+              <span className="text-red-hot">{m.max_drawdown_pct.toFixed(2)}%</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">DD Duration</span>
+              <span className="text-white-muted">DD Duration</span>
               <span>{m.max_drawdown_duration_days} days</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Volatility (ann.)</span>
+              <span className="text-white-muted">Volatility (ann.)</span>
               <span>{m.volatility_annualized.toFixed(1)}%</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Calmar Ratio</span>
+              <span className="text-white-muted">Calmar Ratio</span>
               <span>{m.calmar_ratio.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Largest Loss</span>
-              <span className="text-red-400">{m.largest_loss_pct.toFixed(2)}%</span>
+              <span className="text-white-muted">Largest Loss</span>
+              <span className="text-red-hot">{m.largest_loss_pct.toFixed(2)}%</span>
             </div>
           </div>
         </div>
 
         {/* Trade Stats */}
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+        <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
-            <BarChart3 className="w-4 h-4 text-emerald-400" />
+            <BarChart3 className="w-4 h-4 text-orange-accent" />
             Trade Statistics
           </h3>
           <div className="space-y-3">
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Total Trades</span>
+              <span className="text-white-muted">Total Trades</span>
               <span>{m.total_trades}</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Winners / Losers</span>
+              <span className="text-white-muted">Winners / Losers</span>
               <span>
-                <span className="text-emerald-400">{m.winning_trades}</span> /{" "}
-                <span className="text-red-400">{m.losing_trades}</span>
+                <span className="text-orange-accent">{m.winning_trades}</span> /{" "}
+                <span className="text-red-hot">{m.losing_trades}</span>
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Avg Win / Loss</span>
+              <span className="text-white-muted">Avg Win / Loss</span>
               <span>
-                <span className="text-emerald-400">+{m.avg_win_pct.toFixed(1)}%</span> /{" "}
-                <span className="text-red-400">{m.avg_loss_pct.toFixed(1)}%</span>
+                <span className="text-orange-accent">+{m.avg_win_pct.toFixed(1)}%</span> /{" "}
+                <span className="text-red-hot">{m.avg_loss_pct.toFixed(1)}%</span>
               </span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Avg Hold</span>
+              <span className="text-white-muted">Avg Hold</span>
               <span>{m.avg_hold_days.toFixed(1)} days</span>
             </div>
             <div className="flex justify-between text-sm">
-              <span className="text-zinc-400">Expectancy</span>
-              <span className={m.expectancy >= 0 ? "text-emerald-400" : "text-red-400"}>
+              <span className="text-white-muted">Expectancy</span>
+              <span className={m.expectancy >= 0 ? "text-orange-accent" : "text-red-hot"}>
                 ${m.expectancy.toFixed(2)}/trade
               </span>
             </div>
@@ -383,14 +383,14 @@ function BacktestView({ data }: { data: BacktestData }) {
 
       {/* Trade Log */}
       {data.trades && data.trades.length > 0 && (
-        <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
-          <div className="p-4 border-b border-zinc-800">
+        <div className="bg-black-card rounded-xl border border-border-subtle overflow-hidden">
+          <div className="p-4 border-b border-border-subtle">
             <h3 className="font-semibold">Trade Log ({data.trades.length} trades)</h3>
           </div>
           <div className="overflow-x-auto max-h-96 overflow-y-auto">
             <table className="w-full text-sm">
-              <thead className="bg-zinc-800/50 sticky top-0">
-                <tr className="text-zinc-400">
+              <thead className="bg-black-deep/50 sticky top-0">
+                <tr className="text-white-muted">
                   <th className="text-left p-3">Symbol</th>
                   <th className="text-left p-3">Dir</th>
                   <th className="text-left p-3">Entry</th>
@@ -404,38 +404,38 @@ function BacktestView({ data }: { data: BacktestData }) {
               </thead>
               <tbody>
                 {data.trades.map((t, i) => (
-                  <tr key={i} className="border-b border-zinc-800/30 hover:bg-zinc-800/20">
+                  <tr key={i} className="border-b border-border-subtle/30 hover:bg-black-deep/20">
                     <td className="p-3 font-bold">{t.symbol}</td>
                     <td className="p-3">
                       {t.direction === "long" ? (
-                        <span className="text-emerald-400 flex items-center gap-1">
+                        <span className="text-orange-accent flex items-center gap-1">
                           <TrendingUp className="w-3 h-3" /> Long
                         </span>
                       ) : (
-                        <span className="text-red-400 flex items-center gap-1">
+                        <span className="text-red-hot flex items-center gap-1">
                           <TrendingDown className="w-3 h-3" /> Short
                         </span>
                       )}
                     </td>
                     <td className="p-3">${t.entry_price.toFixed(2)}</td>
                     <td className="p-3">${t.exit_price.toFixed(2)}</td>
-                    <td className={`p-3 text-right font-medium ${t.pnl_dollars >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    <td className={`p-3 text-right font-medium ${t.pnl_dollars >= 0 ? "text-orange-accent" : "text-red-hot"}`}>
                       ${t.pnl_dollars >= 0 ? "+" : ""}{t.pnl_dollars.toFixed(2)}
                     </td>
-                    <td className={`p-3 text-right ${t.return_pct >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    <td className={`p-3 text-right ${t.return_pct >= 0 ? "text-orange-accent" : "text-red-hot"}`}>
                       {t.return_pct >= 0 ? "+" : ""}{t.return_pct.toFixed(2)}%
                     </td>
                     <td className="p-3">
                       <span className={`text-xs px-2 py-0.5 rounded ${
-                        t.exit_reason === "take_profit" ? "bg-emerald-500/10 text-emerald-400" :
-                        t.exit_reason === "stop_loss" ? "bg-red-500/10 text-red-400" :
-                        "bg-zinc-700 text-zinc-400"
+                        t.exit_reason === "take_profit" ? "bg-red-hot/10 text-orange-accent" :
+                        t.exit_reason === "stop_loss" ? "bg-red-hot/10 text-red-hot" :
+                        "bg-black-card text-white-muted"
                       }`}>
                         {t.exit_reason}
                       </span>
                     </td>
-                    <td className="p-3 text-right text-zinc-400">{t.hold_days}d</td>
-                    <td className="p-3 text-right text-zinc-400">{t.entry_score}</td>
+                    <td className="p-3 text-right text-white-muted">{t.hold_days}d</td>
+                    <td className="p-3 text-right text-white-muted">{t.entry_score}</td>
                   </tr>
                 ))}
               </tbody>
@@ -445,13 +445,13 @@ function BacktestView({ data }: { data: BacktestData }) {
       )}
 
       {/* Parameters */}
-      <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
-        <h3 className="font-semibold mb-3 text-sm text-zinc-400">Model Parameters</h3>
+      <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
+        <h3 className="font-semibold mb-3 text-sm text-white-muted">Model Parameters</h3>
         <div className="flex flex-wrap gap-3">
           {Object.entries(data.parameters).map(([key, val]) => (
-            <div key={key} className="bg-zinc-800 px-3 py-1.5 rounded text-xs">
-              <span className="text-zinc-500">{key}: </span>
-              <span className="text-zinc-200">{typeof val === "number" ? (val < 1 && val > 0 ? `${(val * 100).toFixed(1)}%` : val) : val}</span>
+            <div key={key} className="bg-black-deep px-3 py-1.5 rounded text-xs">
+              <span className="text-white-dim">{key}: </span>
+              <span className="text-white-full">{typeof val === "number" ? (val < 1 && val > 0 ? `${(val * 100).toFixed(1)}%` : val) : val}</span>
             </div>
           ))}
         </div>
@@ -464,19 +464,19 @@ function PaperView({ data }: { data: PaperData }) {
   return (
     <div className="space-y-6">
       {/* Portfolio Summary */}
-      <div className="bg-gradient-to-r from-blue-900/20 to-zinc-900 rounded-xl p-6 border border-blue-800/30">
+      <div className="bg-gradient-to-r from-red-hot/20 to-black-card rounded-xl p-6 border border-red-hot/30">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-xl font-bold">Paper Portfolio</h2>
-            <p className="text-sm text-zinc-400">
+            <p className="text-sm text-white-muted">
               Updated: {data.timestamp && new Date(data.timestamp).toLocaleString()}
             </p>
           </div>
           <div className="text-right">
-            <div className={`text-3xl font-bold ${data.portfolio.total_return_pct >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+            <div className={`text-3xl font-bold ${data.portfolio.total_return_pct >= 0 ? "text-orange-accent" : "text-red-hot"}`}>
               ${data.portfolio.current_value.toLocaleString()}
             </div>
-            <div className={`text-sm ${data.portfolio.total_return_pct >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+            <div className={`text-sm ${data.portfolio.total_return_pct >= 0 ? "text-orange-accent" : "text-red-hot"}`}>
               {data.portfolio.total_return_pct >= 0 ? "+" : ""}
               {data.portfolio.total_return_pct.toFixed(2)}%
             </div>
@@ -495,28 +495,28 @@ function PaperView({ data }: { data: PaperData }) {
 
       {/* Open Positions */}
       {data.positions.length > 0 && (
-        <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+        <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
-            <Target className="w-4 h-4 text-blue-400" />
+            <Target className="w-4 h-4 text-orange-accent" />
             Open Positions ({data.positions.length})
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {data.positions.map((pos) => (
-              <div key={pos.symbol} className="bg-zinc-800 rounded-lg p-4">
+              <div key={pos.symbol} className="bg-black-deep rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <span className="font-bold">{pos.symbol}</span>
                     <span className={`text-xs px-2 py-0.5 rounded ${
-                      pos.direction === "long" ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"
+                      pos.direction === "long" ? "bg-red-hot/10 text-orange-accent" : "bg-red-hot/10 text-red-hot"
                     }`}>
                       {pos.direction.toUpperCase()}
                     </span>
                   </div>
-                  <span className={`font-bold ${pos.unrealized_pnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                  <span className={`font-bold ${pos.unrealized_pnl >= 0 ? "text-orange-accent" : "text-red-hot"}`}>
                     {pos.unrealized_pnl_pct >= 0 ? "+" : ""}{pos.unrealized_pnl_pct.toFixed(1)}%
                   </span>
                 </div>
-                <div className="grid grid-cols-3 gap-2 text-xs text-zinc-400">
+                <div className="grid grid-cols-3 gap-2 text-xs text-white-muted">
                   <div>Entry: ${pos.entry_price.toFixed(2)}</div>
                   <div>Current: ${pos.current_price.toFixed(2)}</div>
                   <div>P&L: ${pos.unrealized_pnl >= 0 ? "+" : ""}{pos.unrealized_pnl.toFixed(0)}</div>
@@ -529,14 +529,14 @@ function PaperView({ data }: { data: PaperData }) {
 
       {/* Recent Trades */}
       {data.recent_trades && data.recent_trades.length > 0 && (
-        <div className="bg-zinc-900 rounded-xl border border-zinc-800 overflow-hidden">
-          <div className="p-4 border-b border-zinc-800">
+        <div className="bg-black-card rounded-xl border border-border-subtle overflow-hidden">
+          <div className="p-4 border-b border-border-subtle">
             <h3 className="font-semibold">Recent Trades</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-zinc-800/50">
-                <tr className="text-zinc-400">
+              <thead className="bg-black-deep/50">
+                <tr className="text-white-muted">
                   <th className="text-left p-3">Symbol</th>
                   <th className="text-left p-3">Dir</th>
                   <th className="text-left p-3">Entry</th>
@@ -547,23 +547,23 @@ function PaperView({ data }: { data: PaperData }) {
               </thead>
               <tbody>
                 {data.recent_trades.slice(-10).reverse().map((t, i) => (
-                  <tr key={i} className="border-b border-zinc-800/30">
+                  <tr key={i} className="border-b border-border-subtle/30">
                     <td className="p-3 font-bold">{t.symbol}</td>
                     <td className="p-3">
-                      <span className={t.direction === "long" ? "text-emerald-400" : "text-red-400"}>
+                      <span className={t.direction === "long" ? "text-orange-accent" : "text-red-hot"}>
                         {t.direction}
                       </span>
                     </td>
                     <td className="p-3">${t.entry_price.toFixed(2)}</td>
                     <td className="p-3">${t.exit_price.toFixed(2)}</td>
-                    <td className={`p-3 text-right font-medium ${t.pnl_dollars >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+                    <td className={`p-3 text-right font-medium ${t.pnl_dollars >= 0 ? "text-orange-accent" : "text-red-hot"}`}>
                       ${t.pnl_dollars >= 0 ? "+" : ""}{t.pnl_dollars.toFixed(0)}
                     </td>
                     <td className="p-3">
                       <span className={`text-xs px-2 py-0.5 rounded ${
-                        t.exit_reason === "take_profit" ? "bg-emerald-500/10 text-emerald-400" :
-                        t.exit_reason === "stop_loss" ? "bg-red-500/10 text-red-400" :
-                        "bg-zinc-700 text-zinc-400"
+                        t.exit_reason === "take_profit" ? "bg-red-hot/10 text-orange-accent" :
+                        t.exit_reason === "stop_loss" ? "bg-red-hot/10 text-red-hot" :
+                        "bg-black-card text-white-muted"
                       }`}>
                         {t.exit_reason}
                       </span>

@@ -74,7 +74,7 @@ export default function MarketsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-hot"></div>
       </div>
     );
   }
@@ -87,13 +87,13 @@ export default function MarketsPage() {
           <TimeAgo timestamp={fetchedAt} staleAfterMs={600000} />
         </div>
         <div className="flex items-center gap-2">
-          <Globe className="w-5 h-5 text-zinc-400" />
+          <Globe className="w-5 h-5 text-white-muted" />
           <span className={`font-semibold ${
             data?.global_regime === "GLOBAL_RISK_ON"
-              ? "text-emerald-500"
+              ? "text-orange-accent"
               : data?.global_regime === "GLOBAL_RISK_OFF"
-              ? "text-red-500"
-              : "text-zinc-400"
+              ? "text-red-hot"
+              : "text-white-muted"
           }`}>
             {data?.global_regime || "LOADING"}
           </span>
@@ -106,10 +106,10 @@ export default function MarketsPage() {
           <button
             key={market}
             onClick={() => setSelectedMarket(market)}
-            className={`bg-zinc-900 rounded-xl p-4 border transition-colors ${
+            className={`bg-black-card rounded-xl p-4 border transition-colors ${
               selectedMarket === market
-                ? "border-emerald-500"
-                : "border-zinc-800 hover:border-zinc-700"
+                ? "border-red-hot"
+                : "border-border-subtle hover:border-border-subtle"
             }`}
           >
             <div className="flex items-center gap-2 mb-2">
@@ -119,25 +119,25 @@ export default function MarketsPage() {
             <div className="flex items-center gap-2">
               <span
                 className={`w-2 h-2 rounded-full ${
-                  status.open ? "bg-emerald-500 animate-pulse" : "bg-zinc-600"
+                  status.open ? "bg-red-hot animate-pulse" : "bg-white-dim"
                 }`}
               />
-              <span className={`text-sm ${status.open ? "text-emerald-500" : "text-zinc-500"}`}>
+              <span className={`text-sm ${status.open ? "text-orange-accent" : "text-white-dim"}`}>
                 {status.open ? "OPEN" : "CLOSED"}
               </span>
             </div>
-            <div className="text-xs text-zinc-500 mt-1">{status.hours}</div>
+            <div className="text-xs text-white-dim mt-1">{status.hours}</div>
           </button>
         ))}
       </div>
 
       {/* Selected Market Chart */}
-      <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+      <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">
             {MARKET_FLAGS[selectedMarket]} {MARKET_INDICES[selectedMarket]?.name || selectedMarket}
           </h2>
-          <span className="text-zinc-400 text-sm">
+          <span className="text-white-muted text-sm">
             {MARKET_INDICES[selectedMarket]?.symbol}
           </span>
         </div>
@@ -150,19 +150,19 @@ export default function MarketsPage() {
       </div>
 
       {/* Regional Breakdown */}
-      <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+      <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
         <h2 className="text-lg font-semibold mb-4">Regional Regimes</h2>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="text-left text-zinc-400 text-sm">
+              <tr className="text-left text-white-muted text-sm">
                 <th className="pb-3">Region</th>
                 <th className="pb-3">Status</th>
                 <th className="pb-3">Regime</th>
                 <th className="pb-3 text-right">1D Change</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-zinc-800">
+            <tbody className="divide-y divide-border-subtle">
               {Object.entries(data?.market_status || {}).map(([market, status]) => {
                 const regionData = data?.regional?.[market];
                 const regime = regionData?.regime || data?.global_regime || "N/A";
@@ -170,7 +170,7 @@ export default function MarketsPage() {
                 const hasChange = change1d !== null && change1d !== undefined;
 
                 return (
-                  <tr key={market} className="hover:bg-zinc-800/50">
+                  <tr key={market} className="hover:bg-black-deep/50">
                     <td className="py-3">
                       <div className="flex items-center gap-2">
                         <span>{MARKET_FLAGS[market]}</span>
@@ -180,20 +180,20 @@ export default function MarketsPage() {
                     <td className="py-3">
                       <span
                         className={`inline-flex items-center gap-1 text-sm ${
-                          status.open ? "text-emerald-500" : "text-zinc-500"
+                          status.open ? "text-orange-accent" : "text-white-dim"
                         }`}
                       >
                         <span className={`w-2 h-2 rounded-full ${
-                          status.open ? "bg-emerald-500" : "bg-zinc-600"
+                          status.open ? "bg-red-hot" : "bg-white-dim"
                         }`} />
                         {status.open ? "Open" : "Closed"}
                       </span>
                     </td>
                     <td className="py-3">
                       <span className={`inline-flex items-center gap-1.5 text-sm font-medium ${
-                        regime === "BULLISH" ? "text-emerald-500"
-                          : regime === "BEARISH" ? "text-red-500"
-                          : "text-zinc-400"
+                        regime === "BULLISH" ? "text-orange-accent"
+                          : regime === "BEARISH" ? "text-red-hot"
+                          : "text-white-muted"
                       }`}>
                         {regime === "BULLISH" && <TrendingUp className="w-3.5 h-3.5" />}
                         {regime === "BEARISH" && <TrendingDown className="w-3.5 h-3.5" />}
@@ -203,12 +203,12 @@ export default function MarketsPage() {
                     <td className="py-3 text-right">
                       {hasChange ? (
                         <span className={`font-medium ${
-                          change1d > 0 ? "text-emerald-500" : change1d < 0 ? "text-red-500" : "text-zinc-400"
+                          change1d > 0 ? "text-orange-accent" : change1d < 0 ? "text-red-hot" : "text-white-muted"
                         }`}>
                           {change1d > 0 ? "+" : ""}{change1d.toFixed(2)}%
                         </span>
                       ) : (
-                        <span className="text-zinc-500">N/A</span>
+                        <span className="text-white-dim">N/A</span>
                       )}
                     </td>
                   </tr>

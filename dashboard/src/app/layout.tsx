@@ -14,8 +14,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Market Trader Dashboard",
-  description: "Day trading simulator with global markets",
+  title: "APEX // TRADER",
+  description: "Autonomous ML-driven trading system",
 };
 
 export default function RootLayout({
@@ -26,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-zinc-950 text-zinc-100 min-h-screen`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-black-ink text-white-full min-h-screen`}
       >
         <Navigation />
         <main className="container mx-auto px-4 py-6">

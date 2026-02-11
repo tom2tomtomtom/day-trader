@@ -69,7 +69,7 @@ export default function PositionsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-hot"></div>
       </div>
     );
   }
@@ -89,68 +89,68 @@ export default function PositionsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-          <div className="text-zinc-400 text-sm">Total Trades</div>
+        <div className="bg-black-card rounded-xl p-4 border border-border-subtle">
+          <div className="text-white-muted text-sm">Total Trades</div>
           <div className="text-2xl font-bold">{data?.total_trades || 0}</div>
         </div>
-        <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-          <div className="text-zinc-400 text-sm">Win Rate</div>
-          <div className="text-2xl font-bold text-emerald-500">{winRate}%</div>
+        <div className="bg-black-card rounded-xl p-4 border border-border-subtle">
+          <div className="text-white-muted text-sm">Win Rate</div>
+          <div className="text-2xl font-bold text-orange-accent">{winRate}%</div>
         </div>
-        <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-          <div className="text-zinc-400 text-sm">Winners</div>
-          <div className="text-2xl font-bold text-emerald-500">{data?.winners || 0}</div>
+        <div className="bg-black-card rounded-xl p-4 border border-border-subtle">
+          <div className="text-white-muted text-sm">Winners</div>
+          <div className="text-2xl font-bold text-orange-accent">{data?.winners || 0}</div>
         </div>
-        <div className="bg-zinc-900 rounded-xl p-4 border border-zinc-800">
-          <div className="text-zinc-400 text-sm">Losers</div>
-          <div className="text-2xl font-bold text-red-500">{data?.losers || 0}</div>
+        <div className="bg-black-card rounded-xl p-4 border border-border-subtle">
+          <div className="text-white-muted text-sm">Losers</div>
+          <div className="text-2xl font-bold text-red-hot">{data?.losers || 0}</div>
         </div>
       </div>
 
       {/* Open Positions */}
-      <div className="bg-zinc-900 rounded-xl border border-zinc-800">
-        <div className="p-4 border-b border-zinc-800">
+      <div className="bg-black-card rounded-xl border border-border-subtle">
+        <div className="p-4 border-b border-border-subtle">
           <h2 className="font-semibold flex items-center gap-2">
-            <Clock className="w-5 h-5 text-emerald-500" />
+            <Clock className="w-5 h-5 text-orange-accent" />
             Open Positions ({openPositions.length})
           </h2>
         </div>
         
         {openPositions.length > 0 ? (
-          <div className="divide-y divide-zinc-800">
+          <div className="divide-y divide-border-subtle">
             {openPositions.map(([sym, pos]) => (
               <OpenPositionRow key={sym} position={{ ...pos, symbol: sym }} />
             ))}
           </div>
         ) : (
           <div className="p-8 text-center">
-            <TrendingUp className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
-            <p className="text-zinc-400 font-medium mb-1">No open positions</p>
-            <p className="text-zinc-400 text-sm">Positions open automatically when the system detects strong signals with high confidence.</p>
+            <TrendingUp className="w-10 h-10 text-white-faint mx-auto mb-3" />
+            <p className="text-white-muted font-medium mb-1">No open positions</p>
+            <p className="text-white-muted text-sm">Positions open automatically when the system detects strong signals with high confidence.</p>
           </div>
         )}
       </div>
 
       {/* Closed Trades */}
-      <div className="bg-zinc-900 rounded-xl border border-zinc-800">
-        <div className="p-4 border-b border-zinc-800">
+      <div className="bg-black-card rounded-xl border border-border-subtle">
+        <div className="p-4 border-b border-border-subtle">
           <h2 className="font-semibold flex items-center gap-2">
-            <DollarSign className="w-5 h-5 text-zinc-400" />
+            <DollarSign className="w-5 h-5 text-white-muted" />
             Today&apos;s Closed Trades ({closedTrades.length})
           </h2>
         </div>
         
         {closedTrades.length > 0 ? (
-          <div className="divide-y divide-zinc-800">
+          <div className="divide-y divide-border-subtle">
             {closedTrades.map((trade, idx) => (
               <ClosedTradeRow key={idx} trade={trade} />
             ))}
           </div>
         ) : (
           <div className="p-8 text-center">
-            <DollarSign className="w-10 h-10 text-zinc-700 mx-auto mb-3" />
-            <p className="text-zinc-400 font-medium mb-1">No closed trades today</p>
-            <p className="text-zinc-400 text-sm">Trades close when stop-loss, take-profit, or trailing stop conditions are met.</p>
+            <DollarSign className="w-10 h-10 text-white-faint mx-auto mb-3" />
+            <p className="text-white-muted font-medium mb-1">No closed trades today</p>
+            <p className="text-white-muted text-sm">Trades close when stop-loss, take-profit, or trailing stop conditions are met.</p>
           </div>
         )}
       </div>
@@ -163,7 +163,7 @@ function OpenPositionRow({ position }: { position: Position }) {
   const isProfitable = (position.pnl ?? 0) >= 0;
 
   return (
-    <div className="p-4 hover:bg-zinc-800/50">
+    <div className="p-4 hover:bg-black-deep/50">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div>
@@ -172,24 +172,24 @@ function OpenPositionRow({ position }: { position: Position }) {
               <span
                 className={`text-xs px-2 py-0.5 rounded ${
                   isLong
-                    ? "bg-emerald-600/20 text-emerald-400"
-                    : "bg-red-600/20 text-red-400"
+                    ? "bg-red-hot/20 text-orange-accent"
+                    : "bg-red-hot/20 text-red-hot"
                 }`}
               >
                 {position.direction}
               </span>
             </div>
-            <div className="text-sm text-zinc-400">
+            <div className="text-sm text-white-muted">
               {position.shares} shares @ ${position.entry_price.toFixed(2)}
             </div>
           </div>
         </div>
         
         <div className="text-right">
-          <div className={`text-lg font-semibold ${isProfitable ? "text-emerald-500" : "text-red-500"}`}>
+          <div className={`text-lg font-semibold ${isProfitable ? "text-orange-accent" : "text-red-hot"}`}>
             {isProfitable ? "+" : ""}${(position.pnl ?? 0).toFixed(2)}
           </div>
-          <div className="text-sm text-zinc-400">
+          <div className="text-sm text-white-muted">
             Stop: ${position.stop_price.toFixed(2)} | Target: ${position.target_price.toFixed(2)}
           </div>
         </div>
@@ -202,23 +202,23 @@ function ClosedTradeRow({ trade }: { trade: ClosedTrade }) {
   const isProfitable = trade.pnl >= 0;
 
   return (
-    <div className="p-4 hover:bg-zinc-800/50">
+    <div className="p-4 hover:bg-black-deep/50">
       <div className="flex items-center justify-between">
         <div>
           <div className="flex items-center gap-2">
             <span className="font-semibold">{trade.symbol}</span>
-            <span className="text-xs text-zinc-400">{trade.direction}</span>
+            <span className="text-xs text-white-muted">{trade.direction}</span>
           </div>
-          <div className="text-sm text-zinc-400">
+          <div className="text-sm text-white-muted">
             {trade.shares} @ ${trade.entry_price.toFixed(2)} → ${trade.exit_price.toFixed(2)}
           </div>
         </div>
         
         <div className="text-right">
-          <div className={`font-semibold ${isProfitable ? "text-emerald-500" : "text-red-500"}`}>
+          <div className={`font-semibold ${isProfitable ? "text-orange-accent" : "text-red-hot"}`}>
             {isProfitable ? "+" : ""}${trade.pnl.toFixed(2)} ({trade.pnl_pct?.toFixed(1)}%)
           </div>
-          <div className="text-xs text-zinc-400">{trade.exit_reason}</div>
+          <div className="text-xs text-white-muted">{trade.exit_reason}</div>
         </div>
       </div>
     </div>

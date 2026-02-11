@@ -25,36 +25,36 @@ export function PriceChart({ symbol }: { symbol: string }) {
     const chart = createChart(chartContainerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: "transparent" },
-        textColor: "#a1a1aa",
+        textColor: "rgba(255, 255, 255, 0.6)",
       },
       grid: {
-        vertLines: { color: "#27272a" },
-        horzLines: { color: "#27272a" },
+        vertLines: { color: "rgba(255, 255, 255, 0.02)" },
+        horzLines: { color: "rgba(255, 255, 255, 0.02)" },
       },
       width: chartContainerRef.current.clientWidth,
       height: 300,
       timeScale: {
-        borderColor: "#27272a",
+        borderColor: "rgba(255, 255, 255, 0.1)",
         timeVisible: true,
       },
       rightPriceScale: {
-        borderColor: "#27272a",
+        borderColor: "rgba(255, 255, 255, 0.1)",
       },
       crosshair: {
-        vertLine: { color: "#52525b", labelBackgroundColor: "#27272a" },
-        horzLine: { color: "#52525b", labelBackgroundColor: "#27272a" },
+        vertLine: { color: "rgba(255, 255, 255, 0.4)", labelBackgroundColor: "#0a0a0a" },
+        horzLine: { color: "rgba(255, 255, 255, 0.4)", labelBackgroundColor: "#0a0a0a" },
       },
     });
 
     chartRef.current = chart;
 
     const candlestickSeries = chart.addSeries(CandlestickSeries, {
-      upColor: "#10b981",
-      downColor: "#ef4444",
-      borderDownColor: "#ef4444",
-      borderUpColor: "#10b981",
-      wickDownColor: "#ef4444",
-      wickUpColor: "#10b981",
+      upColor: "#ff6b00",
+      downColor: "#ff2e2e",
+      borderDownColor: "#ff2e2e",
+      borderUpColor: "#ff6b00",
+      wickDownColor: "#ff2e2e",
+      wickUpColor: "#ff6b00",
     });
 
     // Fetch data
@@ -62,9 +62,9 @@ export function PriceChart({ symbol }: { symbol: string }) {
       try {
         const res = await fetch(`/api/chart?symbol=${symbol}`);
         if (!res.ok) throw new Error("Failed to fetch chart data");
-        
+
         const data: ChartData[] = await res.json();
-        
+
         if (data && data.length > 0) {
           candlestickSeries.setData(
             data.map((d) => ({
@@ -105,7 +105,7 @@ export function PriceChart({ symbol }: { symbol: string }) {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-full text-red-500">
+      <div className="flex items-center justify-center h-full text-red-hot">
         {error}
       </div>
     );
@@ -114,8 +114,8 @@ export function PriceChart({ symbol }: { symbol: string }) {
   return (
     <div className="relative h-full">
       {loading && (
-        <div className="absolute inset-0 flex items-center justify-center bg-zinc-900/50">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        <div className="absolute inset-0 flex items-center justify-center bg-black-card/50">
+          <div className="animate-spin h-8 w-8 border-b-2 border-red-hot"></div>
         </div>
       )}
       <div ref={chartContainerRef} className="h-full" />

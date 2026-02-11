@@ -92,10 +92,10 @@ function RegimeTooltip({
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm">
-      <div className="font-bold text-zinc-200 mb-1">{d.regime}</div>
-      <div className="text-emerald-400">Win Rate: {d.win_rate.toFixed(1)}%</div>
-      <div className="text-zinc-400">
+    <div className="bg-black-deep border border-border-subtle rounded-lg p-3 text-sm">
+      <div className="font-bold text-white-full mb-1">{d.regime}</div>
+      <div className="text-orange-accent">Win Rate: {d.win_rate.toFixed(1)}%</div>
+      <div className="text-white-muted">
         {d.wins}W / {d.losses}L ({d.total_trades} trades)
       </div>
     </div>
@@ -112,14 +112,14 @@ function PnlTooltip({
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm">
-      <div className="font-bold text-zinc-200 mb-1">
+    <div className="bg-black-deep border border-border-subtle rounded-lg p-3 text-sm">
+      <div className="font-bold text-white-full mb-1">
         {formatExitReason(d.reason)}
       </div>
-      <div className={d.total_pnl >= 0 ? "text-emerald-400" : "text-red-400"}>
+      <div className={d.total_pnl >= 0 ? "text-orange-accent" : "text-red-hot"}>
         Total P&L: ${d.total_pnl.toLocaleString()}
       </div>
-      <div className="text-zinc-400">
+      <div className="text-white-muted">
         {d.count} trades | Avg: ${d.avg_pnl.toFixed(2)}
       </div>
     </div>
@@ -136,10 +136,10 @@ function AccuracyTooltip({
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm">
-      <div className="font-bold text-zinc-200 mb-1">Week of {d.date}</div>
-      <div className="text-emerald-400">Accuracy: {d.accuracy}%</div>
-      <div className="text-zinc-400">
+    <div className="bg-black-deep border border-border-subtle rounded-lg p-3 text-sm">
+      <div className="font-bold text-white-full mb-1">Week of {d.date}</div>
+      <div className="text-orange-accent">Accuracy: {d.accuracy}%</div>
+      <div className="text-white-muted">
         {d.correct_signals}/{d.total_signals} correct
       </div>
     </div>
@@ -156,9 +156,9 @@ function FeatureTooltip({
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm">
-      <div className="font-bold text-zinc-200 mb-1">{d.displayName}</div>
-      <div className="text-emerald-400">Importance: {d.importance.toFixed(2)}%</div>
+    <div className="bg-black-deep border border-border-subtle rounded-lg p-3 text-sm">
+      <div className="font-bold text-white-full mb-1">{d.displayName}</div>
+      <div className="text-orange-accent">Importance: {d.importance.toFixed(2)}%</div>
     </div>
   );
 }
@@ -173,13 +173,13 @@ function DrawdownTooltip({
   if (!active || !payload?.length) return null;
   const d = payload[0].payload;
   return (
-    <div className="bg-zinc-800 border border-zinc-700 rounded-lg p-3 text-sm">
-      <div className="font-bold text-zinc-200 mb-1">{d.date}</div>
-      <div className="text-red-400">Drawdown: {d.drawdown_pct.toFixed(2)}%</div>
-      <div className="text-zinc-400">
+    <div className="bg-black-deep border border-border-subtle rounded-lg p-3 text-sm">
+      <div className="font-bold text-white-full mb-1">{d.date}</div>
+      <div className="text-red-hot">Drawdown: {d.drawdown_pct.toFixed(2)}%</div>
+      <div className="text-white-muted">
         ${d.drawdown.toLocaleString()} from peak
       </div>
-      <div className="text-zinc-400">
+      <div className="text-white-muted">
         Cumulative P&L: ${d.cumulative_pnl.toLocaleString()}
       </div>
     </div>
@@ -244,7 +244,7 @@ export default function AnalyticsPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-hot"></div>
       </div>
     );
   }
@@ -308,10 +308,10 @@ function PageHeader({ fetchedAt }: { fetchedAt: string | null }) {
     <div className="flex items-center justify-between">
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
-          <BarChart3 className="w-7 h-7 text-emerald-500" />
+          <BarChart3 className="w-7 h-7 text-orange-accent" />
           Advanced Analytics
         </h1>
-        <p className="text-zinc-400 text-sm">
+        <p className="text-white-muted text-sm">
           Win rates, P&L breakdown, feature importance, signal accuracy, and
           drawdown analysis
         </p>
@@ -323,12 +323,12 @@ function PageHeader({ fetchedAt }: { fetchedAt: string | null }) {
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="bg-zinc-900 rounded-xl p-8 border border-zinc-800 text-center">
-      <BarChart3 className="w-12 h-12 text-emerald-500/50 mx-auto mb-4" />
+    <div className="bg-black-card rounded-xl p-8 border border-border-subtle text-center">
+      <BarChart3 className="w-12 h-12 text-orange-accent/50 mx-auto mb-4" />
       <h2 className="text-xl font-bold mb-2">Analytics Building Up</h2>
-      <p className="text-zinc-400 mb-4 max-w-md mx-auto">{message}</p>
-      <p className="text-zinc-500 text-sm mb-4">Charts populate automatically as the system trades. You can also seed data with a backtest:</p>
-      <code className="bg-zinc-800 px-4 py-2 rounded text-sm">
+      <p className="text-white-muted mb-4 max-w-md mx-auto">{message}</p>
+      <p className="text-white-dim text-sm mb-4">Charts populate automatically as the system trades. You can also seed data with a backtest:</p>
+      <code className="bg-black-deep px-4 py-2 rounded text-sm">
         python3 -m core.orchestrator --paper
       </code>
     </div>
@@ -340,9 +340,9 @@ function WinRateByRegimeChart({ data }: { data: WinRateByRegime[] }) {
     return (
       <ChartCard
         title="Win Rate by Regime"
-        icon={<BarChart3 className="w-4 h-4 text-emerald-400" />}
+        icon={<BarChart3 className="w-4 h-4 text-orange-accent" />}
       >
-        <p className="text-zinc-500 text-center py-8">
+        <p className="text-white-dim text-center py-8">
           Regime data appears after trades across different market conditions (trending, ranging, crisis).
         </p>
       </ChartCard>
@@ -352,7 +352,7 @@ function WinRateByRegimeChart({ data }: { data: WinRateByRegime[] }) {
   return (
     <ChartCard
       title="Win Rate by Regime"
-      icon={<BarChart3 className="w-4 h-4 text-emerald-400" />}
+      icon={<BarChart3 className="w-4 h-4 text-orange-accent" />}
     >
       <ResponsiveContainer width="100%" height={300}>
         <BarChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -389,7 +389,7 @@ function WinRateByRegimeChart({ data }: { data: WinRateByRegime[] }) {
         {data.map((d) => (
           <span
             key={d.regime}
-            className="text-xs bg-zinc-800 px-2 py-1 rounded text-zinc-400"
+            className="text-xs bg-black-deep px-2 py-1 rounded text-white-muted"
           >
             {d.regime}: {d.total_trades} trades
           </span>
@@ -404,9 +404,9 @@ function PnlByExitReasonChart({ data }: { data: PnlByExitReason[] }) {
     return (
       <ChartCard
         title="P&L by Exit Reason"
-        icon={<Activity className="w-4 h-4 text-emerald-400" />}
+        icon={<Activity className="w-4 h-4 text-orange-accent" />}
       >
-        <p className="text-zinc-500 text-center py-8">
+        <p className="text-white-dim text-center py-8">
           Exit reason breakdown appears after closed trades (stop-loss, take-profit, trailing stop).
         </p>
       </ChartCard>
@@ -421,7 +421,7 @@ function PnlByExitReasonChart({ data }: { data: PnlByExitReason[] }) {
   return (
     <ChartCard
       title="P&L by Exit Reason"
-      icon={<Activity className="w-4 h-4 text-emerald-400" />}
+      icon={<Activity className="w-4 h-4 text-orange-accent" />}
     >
       <ResponsiveContainer width="100%" height={300}>
         <BarChart
@@ -463,9 +463,9 @@ function FeatureImportanceChart({
     return (
       <ChartCard
         title="Feature Importance"
-        icon={<Layers className="w-4 h-4 text-emerald-400" />}
+        icon={<Layers className="w-4 h-4 text-orange-accent" />}
       >
-        <p className="text-zinc-500 text-center py-8">
+        <p className="text-white-dim text-center py-8">
           No feature importance data. Train an ML model first.
         </p>
       </ChartCard>
@@ -480,7 +480,7 @@ function FeatureImportanceChart({
   return (
     <ChartCard
       title="Feature Importance (Top 20)"
-      icon={<Layers className="w-4 h-4 text-emerald-400" />}
+      icon={<Layers className="w-4 h-4 text-orange-accent" />}
     >
       <ResponsiveContainer width="100%" height={Math.max(300, data.length * 28)}>
         <BarChart
@@ -515,9 +515,9 @@ function SignalAccuracyChart({ data }: { data: SignalAccuracyPoint[] }) {
     return (
       <ChartCard
         title="Signal Accuracy Over Time"
-        icon={<Target className="w-4 h-4 text-emerald-400" />}
+        icon={<Target className="w-4 h-4 text-orange-accent" />}
       >
-        <p className="text-zinc-500 text-center py-8">
+        <p className="text-white-dim text-center py-8">
           Signal accuracy tracking starts after the nightly evaluation cycle matches signals to trade outcomes.
         </p>
       </ChartCard>
@@ -530,7 +530,7 @@ function SignalAccuracyChart({ data }: { data: SignalAccuracyPoint[] }) {
   return (
     <ChartCard
       title="Signal Accuracy Over Time"
-      icon={<Target className="w-4 h-4 text-emerald-400" />}
+      icon={<Target className="w-4 h-4 text-orange-accent" />}
       subtitle={`Average: ${avgAccuracy.toFixed(1)}%`}
     >
       <ResponsiveContainer width="100%" height={300}>
@@ -584,9 +584,9 @@ function DrawdownChart({ data }: { data: DrawdownPoint[] }) {
     return (
       <ChartCard
         title="Drawdown"
-        icon={<TrendingDown className="w-4 h-4 text-red-400" />}
+        icon={<TrendingDown className="w-4 h-4 text-red-hot" />}
       >
-        <p className="text-zinc-500 text-center py-8">
+        <p className="text-white-dim text-center py-8">
           Drawdown chart builds as the equity curve develops over multiple trading sessions.
         </p>
       </ChartCard>
@@ -599,7 +599,7 @@ function DrawdownChart({ data }: { data: DrawdownPoint[] }) {
   return (
     <ChartCard
       title="Drawdown Analysis"
-      icon={<TrendingDown className="w-4 h-4 text-red-400" />}
+      icon={<TrendingDown className="w-4 h-4 text-red-hot" />}
       subtitle={`Max: ${maxDrawdown.toFixed(2)}% | Current: ${currentDrawdown.toFixed(2)}%`}
     >
       <ResponsiveContainer width="100%" height={250}>
@@ -652,11 +652,11 @@ function PositionHeatMap({ data }: { data: PositionHeatMapEntry[] }) {
   const maxPnl = Math.max(...data.map((d) => Math.abs(d.total_pnl)));
 
   return (
-    <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+    <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
       <h3 className="font-semibold mb-4 flex items-center gap-2">
-        <Grid3X3 className="w-4 h-4 text-emerald-400" />
+        <Grid3X3 className="w-4 h-4 text-orange-accent" />
         Position Heat Map
-        <span className="text-xs text-zinc-500 font-normal ml-2">
+        <span className="text-xs text-white-dim font-normal ml-2">
           Size = trade count, Color = P&L
         </span>
       </h3>
@@ -686,18 +686,18 @@ function PositionHeatMap({ data }: { data: PositionHeatMapEntry[] }) {
               title={`${entry.symbol}: ${entry.trade_count} trades, $${entry.total_pnl.toFixed(2)} P&L, ${entry.win_rate}% WR`}
             >
               <div className="font-bold text-sm">{entry.symbol}</div>
-              <div className="text-xs text-zinc-400">
+              <div className="text-xs text-white-muted">
                 {entry.trade_count} trades
               </div>
               <div
                 className={`text-xs font-medium ${
-                  isPositive ? "text-emerald-400" : "text-red-400"
+                  isPositive ? "text-orange-accent" : "text-red-hot"
                 }`}
               >
                 ${entry.total_pnl >= 0 ? "+" : ""}
                 {entry.total_pnl.toFixed(0)}
               </div>
-              <div className="text-xs text-zinc-500">
+              <div className="text-xs text-white-dim">
                 {entry.win_rate}% WR
               </div>
             </div>
@@ -722,14 +722,14 @@ function ChartCard({
   children: React.ReactNode;
 }) {
   return (
-    <div className="bg-zinc-900 rounded-xl p-6 border border-zinc-800">
+    <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold flex items-center gap-2">
           {icon}
           {title}
         </h3>
         {subtitle && (
-          <span className="text-xs text-zinc-500">{subtitle}</span>
+          <span className="text-xs text-white-dim">{subtitle}</span>
         )}
       </div>
       {children}
