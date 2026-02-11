@@ -79,6 +79,8 @@ class SignalEnsemble:
     def __init__(self, weights: Dict[SignalType, float] = None):
         self.weights = weights or self.DEFAULT_WEIGHTS
         self.signal_history: List[Tuple[EnsembleResult, float]] = []  # (result, actual_pnl)
+        self._weight_overrides: Dict[str, Dict[str, float]] = {}  # regime -> {signal_type: multiplier}
+        self._load_weight_overrides()
     
     def add_technical_signals(self, prices: List[float], volumes: List[float] = None) -> List[Signal]:
         """Generate technical analysis signals"""
@@ -293,7 +295,23 @@ class SignalEnsemble:
             ))
         return signals
 
-    def combine_signals(self, signals: List[Signal]) -> EnsembleResult:
+    def _load_weight_overrides(self):
+        """Load regime-specific weight overrides from DB (written by learning loop)."""
+        try:
+            from .db import get_db
+            db = get_db()
+            overrides = db.get_ensemble_weight_overrides()
+            for row in overrides:
+                regime = row.get("regime", "")
+                signal_type = row.get("signal_type", "")
+                multiplier = float(row.get("weight_multiplier", 1.0))
+                if regime not in self._weight_overrides:
+                    self._weight_overrides[regime] = {}
+                self._weight_overrides[regime][signal_type] = multiplier
+        except Exception:
+            pass  # Graceful fallback — no overrides
+
+    def combine_signals(self, signals: List[Signal], current_regime: str = "") -> EnsembleResult:
         """
         Combine all signals into final decision
         """
@@ -323,9 +341,18 @@ class SignalEnsemble:
         # Calculate weighted average for each type
         weighted_sum = 0
         total_weight = 0
-        
+
+        # Get regime-specific weight overrides if available
+        regime_overrides = self._weight_overrides.get(current_regime, {})
+
         for st, scores in type_scores.items():
             type_weight = self.weights.get(st, 0.2)
+            # Apply regime-specific multiplier from learning loop
+            override_key = st.value if hasattr(st, 'value') else str(st)
+            if override_key in regime_overrides:
+                type_weight *= regime_overrides[override_key]
+            elif "all" in regime_overrides:
+                type_weight *= regime_overrides["all"]
             type_avg = np.mean(scores)
             weighted_sum += type_avg * type_weight
             total_weight += type_weight

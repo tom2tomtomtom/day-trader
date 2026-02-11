@@ -401,6 +401,111 @@ class TradingDB:
             logger.error(f"get_latest_briefing: {e}")
             return None
 
+    # ── Hypotheses ──────────────────────────────────────────────────
+
+    def save_hypothesis(self, data: Dict) -> bool:
+        if not self.connected:
+            return False
+        try:
+            self._client.table("hypotheses").upsert(
+                data, on_conflict="hypothesis_id"
+            ).execute()
+            return True
+        except Exception as e:
+            logger.error(f"save_hypothesis: {e}")
+            return False
+
+    def get_hypotheses(self, status: str = None, limit: int = 50) -> List[Dict]:
+        if not self.connected:
+            return []
+        try:
+            q = self._client.table("hypotheses").select("*")
+            if status:
+                q = q.eq("status", status)
+            resp = q.order("created_at", desc=True).limit(limit).execute()
+            return resp.data or []
+        except Exception as e:
+            logger.error(f"get_hypotheses: {e}")
+            return []
+
+    # ── Experiments ─────────────────────────────────────────────────
+
+    def save_experiment(self, data: Dict) -> bool:
+        if not self.connected:
+            return False
+        try:
+            self._client.table("experiments").upsert(
+                data, on_conflict="experiment_id"
+            ).execute()
+            return True
+        except Exception as e:
+            logger.error(f"save_experiment: {e}")
+            return False
+
+    def get_experiments(self, limit: int = 50) -> List[Dict]:
+        if not self.connected:
+            return []
+        try:
+            resp = (self._client.table("experiments")
+                    .select("*")
+                    .order("created_at", desc=True)
+                    .limit(limit)
+                    .execute())
+            return resp.data or []
+        except Exception as e:
+            logger.error(f"get_experiments: {e}")
+            return []
+
+    # ── Learning Actions ───────────────────────────────────────────
+
+    def save_learning_action(self, data: Dict) -> bool:
+        if not self.connected:
+            return False
+        try:
+            self._client.table("learning_actions").insert(data).execute()
+            return True
+        except Exception as e:
+            logger.error(f"save_learning_action: {e}")
+            return False
+
+    # ── Feature Drift ──────────────────────────────────────────────
+
+    def save_feature_drift(self, data: Dict) -> bool:
+        if not self.connected:
+            return False
+        try:
+            self._client.table("feature_drift_log").insert(data).execute()
+            return True
+        except Exception as e:
+            logger.error(f"save_feature_drift: {e}")
+            return False
+
+    # ── Config Overrides ───────────────────────────────────────────
+
+    def get_ensemble_weight_overrides(self) -> List[Dict]:
+        if not self.connected:
+            return []
+        try:
+            resp = (self._client.table("ensemble_weight_overrides")
+                    .select("*")
+                    .execute())
+            return resp.data or []
+        except Exception as e:
+            logger.error(f"get_ensemble_weight_overrides: {e}")
+            return []
+
+    def get_temporal_adjustments(self) -> List[Dict]:
+        if not self.connected:
+            return []
+        try:
+            resp = (self._client.table("temporal_adjustments")
+                    .select("*")
+                    .execute())
+            return resp.data or []
+        except Exception as e:
+            logger.error(f"get_temporal_adjustments: {e}")
+            return []
+
     # ── Watchlist ────────────────────────────────────────────────────
 
     def get_watchlist(self) -> List[str]:

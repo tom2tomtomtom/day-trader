@@ -97,6 +97,7 @@ class MLPipeline:
         self.model_version: int = 0
         self.model_type: str = "lightgbm" if HAS_LIGHTGBM else "gradient_boosting"
         self.feature_importance: Dict[str, float] = {}
+        self.baseline_feature_stats: Dict[str, Dict[str, float]] = {}
         self.walk_forward_results: List[WalkForwardResult] = []
         self._load_models()
 
@@ -323,6 +324,15 @@ class MLPipeline:
         self.sizing_model = self._create_regressor()
         self.sizing_model.fit(X_scaled, y_s)
 
+        # Save baseline feature stats for drift detection
+        self.baseline_feature_stats = {}
+        for i, name in enumerate(feature_names):
+            col = X[:, i]
+            self.baseline_feature_stats[name] = {
+                "mean": round(float(np.mean(col)), 6),
+                "std": round(float(np.std(col)), 6),
+            }
+
         # Save models
         self.model_version += 1
         self._save_models()
@@ -406,7 +416,7 @@ class MLPipeline:
 
             # Try to save binary artifacts to separate table
             try:
-                db.client.table("ml_model_artifacts").upsert({
+                artifact_row = {
                     "model_name": "signal_quality",
                     "version": self.model_version,
                     "model_type": self.model_type,
@@ -414,7 +424,13 @@ class MLPipeline:
                     "feature_importance": self.feature_importance,
                     "metrics": metrics,
                     "created_at": datetime.now(timezone.utc).isoformat(),
-                }, on_conflict="model_name").execute()
+                }
+                # Include baseline feature stats for drift detection
+                if hasattr(self, 'baseline_feature_stats') and self.baseline_feature_stats:
+                    artifact_row["baseline_feature_stats"] = self.baseline_feature_stats
+                db.client.table("ml_model_artifacts").upsert(
+                    artifact_row, on_conflict="model_name"
+                ).execute()
                 logger.info(f"Model artifacts saved to Supabase (v{self.model_version})")
             except Exception as e:
                 logger.warning(f"Could not save to ml_model_artifacts table: {e} — using disk fallback")

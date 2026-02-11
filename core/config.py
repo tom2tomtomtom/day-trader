@@ -56,6 +56,7 @@ class FeatureFlags:
     rl_agent_enabled: bool = False
     telegram_enabled: bool = False
     advanced_orders_enabled: bool = False
+    learning_loop_enabled: bool = False
 
 
 class Config:
@@ -121,5 +122,6 @@ def get_feature_flags() -> FeatureFlags:
             rl_agent_enabled=os.getenv("FEATURE_RL_AGENT", "false").lower() == "true",
             telegram_enabled=os.getenv("FEATURE_TELEGRAM", "false").lower() == "true",
             advanced_orders_enabled=os.getenv("FEATURE_ADVANCED_ORDERS", "false").lower() == "true",
+            learning_loop_enabled=os.getenv("FEATURE_LEARNING_LOOP", "false").lower() == "true",
         )
     return _feature_flags

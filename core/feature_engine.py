@@ -217,6 +217,57 @@ class FeatureVector:
         ], dtype=float)
 
     @staticmethod
+    def feature_categories() -> Dict[str, List[str]]:
+        """Map category names to feature name lists. Used by hypothesis engine."""
+        return {
+            "technical": [
+                "rsi_14", "macd_line", "macd_signal", "macd_histogram",
+                "bb_position", "bb_width", "sma_10_dist", "sma_20_dist",
+                "sma_50_dist", "ma_alignment", "stochastic_k", "stochastic_d",
+                "adx", "obv_slope", "vwap_distance_pct",
+            ],
+            "volatility": ["volatility_20d", "atr_14", "atr_pct"],
+            "volume": ["relative_volume", "volume_trend"],
+            "momentum": [
+                "return_1d", "return_5d", "return_20d",
+                "price_vs_high_52w", "price_vs_low_52w",
+            ],
+            "regime_sentiment": [
+                "regime_encoded", "regime_confidence", "fear_greed",
+                "fear_greed_trend_encoded",
+            ],
+            "time": ["day_of_week", "hour_of_day", "is_market_open"],
+            "microstructure": [
+                "garman_klass_vol", "parkinson_vol", "intraday_range_pct",
+                "up_volume_ratio", "volume_price_trend", "close_to_high_pct",
+                "avg_bar_range_pct", "volume_momentum",
+            ],
+            "advanced_momentum": [
+                "roc_5", "roc_10", "roc_20", "momentum_oscillator",
+                "price_acceleration", "mean_reversion_zscore",
+                "hurst_estimate", "rsi_divergence",
+            ],
+            "pattern": [
+                "consecutive_up_days", "consecutive_down_days", "gap_pct",
+                "inside_bar", "higher_highs_count",
+            ],
+            "calendar": [
+                "day_of_month", "week_of_month", "is_month_end", "is_quarter_end",
+            ],
+            "multi_timeframe": [
+                "weekly_rsi", "weekly_macd_signal", "weekly_bb_position",
+                "monthly_trend", "daily_weekly_divergence",
+            ],
+            "cross_asset": [
+                "price_vs_sma200", "volatility_regime", "trend_strength_adx",
+            ],
+            "composite": ["composite_score", "ensemble_confidence"],
+            "hourly": [
+                "hourly_rsi", "hourly_macd_signal", "hourly_trend_alignment",
+            ],
+        }
+
+    @staticmethod
     def feature_names() -> List[str]:
         return [
             # Original 37

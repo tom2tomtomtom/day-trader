@@ -101,6 +101,26 @@ def run_ml_retrain():
         logger.error(f"Signal evaluation failed: {e}")
 
 
+def run_learning_cycle():
+    """Run the self-learning loop if enabled."""
+    try:
+        from .config import get_feature_flags
+        flags = get_feature_flags()
+        if not flags.learning_loop_enabled:
+            return
+
+        from .learning_loop import LearningLoop
+        loop = LearningLoop()
+        report = loop.run_cycle()
+        logger.info(
+            f"Learning cycle complete: {report.hypotheses_generated} hypotheses, "
+            f"{report.hypotheses_validated} validated, "
+            f"{len(report.actions_taken)} actions"
+        )
+    except Exception as e:
+        logger.error(f"Learning cycle failed: {e}")
+
+
 def run_intelligence_briefing():
     """Run full intelligence briefing."""
     try:
@@ -240,6 +260,7 @@ class TradingScheduler:
                 # ML retrain (daily at midnight ET)
                 if now_et.hour == 0 and now - self._last_ml_retrain >= 82800:
                     run_ml_retrain()
+                    run_learning_cycle()
                     self._last_ml_retrain = now
 
                 # Morning briefing (9:00 AM ET)

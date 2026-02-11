@@ -12,6 +12,10 @@ import {
   CheckCircle,
   XCircle,
   TrendingUp,
+  FlaskConical,
+  Gauge,
+  Lightbulb,
+  Zap,
 } from "lucide-react";
 import { TimeAgo } from "@/components/TimeAgo";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
@@ -40,6 +44,47 @@ interface Prediction {
   actual_pnl_pct: number;
   profitable: boolean;
   exit_reason: string;
+}
+
+interface Experiment {
+  experiment_id: string;
+  name: string;
+  experiment_type: string;
+  status: string;
+  effect_size: number | null;
+  p_value: number | null;
+  is_significant: boolean;
+  best_model_type: string | null;
+  narrative: string | null;
+  runtime_seconds: number | null;
+  created_at: string;
+}
+
+interface HypothesisItem {
+  hypothesis_id: string;
+  category: string;
+  statement: string;
+  priority_score: number;
+  status: string;
+  effect_size: number | null;
+  sample_size: number | null;
+  confidence_level: string | null;
+  created_at: string;
+}
+
+interface DriftItem {
+  feature_name: string;
+  drift_magnitude: number;
+  current_mean: number;
+  training_mean: number;
+  created_at: string;
+}
+
+interface ExperimentData {
+  experiments: Experiment[];
+  hypotheses: HypothesisItem[];
+  drift: DriftItem[];
+  cycles: { description: string; after_state: string; created_at: string }[];
 }
 
 interface MLData {
@@ -81,20 +126,30 @@ function MetricCard({
 
 export default function MLPage() {
   const [data, setData] = useState<MLData | null>(null);
+  const [expData, setExpData] = useState<ExperimentData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [fetchedAt, setFetchedAt] = useState<string | null>(null);
 
   const fetchML = useCallback(async () => {
     try {
-      const res = await fetch("/api/ml");
-      if (res.ok) {
-        const json = await res.json();
+      const [mlRes, expRes] = await Promise.all([
+        fetch("/api/ml"),
+        fetch("/api/experiments").catch(() => null),
+      ]);
+
+      if (mlRes.ok) {
+        const json = await mlRes.json();
         setData(json);
         setFetchedAt(new Date().toISOString());
       } else {
-        const err = await res.json();
+        const err = await mlRes.json();
         setError(err.error || "Failed to fetch ML data");
+      }
+
+      if (expRes && expRes.ok) {
+        const expJson = await expRes.json();
+        setExpData(expJson);
       }
     } catch {
       setError("Failed to connect to ML API");
@@ -148,6 +203,15 @@ export default function MLPage() {
         <SignalQualityDistribution predictions={data.recent_predictions} />
       </div>
       <PredictionAccuracy predictions={data.recent_predictions} />
+      {expData && (
+        <>
+          <ExperimentTimeline experiments={expData.experiments} />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <DriftMonitor drift={expData.drift} />
+            <HypothesisQueue hypotheses={expData.hypotheses} />
+          </div>
+        </>
+      )}
       <ModelHistoryTable history={data.history} />
     </div>
   );
@@ -534,6 +598,244 @@ function PredictionAccuracy({
           value={`${avgLossPnl.toFixed(2)}%`}
           positive={false}
         />
+      </div>
+    </div>
+  );
+}
+
+function ExperimentTimeline({
+  experiments,
+}: {
+  experiments: Experiment[];
+}) {
+  if (!experiments || experiments.length === 0) {
+    return (
+      <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <FlaskConical className="w-4 h-4 text-orange-accent" />
+          Experiment Timeline
+        </h3>
+        <p className="text-white-dim text-center py-8 text-sm">
+          No experiments yet. The learning loop runs nightly to generate and test
+          hypotheses.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="bg-black-card rounded-xl border border-border-subtle overflow-hidden">
+      <div className="p-4 border-b border-border-subtle">
+        <h3 className="font-semibold flex items-center gap-2">
+          <FlaskConical className="w-4 h-4 text-orange-accent" />
+          Experiment Timeline ({experiments.length})
+        </h3>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-black-deep/50">
+            <tr className="text-white-muted">
+              <th className="text-left p-3">Experiment</th>
+              <th className="text-left p-3">Type</th>
+              <th className="text-right p-3">Effect Size</th>
+              <th className="text-right p-3">P-Value</th>
+              <th className="text-center p-3">Result</th>
+              <th className="text-left p-3">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {experiments.map((e) => (
+              <tr
+                key={e.experiment_id}
+                className="border-b border-border-subtle/30 hover:bg-black-deep/20"
+              >
+                <td className="p-3 max-w-xs truncate" title={e.name}>
+                  {e.name}
+                </td>
+                <td className="p-3">
+                  <span className="text-xs px-2 py-0.5 rounded bg-black-deep text-white-muted">
+                    {e.experiment_type.replace(/_/g, " ")}
+                  </span>
+                </td>
+                <td
+                  className={`p-3 text-right font-medium ${
+                    e.effect_size && Math.abs(e.effect_size) >= 0.5
+                      ? "text-orange-accent"
+                      : "text-white-muted"
+                  }`}
+                >
+                  {e.effect_size !== null ? e.effect_size.toFixed(3) : "--"}
+                </td>
+                <td className="p-3 text-right text-white-muted">
+                  {e.p_value !== null ? e.p_value.toFixed(3) : "--"}
+                </td>
+                <td className="p-3 text-center">
+                  {e.is_significant ? (
+                    <span className="text-xs px-2 py-0.5 rounded bg-red-hot/20 text-orange-accent">
+                      Significant
+                    </span>
+                  ) : e.status === "completed" ? (
+                    <span className="text-xs px-2 py-0.5 rounded bg-black-deep text-white-dim">
+                      Not Sig.
+                    </span>
+                  ) : (
+                    <span className="text-xs px-2 py-0.5 rounded bg-black-deep text-white-dim">
+                      {e.status}
+                    </span>
+                  )}
+                </td>
+                <td className="p-3 text-white-dim text-xs">
+                  {new Date(e.created_at).toLocaleDateString("en-US", {
+                    month: "short",
+                    day: "numeric",
+                  })}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function DriftMonitor({ drift }: { drift: DriftItem[] }) {
+  if (!drift || drift.length === 0) {
+    return (
+      <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <Gauge className="w-4 h-4 text-orange-accent" />
+          Drift Monitor
+        </h3>
+        <div className="text-center py-8">
+          <div className="text-3xl font-bold text-orange-accent mb-2">OK</div>
+          <p className="text-white-dim text-sm">
+            No significant feature drift detected
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const avgDrift =
+    drift.reduce((s, d) => s + d.drift_magnitude, 0) / drift.length;
+  const driftLevel = avgDrift > 0.5 ? "HIGH" : avgDrift > 0.2 ? "MODERATE" : "LOW";
+  const driftColor =
+    driftLevel === "HIGH"
+      ? "text-red-hot"
+      : driftLevel === "MODERATE"
+        ? "text-yellow-500"
+        : "text-orange-accent";
+
+  return (
+    <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
+      <h3 className="font-semibold mb-4 flex items-center gap-2">
+        <Gauge className="w-4 h-4 text-orange-accent" />
+        Drift Monitor
+      </h3>
+
+      <div className="text-center mb-4">
+        <div className={`text-3xl font-bold ${driftColor} mb-1`}>
+          {driftLevel}
+        </div>
+        <p className="text-white-dim text-xs">
+          {drift.length} drifted features (avg PSI: {avgDrift.toFixed(3)})
+        </p>
+      </div>
+
+      <div className="space-y-2 max-h-48 overflow-y-auto">
+        {drift.map((d, i) => (
+          <div
+            key={i}
+            className="flex items-center justify-between text-sm bg-black-deep rounded px-3 py-2"
+          >
+            <span className="text-white-muted truncate mr-2" title={d.feature_name}>
+              {formatFeatureName(d.feature_name)}
+            </span>
+            <span
+              className={`font-medium flex-shrink-0 ${
+                d.drift_magnitude > 0.5 ? "text-red-hot" : "text-yellow-500"
+              }`}
+            >
+              PSI {d.drift_magnitude.toFixed(3)}
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function HypothesisQueue({ hypotheses }: { hypotheses: HypothesisItem[] }) {
+  if (!hypotheses || hypotheses.length === 0) {
+    return (
+      <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
+        <h3 className="font-semibold mb-4 flex items-center gap-2">
+          <Lightbulb className="w-4 h-4 text-orange-accent" />
+          Hypothesis Queue
+        </h3>
+        <p className="text-white-dim text-center py-8 text-sm">
+          No hypotheses generated yet. The learning loop discovers patterns
+          automatically.
+        </p>
+      </div>
+    );
+  }
+
+  const statusColors: Record<string, string> = {
+    pending: "bg-black-deep text-white-dim",
+    testing: "bg-yellow-500/20 text-yellow-500",
+    validated: "bg-red-hot/20 text-orange-accent",
+    rejected: "bg-red-hot/10 text-red-hot",
+  };
+
+  return (
+    <div className="bg-black-card rounded-xl p-6 border border-border-subtle">
+      <h3 className="font-semibold mb-4 flex items-center gap-2">
+        <Lightbulb className="w-4 h-4 text-orange-accent" />
+        Hypothesis Queue ({hypotheses.length})
+      </h3>
+      <div className="space-y-3 max-h-72 overflow-y-auto">
+        {hypotheses.map((h) => (
+          <div
+            key={h.hypothesis_id}
+            className="bg-black-deep rounded-lg p-3"
+          >
+            <div className="flex items-start justify-between gap-2 mb-1">
+              <p className="text-sm text-white-muted line-clamp-2">
+                {h.statement}
+              </p>
+              <span
+                className={`text-xs px-2 py-0.5 rounded flex-shrink-0 ${
+                  statusColors[h.status] || statusColors.pending
+                }`}
+              >
+                {h.status}
+              </span>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-white-dim">
+              <span className="flex items-center gap-1">
+                <Zap className="w-3 h-3" />
+                Priority: {h.priority_score.toFixed(2)}
+              </span>
+              <span>{h.category.replace(/_/g, " ")}</span>
+              {h.sample_size && <span>n={h.sample_size}</span>}
+              {h.confidence_level && (
+                <span
+                  className={
+                    h.confidence_level === "high"
+                      ? "text-orange-accent"
+                      : h.confidence_level === "medium"
+                        ? "text-yellow-500"
+                        : "text-white-dim"
+                  }
+                >
+                  {h.confidence_level}
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );
