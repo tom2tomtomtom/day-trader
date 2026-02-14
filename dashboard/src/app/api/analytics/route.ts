@@ -11,7 +11,7 @@ interface Trade {
   exit_reason: string;
   entry_date: string;
   exit_date: string;
-  regime: string | null;
+  regime_at_entry: string | null;
   shares: number;
 }
 
@@ -43,10 +43,10 @@ export async function GET() {
       supabase
         .from("trades")
         .select(
-          "symbol, direction, entry_price, exit_price, pnl_dollars, pnl_pct, exit_reason, entry_date, exit_date, regime, shares"
+          "symbol, direction, entry_price, exit_price, pnl_dollars, pnl_pct, exit_reason, entry_date, exit_date, regime_at_entry, shares"
         )
-        .eq("is_backtest", false)
-        .order("exit_date", { ascending: true }),
+        .order("exit_date", { ascending: true })
+        .limit(500),
       supabase
         .from("ml_models")
         .select("feature_importance, model_name, version, trained_at")
@@ -69,7 +69,7 @@ export async function GET() {
     // --- Win Rate by Regime ---
     const regimeMap: Record<string, { wins: number; total: number }> = {};
     for (const t of trades) {
-      const regime = t.regime || "unknown";
+      const regime = t.regime_at_entry || "unknown";
       if (!regimeMap[regime]) regimeMap[regime] = { wins: 0, total: 0 };
       regimeMap[regime].total++;
       if (t.pnl_dollars > 0) regimeMap[regime].wins++;
