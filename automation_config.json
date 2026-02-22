@@ -1,0 +1,11 @@
+{
+  "mode": "FULL_AUTO",
+  "scan_interval_minutes": 30,
+  "trade_interval_minutes": 5,
+  "auto_close_eod": true,
+  "max_daily_trades": 20,
+  "max_daily_loss_pct": 5,
+  "last_scan": null,
+  "last_trade_cycle": null,
+  "trades_today": 0
+}
